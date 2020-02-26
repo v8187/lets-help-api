@@ -1,0 +1,13 @@
+{
+    "name": "Restful API Lets Help",
+    "description": "Restful API using Node.js express and MongoDB on Heroku platform",
+    "repository": "https://github.com/v8187/lets-help-api",
+    "logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/master/public/node.svg",
+    "keywords": [
+        "node",
+        "express",
+        "heroku",
+        "rest api"
+    ],
+    "image": "heroku/nodejs"
+}
