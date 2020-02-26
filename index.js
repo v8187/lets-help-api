@@ -14,7 +14,7 @@ let dbLetsHelpAPI;
 
 mongodb.MongoClient.connect(
     process.env.MONGODB_URI || 'mongodb://localhost:27017/test',
-    () => {
+    (err, client) => {
         if (err) {
             console.log(err);
             process.exit(1);
