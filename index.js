@@ -1,37 +1,36 @@
-const bodyParser = require('body-parser');
-const express = require('express');
-const mongodb = require('mongodb');
-const path = require('path');
-const PORT = process.env.PORT || 5000;
-var ObjectID = mongodb.ObjectID;
+const { Server } = require('http');
 
-const app = express();
+require('dotenv').config();
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.json());
+require = require('esm')(module)
+// module.exports = require('./src/app.js')
+const { initApp } = require('./src/app.js');
+const { PORT } = process.env;
+const app = initApp();
 
-let dbLetsHelpAPI;
+// let dbLetsHelpAPI;
+// mongodb.MongoClient.connect(
+//     process.env.MONGODB_URI || 'mongodb://localhost:27017/test',
+//     (err, client) => {
+//         if (err) {
+//             console.log(err);
+//             process.exit(1);
+//         }
 
-mongodb.MongoClient.connect(
-    process.env.MONGODB_URI || 'mongodb://localhost:27017/test',
-    (err, client) => {
-        if (err) {
-            console.log(err);
-            process.exit(1);
-        }
+//         // Save database object from the callback for reuse.
+//         dbLetsHelpAPI = client.db();
+//         console.log('Database connection ready');
 
-        // Save database object from the callback for reuse.
-        db = client.db();
-        console.log("Database connection ready");
+//         // Start the HTTP Server
+//         const server = new Server(app);
+//         server.listen(PORT, () => {
+//             console.log(green(`Server is up and running on Port ${magenta.bold(`${PORT}`)}`));
+//         });
+//     }
+// );
 
-        // Initialize the app.
-        var server = app.listen(process.env.PORT || 8080, function () {
-            var port = server.address().port;
-            console.log("App now running on port", port);
-        });
-    }
-)
-
-
-app.get('/', (req, res) => res.send('Hello'));
-// app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+// Start the HTTP Server
+const server = new Server(app);
+server.listen(PORT, () => {
+    console.log(`Server is up and running on Port ${PORT}`);
+});

@@ -7,9 +7,21 @@
     "node": "10.x"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "esm": "^3.2.25",
     "express": "^4.17.1",
-    "mongodb": "^3.5.4"
+    "helmet": "^3.21.3",
+    "http-status-codes": "^1.4.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.5.4",
+    "mongoose": "^5.9.2",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "react-addons-update": "^15.6.2"
   },
   "devDependencies": {
     "request": "^2.88.2",
