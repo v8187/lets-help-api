@@ -128,27 +128,27 @@ UserSchema.statics.tempAll = function () {
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('phoneNos', PHONE_QUERY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .populate('city', 'city name -_id')
-        .populate('state', 'state name -_id')
-        .populate('country', 'country name -_id')
-        .populate({
-            path: 'addresses',
-            model: AddressModel,
-            select: '-_id -__v',
-            populate: [{
-                path: 'city',
-                model: CityModel,
-                select: 'city name -_id'
-            }, {
-                path: 'state',
-                model: StateModel,
-                select: 'state name -_id'
-            }, {
-                path: 'country',
-                model: CountryModel,
-                select: 'country name -_id'
-            }]
-        })
+        // .populate('city', 'city name -_id')
+        // .populate('state', 'state name -_id')
+        // .populate('country', 'country name -_id')
+        // .populate({
+        //     path: 'addresses',
+        //     model: AddressModel,
+        //     select: '-_id -__v',
+        //     populate: [{
+        //         path: 'city',
+        //         model: CityModel,
+        //         select: 'city name -_id'
+        //     }, {
+        //         path: 'state',
+        //         model: StateModel,
+        //         select: 'state name -_id'
+        //     }, {
+        //         path: 'country',
+        //         model: CountryModel,
+        //         select: 'country name -_id'
+        //     }]
+        // })
         .select().exec();
 };
 
