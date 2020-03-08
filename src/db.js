@@ -13,7 +13,7 @@ export const initDatabase = (cb) => {
         keepAlive: DB_KEEP_ALIVE === 'true',
         // reconnectTries: parseInt(DB_RECONNECT_TRIES),
         useNewUrlParser: true,
-        dbName: 'heroku_1rgknm91' || process.env.DB_NAME,
+        // dbName: 'heroku_1rgknm91' || process.env.DB_NAME,
         useUnifiedTopology: true
     }).then(
         (db) => {
