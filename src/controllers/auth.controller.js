@@ -6,6 +6,14 @@ import { sendResponse, getReqMetadata } from '../utils/handlers';
 import { newToken, extract, getToken } from '../utils';
 import { APP_ROOT } from '../configs/app';
 
+const hasAccountErr = (res, err = 'Server error') => {
+    return sendResponse(res, {
+        error: err,
+        message: `Cannot check account. Try again later`,
+        type: 'INTERNAL_SERVER_ERROR'
+    });
+};
+
 const signUpErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
@@ -55,6 +63,26 @@ const createNewUser = (email, userPin, res) => {
 };
 
 export class AuthController extends BaseController {
+
+    hasAccount(req, res, next, passport) {
+
+        const { email } = req.body;
+
+        UserModel.hasAccount(email).then(user => {
+            sendResponse(res, {
+                message: !!user? `${email} exists.`: `${email} does not exist.`,
+                data: {
+                    hasAccount: !!user
+                }
+            });
+        }, modelErr => {
+            console.error(modelErr);
+            return hasAccountErr(res, modelErr.message);
+        }).catch(modelReason => {
+            console.log(modelReason);
+            return hasAccountErr(res, modelReason.message);
+        });
+    }
 
     userPin(req, res, next, passport) {
 
