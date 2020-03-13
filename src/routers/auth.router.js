@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller';
 import { validateToken, validateCredentials, validateParams } from '../middlewares/routes';
 
-const { login, logout, userPin, hasAccount } = new AuthController(),
+const { hasAccount, createAccount, login, logout, changeUserPin } = new AuthController(),
     router = Router();
 
 // Middleware that is specific to this router
@@ -24,10 +24,17 @@ export const getAuthRouter = (passport) => {
         (req, res, next) => validateParams(req, res, next, 'email'),
         (req, res, next) => hasAccount(req, res, next, passport));
 
-    // Sign Up
-    router.post('/userPin',
+    // Create Acocunt
+    router.post('/register',
         validateAuthParams,
-        (req, res, next) => userPin(req, res, next, passport));
+        (req, res, next) => createAccount(req, res, next, passport));
+
+    // Update/Change PIN
+    router.put('/updatePin', [
+        validateWithToken,
+        (req, res, next) => validateParams(req, res, next, 'email,newUserPin'),
+        (req, res) => changeUserPin(req, res)
+    ]);
 
     // Login
     router.post('/login',

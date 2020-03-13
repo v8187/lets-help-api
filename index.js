@@ -2,7 +2,7 @@ const { Server } = require('http');
 
 require('dotenv').config();
 
-require = require('esm')(module)
+require = require('esm')(module);
 // module.exports = require('./src/app.js')
 const { initApp } = require('./src/app.js');
 const { PORT } = process.env;

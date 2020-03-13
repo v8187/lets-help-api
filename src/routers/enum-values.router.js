@@ -16,8 +16,7 @@ router.use((req, res, next) => {
 // Country Routes
 router.get('/', (req, res) => {
     // let enumsCopy = deepCopy(enums);
-    // // Remove server only enum constants
-    // delete enumsCopy.authProviders;
+    // Remove server only enum constants
     // delete enumsCopy.refModels;
 
     handleModelRes(new Promise(resolve => resolve(enums)), res);

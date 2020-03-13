@@ -42,8 +42,8 @@ export const setupAuthLocal = (passport) => {
     // Strategy for Login
     passport.use('local-login', new Strategy({
         passReqToCallback: true,
-        emailField: LC_EMAIL_FIELD,
-        userPinField: LC_USER_PIN_FIELD,
+        usernameField: LC_EMAIL_FIELD,
+        passwordField: LC_USER_PIN_FIELD,
         session: LC_SESSION === 'true'
     }, fnVerifyLogin));
 };

@@ -2,7 +2,7 @@ import { readFile, writeFile } from 'fs';
 
 import { BaseController } from './BaseController';
 import { UserModel } from '../models/user.model';
-import { sendResponse, getReqMetadata } from '../utils/handlers';
+import { sendResponse, getReqMetadata, handleModelRes } from '../utils/handlers';
 import { newToken, extract, getToken } from '../utils';
 import { APP_ROOT } from '../configs/app';
 
@@ -30,10 +30,74 @@ const logoutErr = (res, err = 'Server error') => {
     });
 };
 
+const updatePinErr = (res, err = 'Server error') => {
+    return sendResponse(res, {
+        error: err,
+        message: `Something went wrong while changing the UserPin. Try again later.`,
+        type: 'INTERNAL_SERVER_ERROR'
+    });
+};
+
+const sendNewToken = (fields, successMsg) => {
+    newToken(fields, (err, token) => {
+        if (err) {
+            console.log('err.stack', err.stack);
+            return signUpErr(res, err.message);
+        }
+        sendResponse(res, {
+            message: successMsg,
+            data: token
+        });
+    });
+};
+
+const invalidateToken = (req, res, onDone, onError) => {
+    const invalidTokensFile = `${APP_ROOT}${process.env.INVALID_TOKENS_FILE}`;
+
+    readFile(invalidTokensFile, 'utf8', (err, fileContent) => {
+        if (err && err.message.indexOf('no such file or directory') === -1) {
+            return onError(res, err.message);
+        }
+        const token = getToken(req),
+            decoded = extract(token);
+
+        console.log('decoded', decoded);
+        const newData = {
+            token,
+            userId: decoded.payload.userId,
+            validTill: decoded.payload.exp
+        };
+
+        let jsonData;
+        // If content/file not available, create new one
+        if (!fileContent) {
+            jsonData = [newData];
+        } else {
+            jsonData = JSON.parse(fileContent);
+            // Clear the invalid tokens
+            jsonData = jsonData.filter(tkn => {
+                const dt = new Date(1970);
+
+                dt.setSeconds(tkn.validTill)
+
+                return dt.getTime() > new Date().getTime();
+            });
+            jsonData.push(newData);
+        }
+        writeFile(invalidTokensFile, JSON.stringify(jsonData), 'utf8', (err) => {
+            console.log('writeFile:: err, data', err);
+            if (err) {
+                return onError(res, err.message);
+            }
+            req.logout();
+            return onDone(res);
+        });
+    });
+}
+
 const createNewUser = (email, userPin, res) => {
     let newUser = new UserModel(),
         userData = {
-            provider: 'local',
             email,
             userPin
         };
@@ -42,16 +106,7 @@ const createNewUser = (email, userPin, res) => {
         .saveUser(Object.assign(newUser, userData))
         .then(savedUser => {
             // If Signup was successful, generate and bind new Token
-            newToken(savedUser.tokenFields(), (err, token) => {
-                if (err) {
-                    console.log('err.stack', err.stack);
-                    return signUpErr(res, err.message);
-                }
-                sendResponse(res, {
-                    message: 'Sign Up is successfully done!!!',
-                    data: token
-                });
-            });
+            sendNewToken(savedUser.tokenFields(), 'Sign Up is successfully done!!!');
         }, saveErr => {
             console.log('saveErr', saveErr);
             return signUpErr(res, saveErr.message);
@@ -70,7 +125,7 @@ export class AuthController extends BaseController {
 
         UserModel.hasAccount(email).then(user => {
             sendResponse(res, {
-                message: !!user? `${email} exists.`: `${email} does not exist.`,
+                message: !!user ? `${email} exists.` : `${email} does not exist.`,
                 data: {
                     hasAccount: !!user
                 }
@@ -84,7 +139,7 @@ export class AuthController extends BaseController {
         });
     }
 
-    userPin(req, res, next, passport) {
+    createAccount(req, res, next, passport) {
 
         const { email, userPin } = req.body;
 
@@ -106,6 +161,21 @@ export class AuthController extends BaseController {
         });
     }
 
+    changeUserPin(req, res) {
+        invalidateToken(req, res, (nestedRes) => {
+            // return sendResponse(nestedRes, {
+            //     message: 'You are logged out successfully!!!'
+            // });
+            handleModelRes(
+                UserModel.changeUserPin(req.body.email, req.body.newUserPin),
+                res, {
+                    success: 'User Pin changed successfully.',
+                    error: 'Something went wrong while changing the UserPin. Try again later.'
+                }
+            );
+        }, updatePinErr);
+    }
+
     login(req, res, next, passport) {
         newToken({ ...getReqMetadata(req, 'user') }, (err, token) => {
             if (err) {
@@ -124,49 +194,11 @@ export class AuthController extends BaseController {
     }
 
     logout(req, res, next, passport) {
-        const invalidTokensFile = `${APP_ROOT}${process.env.INVALID_TOKENS_FILE}`;
-
-        readFile(invalidTokensFile, 'utf8', (err, fileContent) => {
-            if (err && err.message.indexOf('no such file or directory') === -1) {
-                return logoutErr(res, err.message);
-            }
-            const token = getToken(req),
-                decoded = extract(token);
-
-            console.log('decoded', decoded);
-            const newData = {
-                token,
-                userId: decoded.payload.userId,
-                validTill: decoded.payload.exp
-            };
-
-            let jsonData;
-            // If content/file not available, create new one
-            if (!fileContent) {
-                jsonData = [newData];
-            } else {
-                jsonData = JSON.parse(fileContent);
-                // Clear the invalid tokens
-                jsonData = jsonData.filter(tkn => {
-                    const dt = new Date(1970);
-
-                    dt.setSeconds(tkn.validTill)
-
-                    return dt.getTime() > new Date().getTime();
-                });
-                jsonData.push(newData);
-            }
-            writeFile(invalidTokensFile, JSON.stringify(jsonData), 'utf8', (err) => {
-                console.log('writeFile:: err, data', err);
-                if (err) {
-                    return logoutErr(res, err.message);
-                }
-                req.logout();
-                return sendResponse(res, {
-                    message: 'You are logged out successfully!!!'
-                });
+        invalidateToken(req, res, (nestedRes) => {
+            return sendResponse(nestedRes, {
+                message: 'You are logged out successfully!!!'
             });
-        });
+        }, logoutErr);
     }
 
     findOrCreate(
@@ -176,7 +208,7 @@ export class AuthController extends BaseController {
         UserModel
             .hasAccount(userData.userId)
             .then(user => {
-                console.log(`LocalAuthController: findOrCreate: ${userData.provider} :hasAccount`, !!user);
+                console.log(`LocalAuthController: findOrCreate::hasAccount`, !!user);
 
                 // If User already exists with given profile
                 if (user) {

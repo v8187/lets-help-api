@@ -7,6 +7,8 @@
     "node": "10.x"
   },
   "dependencies": {
+    "@v8187/rs-mock": "^0.1.6",
+    "@v8187/rs-utils": "0.0.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -28,8 +30,9 @@
     "tape": "^4.13.0"
   },
   "scripts": {
-    "start": "node index.js",
-    "test": "node test.js"
+    "start": "nodemon index.js",
+    "test": "node test.js",
+    "resetdb": "node ./src/mock-data/index.js"
   },
   "repository": {
     "type": "git",

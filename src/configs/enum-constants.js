@@ -6,10 +6,6 @@ export const userRoles = [
     'default', 'admin', 'super-admin', 'volunteer', 'refferer'
 ];
 
-export const authProviders = [
-    'facebook', 'google', 'twitter', 'local'
-];
-
 export const genders = [
     'f', 'm', 'o'
 ];

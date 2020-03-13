@@ -3,18 +3,15 @@ import { compareSync } from 'bcryptjs';
 
 import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
 import {
-    USER_KEY_FIELDS, USER_PUBLIC_QUERY_FIELDS, USER_SELF_QUERY_FIELDS, PHONE_QUERY_FIELDS
+    USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE
 } from './query-fields';
-import { userGroups, userRoles, authProviders, genders, bloodGroups } from '../configs/enum-constants';
+import { userGroups, userRoles, genders, bloodGroups } from '../configs/enum-constants';
 import { isEmail } from '../utils';
 
 const UserSchema = new BaseSchema({
     // Account Fields
     userId: { type: String },
-    userPin: {
-        type: String, require: function () { return ['local'].indexOf(this.provider) !== -1; }
-    },
-    provider: { type: String, enum: authProviders, lowercase: true, required: true },
+    userPin: { type: String, require: true },
     isVerified: { type: Boolean, default: false },
     roles: {
         type: Schema.Types.EnumArray, default: ['default'], enum: userRoles, required: true
@@ -48,7 +45,7 @@ const UserSchema = new BaseSchema({
     // Privacy fields
     showBloodGroup: { type: Boolean, default: false },
     showPhoneNos: { type: Boolean, default: false },
-    showAddresses: { type: Boolean, default: false },
+    showAddress: { type: Boolean, default: false },
     showEmail: { type: Boolean, default: false },
     showContributions: { type: Boolean, default: false },
     showBirthday: { type: Boolean, default: false },
@@ -93,9 +90,6 @@ UserSchema.pre('save', function (next) {
 
     user.joinedOn = new Date();
 
-    if (user.provider !== 'local') {
-        return next();
-    }
     if (!user.email) {
         user.email = user.email;
     } else if (!user.email && isEmail(user.email)) {
@@ -118,7 +112,7 @@ UserSchema.pre('updateOne', function (next) {
 UserSchema.statics.list = function () {
     return this
         .find()
-        .select(USER_PUBLIC_QUERY_FIELDS)
+        .select(FIELDS_GET_PUBLIC_PROFILE)
         .exec();
 };
 
@@ -126,13 +120,13 @@ UserSchema.statics.tempAll = function () {
     return this.find()
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('phoneNos', PHONE_QUERY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
+        // .populate('phoneNos', PHONE_QUERY_FIELDS)
         // .populate('city', 'city name -_id')
         // .populate('state', 'state name -_id')
         // .populate('country', 'country name -_id')
         // .populate({
-        //     path: 'addresses',
+        //     path: 'address',
         //     model: AddressModel,
         //     select: '-_id -__v',
         //     populate: [{
@@ -162,58 +156,36 @@ UserSchema.statics.byUserId = function (userId) {
         .findOne({ userId })
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('phoneNos', PHONE_QUERY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .populate('city', 'city name -_id')
-        .populate('state', 'state name -_id')
-        .populate('country', 'country name -_id')
-        .populate({
-            path: 'addresses',
-            model: AddressModel,
-            select: '-_id -__v',
-            populate: [{
-                path: 'city',
-                model: CityModel,
-                select: 'city name -_id'
-            }, {
-                path: 'state',
-                model: StateModel,
-                select: 'state name -_id'
-            }, {
-                path: 'country',
-                model: CountryModel,
-                select: 'country name -_id'
-            }]
-        })
-        .select(USER_SELF_QUERY_FIELDS)
+        .select(FIELDS_GET_OWN_PROFILE)
         .exec();
 };
 
 UserSchema.statics.byUserRoles = function (roles) {
     return this
         .find({ roles })
-        .select(USER_PUBLIC_QUERY_FIELDS)
+        .select(FIELDS_GET_PUBLIC_PROFILE)
         .exec();
 };
 
 UserSchema.statics.byUserGroups = function (groups) {
     return this
         .find({ groups })
-        .select(USER_PUBLIC_QUERY_FIELDS)
+        .select(FIELDS_GET_PUBLIC_PROFILE)
         .exec();
 };
 
 UserSchema.statics.byEmail = function (email) {
     return this
         .findOne({ email })
-        .select(USER_PUBLIC_QUERY_FIELDS)
+        .select(FIELDS_GET_PUBLIC_PROFILE)
         .exec();
 };
 
 UserSchema.statics.byMobile = function (mobile) {
     return this
         .findOne({ mobile })
-        .select(USER_PUBLIC_QUERY_FIELDS)
+        .select(FIELDS_GET_PUBLIC_PROFILE)
         .exec();
 };
 
@@ -221,7 +193,6 @@ UserSchema.statics.hasAccount = function (userInfo) {
     return this
         .findOne({
             $or: [
-                { email: userInfo },
                 { email: userInfo },
                 { userId: userInfo }
             ]
@@ -238,6 +209,14 @@ UserSchema.statics.changeUserPin = function (email, newUserPin) {
     ).exec();
 };
 
+UserSchema.statics.editProfile = function (userId, data) {
+    return this.updateOne(
+        { userId },
+        { $set: { ...data, vAuthUser: userId } },
+        { upsert: false }
+    ).exec();
+};
+
 UserSchema.statics.editRoles = function (userId, newRoles, vAuthUser) {
     return this.updateOne(
         { userId },
@@ -250,14 +229,6 @@ UserSchema.statics.editGroups = function (userId, newGroups, vAuthUser) {
     return this.updateOne(
         { userId },
         { $set: { groups: newGroups, vAuthUser } },
-        { upsert: false }
-    ).exec();
-};
-
-UserSchema.statics.editProfile = function (userId, data) {
-    return this.updateOne(
-        { userId },
-        { $set: { ...data, vAuthUser: userId } },
         { upsert: false }
     ).exec();
 };
@@ -283,8 +254,7 @@ UserSchema.methods.tokenFields = function () {
         userId: this.userId,
         email: this.email,
         groups: [...this.groups],
-        roles: [...this.roles],
-        provider: this.provider
+        roles: [...this.roles]
     };
 };
 

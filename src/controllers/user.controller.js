@@ -8,6 +8,20 @@ export class UserController extends BaseController {
         handleModelRes(UserModel.hasAccount(req.params.userInfo), res);
     }
 
+    getProfile(req, res) {
+        handleModelRes(UserModel.byUserId(getReqMetadata(req, 'userId')), res);
+    }
+
+    editProfile(req, res) {
+        handleModelRes(
+            UserModel.editProfile(getReqMetadata(req, 'userId'), req.body.data),
+            res, {
+                success: 'Profile updated successfully.',
+                error: 'Something went wrong while updating the Profile. Try again later.'
+            }
+        );
+    }
+
     usersList(req, res) {
         handleModelRes(UserModel.list(), res);
     }
@@ -36,32 +50,8 @@ export class UserController extends BaseController {
         );
     }
 
-    getProfile(req, res) {
-        handleModelRes(UserModel.byUserId(getReqMetadata(req, 'userId')), res);
-    }
-
-    editProfile(req, res) {
-        handleModelRes(
-            UserModel.editProfile(getReqMetadata(req, 'userId'), req.body.data),
-            res, {
-                success: 'Profile updated successfully.',
-                error: 'Something went wrong while updating the Profile. Try again later.'
-            }
-        );
-    }
-
     deleteProfile(req, res) {
         // handleModelRes(UserModel.byUserId(req.params.userId), res);
-    }
-
-    changeUserPin(req, res) {
-        handleModelRes(
-            UserModel.changeUserPin(req.body.email, req.body.newUserPin),
-            res, {
-                success: 'UserPin changed successfully.',
-                error: 'Something went wrong while changing the UserPin. Try again later.'
-            }
-        );
     }
 
     tempAll(req, res) {
