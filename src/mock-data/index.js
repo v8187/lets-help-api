@@ -7,9 +7,9 @@ const mongoose = require('mongoose');
 // import { initDatabase } from '../db';
 
 
-mongoose.connect(process.env.DB_PATH, {
+mongoose.connect(process.env.MONGODB_URI || process.env.DB_PATH, {
     useNewUrlParser: true,
-    dbName: process.env.DB_NAME,
+    // dbName: process.env.DB_NAME,
     useUnifiedTopology: true
 });
 
