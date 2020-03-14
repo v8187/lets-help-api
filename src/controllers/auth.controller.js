@@ -38,7 +38,7 @@ const updatePinErr = (res, err = 'Server error') => {
     });
 };
 
-const sendNewToken = (fields, successMsg) => {
+const sendNewToken = (res, fields, successMsg) => {
     newToken(fields, (err, token) => {
         if (err) {
             console.log('err.stack', err.stack);
@@ -106,7 +106,7 @@ const createNewUser = (email, userPin, res) => {
         .saveUser(Object.assign(newUser, userData))
         .then(savedUser => {
             // If Signup was successful, generate and bind new Token
-            sendNewToken(savedUser.tokenFields(), 'Sign Up is successfully done!!!');
+            sendNewToken(res, savedUser.tokenFields(), 'Sign Up is successfully done!!!');
         }, saveErr => {
             console.log('saveErr', saveErr);
             return signUpErr(res, saveErr.message);
