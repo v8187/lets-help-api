@@ -1,4 +1,5 @@
 git add .
 git commit -m 'test API endpoints'
+git push
 git push heroku master
 heroku logs --tail
