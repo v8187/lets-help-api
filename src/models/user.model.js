@@ -31,7 +31,6 @@ const UserSchema = new BaseSchema({
     email: {
         type: String, lowercase: true, required: true
     },
-    location: { type: String },
     address: { type: String },
     phoneNos: [{ type: String }],
     city: { type: String },
@@ -49,8 +48,7 @@ const UserSchema = new BaseSchema({
     showEmail: { type: Boolean, default: false },
     showContributions: { type: Boolean, default: false },
     showBirthday: { type: Boolean, default: false },
-    showBirthOfyear: { type: Boolean, default: false },
-    showPicture: { type: Boolean, default: false }
+    showBirthOfyear: { type: Boolean, default: false }
 },
     {
         collection: 'User',
@@ -112,6 +110,7 @@ UserSchema.pre('updateOne', function (next) {
 UserSchema.statics.list = function () {
     return this
         .find()
+        .sort('name')
         .select(FIELDS_GET_PUBLIC_PROFILE)
         .exec();
 };

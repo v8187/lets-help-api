@@ -1,20 +1,35 @@
 import { UserModel } from '../models/user.model';
 import { userRoles, userGroups } from '../configs/enum-constants';
-import { pName, gender, email, dob, recentDate, country, state, city, bloodgroup, bool } from './utils';
+import { pName, gender, email, dob, recentDate, country, state, city, bloodgroup, bool, phoneNo, addr } from './utils';
 
 // Add Mock Users data
 const mockUsersData = [{
-    username: 'noInfo@gmail.com'
+    name: 'Vikram Gupta',
+    gender: 'm',
+    email: 'vik5sep@gmail.com',
+    userPin: '1234',
+    country: 'Indian',
+    state: 'Punjab',
+    city: 'Amritsar',
+    phoneNos: ['919888811427']
 }, {
     name: 'Vikram Gupta',
     gender: 'm',
     email: 'vikram1vicky@gmail.com',
-    userPin: '1234'
+    userPin: '1234',
+    country: 'Indian',
+    state: 'Punjab',
+    city: 'Amritsar',
+    phoneNos: ['919779958985']
 }, {
     name: 'Gurinder Singh',
     gender: 'm',
     email: 'gurinder1god@gmail.com',
-    userPin: '1234'
+    userPin: '1234',
+    country: 'Indian',
+    state: 'Punjab',
+    city: 'Amritsar',
+    phoneNos: ['919814114034']
 }, ,
 ...new Array(20).join(',').split(',')];
 
@@ -30,15 +45,16 @@ mockUsersData.map((mockUser, i) => {
         mockUser.name = pName();
         mockUser.gender = gender();
         mockUser.email = email(mockUser.name);
+        mockUser.phoneNos = [phoneNo()];
+        mockUser.country = country();
+        mockUser.state = state();
+        mockUser.city = city();
+        mockUser.password = 1234;
     }
     mockUser.dob = dob();
+    mockUser.address = addr();
     mockUser.joinedOn = recentDate();
-    mockUser.countryId = country();
-    mockUser.stateId = state();
-    mockUser.cityId = city();
     mockUser.bloodGroup = bloodgroup();
-    mockUser.password = 1234;
-    mockUser.provider = 'local';
     mockUser.showBloodGroup = bool();
     mockUser.showPhoneNos = bool();
     mockUser.showAddresses = bool();
@@ -46,7 +62,6 @@ mockUsersData.map((mockUser, i) => {
     mockUser.showContributions = bool();
     mockUser.showBirthday = bool();
     mockUser.showBirthOfyear = bool();
-    mockUser.showPicture = bool();
 
     initiated++;
     UserModel.saveUser(Object.assign(new UserModel(), mockUser)).then(

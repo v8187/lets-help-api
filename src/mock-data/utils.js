@@ -16,9 +16,9 @@ export const bloodgroup = () => randomItem(bloodGroups);
 export const dob = () => dateTime({ sqlTimestamp: true, from: +new Date(1975, 0, 1), to: +new Date(2003, 11, 31) });
 export const recentDate = () => dateTime({ sqlTimestamp: true, from: +new Date(2018, 0, 1), to: +new Date(2019, 8, 31) });
 
-export const country = () => 'IND';
-export const state = () => 377;
-export const city = () => randomItem([126210, 128578, 1390, 145691, 22251]);
+export const country = () => 'India';
+export const state = () => 'Punjab';
+export const city = () => randomItem(['Amritsar', 'Jalandhar', 'Ludhiana', 'Chandigarh', 'Pathankot']);
 
 export const bool = () => randomItem([true, false]);
 export const title = () => randomWords(4, 6);
