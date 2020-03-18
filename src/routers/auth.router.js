@@ -17,7 +17,6 @@ export const getAuthRouter = (passport) => {
 
     const validateWithToken = (req, res, next) => validateToken(req, res, next, passport);
     const validateWithCred = (req, res, next) => validateCredentials(req, res, next, passport);
-    const validateAuthParams = (req, res, next) => validateParams(req, res, next, 'email,userPin');
 
     // Check if user has account
     router.post('/hasAccount',
@@ -26,7 +25,7 @@ export const getAuthRouter = (passport) => {
 
     // Create Acocunt
     router.post('/register',
-        validateAuthParams,
+        (req, res, next) => validateParams(req, res, next, 'email,name,userPin'),
         (req, res, next) => createAccount(req, res, next, passport));
 
     // Update/Change PIN
@@ -38,7 +37,7 @@ export const getAuthRouter = (passport) => {
 
     // Login
     router.post('/login',
-        validateAuthParams,
+        (req, res, next) => validateParams(req, res, next, 'email,userPin'),
         validateWithCred,
         (req, res, next) => login(req, res, next, passport));
 

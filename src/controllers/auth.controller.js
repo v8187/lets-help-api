@@ -95,10 +95,11 @@ const invalidateToken = (req, res, onDone, onError) => {
     });
 }
 
-const createNewUser = (email, userPin, res) => {
+const createNewUser = (email, name, userPin, res) => {
     let newUser = new UserModel(),
         userData = {
             email,
+            name,
             userPin
         };
 
@@ -141,7 +142,7 @@ export class AuthController extends BaseController {
 
     createAccount(req, res, next, passport) {
 
-        const { email, userPin } = req.body;
+        const { name, email, userPin } = req.body;
 
         UserModel.hasAccount(email).then(user => {
             if (user) {
@@ -151,7 +152,7 @@ export class AuthController extends BaseController {
                     type: 'CONFLICT'
                 });
             }
-            createNewUser(email, userPin, res);
+            createNewUser(email, name, userPin, res);
         }, modelErr => {
             console.error(modelErr);
             return signUpErr(res, modelErr.message);
@@ -169,9 +170,9 @@ export class AuthController extends BaseController {
             handleModelRes(
                 UserModel.changeUserPin(req.body.email, req.body.newUserPin),
                 res, {
-                    success: 'User Pin changed successfully.',
-                    error: 'Something went wrong while changing the UserPin. Try again later.'
-                }
+                success: 'User Pin changed successfully.',
+                error: 'Something went wrong while changing the UserPin. Try again later.'
+            }
             );
         }, updatePinErr);
     }

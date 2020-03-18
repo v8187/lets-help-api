@@ -31,6 +31,7 @@ export const getUserRouter = (passport) => {
         validateWithToken,
         (req, res) => getProfile(req, res)
     ]);
+
     router.put('/profile', [
         validateWithToken,
         (req, res) => editProfile(req, res)
@@ -39,7 +40,7 @@ export const getUserRouter = (passport) => {
     // Special Roles based routes
     router.get('/list', [
         validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
+        // (req, res, next) => validateRoles(req, res, next, 'admin'),
         (req, res) => usersList(req, res)
     ]);
 

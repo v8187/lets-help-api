@@ -10,9 +10,9 @@ import { isEmail } from '../utils';
 
 const UserSchema = new BaseSchema({
     // Account Fields
-    userId: { type: String },
+    userId: String,
     userPin: { type: String, require: true },
-    isVerified: { type: Boolean, default: false },
+    isVerified: Boolean,
     roles: {
         type: Schema.Types.EnumArray, default: ['default'], enum: userRoles, required: true
     },
@@ -21,50 +21,35 @@ const UserSchema = new BaseSchema({
     },
 
     // Personal Fields
-    name: { type: String, required: false },
+    name: String,
     gender: { type: String, enum: genders, lowercase: true },
     dob: { type: Date },
-    picture: { type: String, required: false },
     bloodGroup: { type: String, enum: bloodGroups, lowercase: false },
 
     // Communication Fields
     email: {
         type: String, lowercase: true, required: true
     },
-    address: { type: String },
+    address: String,
     phoneNos: [{ type: String }],
-    city: { type: String },
-    state: { type: String },
-    country: { type: String },
+    city: String,
+    state: String,
+    country: String,
 
     // Misc Fields
-    referredById: { type: String },
-    joinedOn: { type: Date },
+    referredById: String,
+    joinedOn: Date,
 
     // Privacy fields
-    showBloodGroup: { type: Boolean, default: false },
-    showPhoneNos: { type: Boolean, default: false },
-    showAddress: { type: Boolean, default: false },
-    showEmail: { type: Boolean, default: false },
-    showContributions: { type: Boolean, default: false },
-    showBirthday: { type: Boolean, default: false },
-    showBirthOfyear: { type: Boolean, default: false }
+    showBloodGroup: Boolean,
+    showAddress: Boolean,
+    showContributions: Boolean,
+    showBirthday: Boolean,
+    showBirthOfyear: Boolean
 },
     {
         collection: 'User',
         ...commonShemaOptions((doc, ret, options) => {
-            // delete ret.country;
-            // delete ret.state;
-            // delete ret.city;
-
-            // if (ret.city && ret.city.state) {
-            //     ret.state = ret.city.state;
-            //     ret.country = ret.city.country;
-
-            //     delete ret.city.state;
-            //     delete ret.city.country;
-            // }
-
             return ret;
         })
     }
