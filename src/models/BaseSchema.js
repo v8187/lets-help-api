@@ -11,14 +11,6 @@ mongoose.plugin(hashUserPinPlugin);
 mongoose.plugin(recordAuthorPlugin);
 
 const COMMON_DEF = {
-    // createdOn: {
-    //     type: Date,
-    //     default: new Date()
-    // },
-    // updatedOn: {
-    //     type: Date,
-    //     default: new Date()
-    // },
     createdById: {
         type: String
     },
@@ -94,7 +86,7 @@ export const lookupUserFields = (byId, as) => {
             pipeline: [
                 { $match: { $expr: { $eq: ['$userId', '$$byId'] } } },
                 { $limit: 1 },
-                { $project: { userId: 1, email: 1, name: 1, email: 1, _id: 0 } }
+                { $project: { userId: 1, email: 1, name: 1, _id: 0 } }
             ]
         }
     }, { $unwind: `$${as}` }, { $project: { [byId]: 0 } }];

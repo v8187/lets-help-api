@@ -58,7 +58,7 @@ export const handleModelRes = (promise, res, messages = {}) => {
             }
             return sendResponse(res, {
                 error: dbErr,
-                message: messages.error || 'Cannot handler request. Try again later',
+                message: messages.error || 'Cannot handle request. Try again later',
                 type: 'INTERNAL_SERVER_ERROR'
             });
         }
@@ -66,7 +66,7 @@ export const handleModelRes = (promise, res, messages = {}) => {
         console.log(dbReason);
         sendResponse(res, {
             error: dbReason,
-            message: messages.error || 'Cannot handler request. Try again later',
+            message: messages.error || 'Cannot handle request. Try again later',
             type: 'INTERNAL_SERVER_ERROR'
         });
     });

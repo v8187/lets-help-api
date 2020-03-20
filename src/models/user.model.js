@@ -41,6 +41,8 @@ const UserSchema = new BaseSchema({
     joinedOn: Date,
 
     // Privacy fields
+    showEmail: Boolean,
+    showPhoneNos: Boolean,
     showBloodGroup: Boolean,
     showAddress: Boolean,
     showContributions: Boolean,
@@ -94,9 +96,30 @@ UserSchema.pre('updateOne', function (next) {
  */
 UserSchema.statics.list = function () {
     return this
-        .find()
+        .aggregate([{ $match: {} }])
+        .project({
+            userId: 1,
+            name: 1,
+            joinedOn: 1,
+            // email: {
+            //     $cond: {
+            //         if: { $eq: ['$showEmail', true] },
+            //         then: '$email',
+            //         else: null
+            //     }
+            // },
+            // showEmail: 1,
+            // showPhoneNos: 1,
+            // phoneNos: {
+            //     $cond: {
+            //         if: { $eq: ['$showPhoneNos', true] },
+            //         then: '$phoneNos',
+            //         else: null
+            //     }
+            // },
+            _id: 0
+        })
         .sort('name')
-        .select(FIELDS_GET_PUBLIC_PROFILE)
         .exec();
 };
 
