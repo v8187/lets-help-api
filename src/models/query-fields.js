@@ -3,12 +3,12 @@ name,gender,dob,,bloodGroup,email,
  address,phoneNos,city,state,country,
  referredById,joinedOn,showBloodGroup,
  showAddress,showContributions,
- showBirthday,showBirthOfyear`
+ showBirthday`
 
 export const USER_KEY_FIELDS = 'userId name email -_id';
 // own user profile
 export const FIELDS_GET_OWN_PROFILE = '-_id -userPin -__v';
-export const FIELDS_PUT_OWN_PROFILE = 'name,gender,dob,bloodGroup,email,address,phoneNos,city,state,country,showBloodGroup,showAddress,showContributions,showBirthday,showBirthOfyear,';
+export const FIELDS_PUT_OWN_PROFILE = 'name,gender,dob,bloodGroup,email,address,phoneNos,city,state,country,showBloodGroup,showAddress,showContributions,showBirthday';
 // user profile by Admin
 export const FIELDS_GET_USER_PROFILE = '-_id -userPin -__v';
 export const FIELDS_PUT_USER_PROFILE = 'isVerified,roles,groups,referredById,joinedOn';

@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { compareSync } from 'bcryptjs';
 
-import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
+import { BaseSchema, commonShemaOptions, defineCommonVirtuals, lookupUserFields } from './BaseSchema';
 import {
     USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE
 } from './query-fields';
@@ -46,8 +46,7 @@ const UserSchema = new BaseSchema({
     showBloodGroup: Boolean,
     showAddress: Boolean,
     showContributions: Boolean,
-    showBirthday: Boolean,
-    showBirthOfyear: Boolean
+    showBirthday: Boolean
 },
     {
         collection: 'User',
@@ -73,19 +72,28 @@ UserSchema.pre('save', function (next) {
 
     user.createdById = user.updatedById = user.userId = user._id;
 
-    user.joinedOn = new Date();
-
-    if (!user.email) {
-        user.email = user.email;
-    } else if (!user.email && isEmail(user.email)) {
-        user.email = user.email;
+    if (!user.joinedOn) {
+        user.joinedOn = new Date();
     }
+
     next();
 });
 
 UserSchema.pre('updateOne', function (next) {
     next();
 });
+
+function conditionalField(name, condition) {
+    return {
+        [name]: {
+            $cond: {
+                if: { $eq: [`$${condition}`, true] },
+                then: `$${name}`,
+                else: 0
+            }
+        }
+    };
+}
 
 /*
  * Add Custom static methods
@@ -96,30 +104,46 @@ UserSchema.pre('updateOne', function (next) {
  */
 UserSchema.statics.list = function () {
     return this
+        .aggregate([
+            { $match: {} },
+            // ...lookupUserFields('referredById', 'referredBy')
+        ])
+        .project({ userId: 1, name: 1, joinedOn: 1, _id: 0 })
+        .sort('name')
+        .exec();
+};
+
+UserSchema.statics.listForAdmin = function () {
+    return this
         .aggregate([{ $match: {} }])
+        .project({ userId: 1, name: 1, joinedOn: 1, email: 1, phoneNos: 1, _id: 0 })
+        .sort('name')
+        .exec();
+};
+
+UserSchema.statics.userProfile = function (userId) {
+    return this
+        .aggregate([{ $match: { userId } }, { $limit: 1 }])
         .project({
-            userId: 1,
-            name: 1,
-            joinedOn: 1,
-            // email: {
-            //     $cond: {
-            //         if: { $eq: ['$showEmail', true] },
-            //         then: '$email',
-            //         else: null
-            //     }
-            // },
-            // showEmail: 1,
-            // showPhoneNos: 1,
-            // phoneNos: {
-            //     $cond: {
-            //         if: { $eq: ['$showPhoneNos', true] },
-            //         then: '$phoneNos',
-            //         else: null
-            //     }
-            // },
+            userId: 1, name: 1, gender: 1, joinedOn: 1, isVerified: 1,
+            roles: 1, groups: 1, city: 1, state: 1, country: 1,
+            ...conditionalField('phoneNos', 'showPhoneNos'),
+            ...conditionalField('email', 'showEmail'),
+            ...conditionalField('bloodGroup', 'showBloodGroup'),
+            ...conditionalField('address', 'showAddress'),
+            // ...conditionalField('email', 'showContributions'),
+            ...conditionalField('dob', 'showBirthday'),
             _id: 0
         })
-        .sort('name')
+        .exec();
+};
+
+UserSchema.statics.userProfileForAdmin = function (userId) {
+    return this
+        .aggregate([
+            { $match: { userId } }
+        ])
+        .project({ userPin: 0, __v: 0, _id: 0 })
         .exec();
 };
 

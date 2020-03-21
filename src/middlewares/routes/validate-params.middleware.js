@@ -6,10 +6,9 @@ import { sendResponse } from '../../utils/handlers';
  */
 export const validateParams = (req, res, next, params) => {
 
-    const { body } = req,
-        arrParams = params.split(',');
+    const arrParams = params.split(',');
 
-    if (!body || arrParams.some(prm => !body[prm])) {
+    if ((!req.body && !req.params) || arrParams.some(prm => (!req.body[prm] && !req.params[prm]))) {
         return sendResponse(res, {
             error: 'Parameters missing/invalid',
             message: `${arrParams.join(', ')} is/are missing.`,

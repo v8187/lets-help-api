@@ -58,10 +58,9 @@ mockUsersData.map((mockUser, i) => {
     mockUser.showEmail = bool();
     mockUser.showPhoneNos = bool();
     mockUser.showBloodGroup = bool();
-    mockUser.showAddresses = bool();
+    mockUser.showAddress = bool();
     mockUser.showContributions = bool();
     mockUser.showBirthday = bool();
-    mockUser.showBirthOfyear = bool();
 
     initiated++;
     UserModel.saveUser(Object.assign(new UserModel(), mockUser)).then(

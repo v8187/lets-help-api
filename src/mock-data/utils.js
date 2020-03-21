@@ -2,6 +2,8 @@ import { randomItem } from '@v8187/rs-utils';
 import { address, personName, EPersonNameFormats, dateTime, alphanumeric, randomWords } from '@v8187/rs-mock';
 import { genders, bloodGroups, addressTypes, frequencies, durations, caseCategories, phoneNoTypes, voteTypes } from '../configs/enum-constants';
 
+const DAY_MILISECONDS = 24 * 60 * 60 * 1000;
+
 export const pName = () => personName({ female: true, male: true, format: EPersonNameFormats.NAME_INITIAL_SURNAME });
 export const email = (name) => `${name.replace(/\s+/g, '.')}@gmail.com`.replace(/\.+/g, '.');
 export const phoneType = () => randomItem(phoneNoTypes);
@@ -14,7 +16,7 @@ export const gender = () => randomItem(genders);
 export const bloodgroup = () => randomItem(bloodGroups);
 
 export const dob = () => dateTime({ sqlTimestamp: true, from: +new Date(1975, 0, 1), to: +new Date(2003, 11, 31) });
-export const recentDate = () => dateTime({ sqlTimestamp: true, from: +new Date(2018, 0, 1), to: +new Date(2019, 8, 31) });
+export const recentDate = () => dateTime({ sqlTimestamp: true, from: (+new Date() - (DAY_MILISECONDS * 60)), to: +new Date() });
 
 export const country = () => 'India';
 export const state = () => 'Punjab';
