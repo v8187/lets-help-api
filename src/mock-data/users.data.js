@@ -11,6 +11,7 @@ const mockUsersData = [{
     country: 'Indian',
     state: 'Punjab',
     city: 'Amritsar',
+    isVerified: true,
     phoneNos: ['919888811427']
 }, {
     name: 'Vikram Gupta',
@@ -20,6 +21,7 @@ const mockUsersData = [{
     country: 'Indian',
     state: 'Punjab',
     city: 'Amritsar',
+    isVerified: true,
     phoneNos: ['919779958985']
 }, {
     name: 'Gurinder Singh',
@@ -29,6 +31,7 @@ const mockUsersData = [{
     country: 'Indian',
     state: 'Punjab',
     city: 'Amritsar',
+    isVerified: true,
     phoneNos: ['919814114034']
 }, ,
 ...new Array(20).join(',').split(',')];
@@ -50,6 +53,7 @@ mockUsersData.map((mockUser, i) => {
         mockUser.state = state();
         mockUser.city = city();
         mockUser.password = 1234;
+        mockUser.isVerified = bool();
     }
     mockUser.dob = dob();
     mockUser.address = addr();

@@ -6,7 +6,6 @@ import {
     USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE
 } from './query-fields';
 import { userGroups, userRoles, genders, bloodGroups } from '../configs/enum-constants';
-import { isEmail } from '../utils';
 
 const UserSchema = new BaseSchema({
     // Account Fields
