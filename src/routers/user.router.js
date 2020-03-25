@@ -2,13 +2,13 @@ import { Router } from 'express';
 
 import { UserController } from '../controllers/user.controller';
 import {
-    validateCredentials, validateParams,
+    validateParams,
     validateToken, validateRoles
 } from '../middlewares/routes';
 
 const {
     usersList, userProfile, byUserId, editRoles, editGroups,
-    getProfile, editProfile,
+    myProfile, editProfile,
     tempAll: userTempAll
 } = new UserController();
 
@@ -23,7 +23,6 @@ router.use((req, res, next) => {
 
 export const getUserRouter = (passport) => {
 
-    const validateWithCred = (req, res, next) => validateCredentials(req, res, next, passport);
     const validateWithToken = (req, res, next) => validateToken(req, res, next, passport);
 
     router.get('/list', [
@@ -41,7 +40,7 @@ export const getUserRouter = (passport) => {
     // User Profile Routes
     router.get('/profile', [
         validateWithToken,
-        (req, res) => getProfile(req, res)
+        (req, res) => myProfile(req, res)
     ]);
 
     router.put('/profile', [

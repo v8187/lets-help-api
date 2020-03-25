@@ -21,7 +21,7 @@ export class UserController extends BaseController {
         handleModelRes(isAdmin ? UserModel.userProfileForAdmin(req.params.userId) : UserModel.userProfile(req.params.userId), res);
     }
 
-    getProfile(req, res) {
+    myProfile(req, res) {
         handleModelRes(UserModel.byUserId(getReqMetadata(req, 'user').userId), res);
     }
 

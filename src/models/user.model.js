@@ -3,7 +3,7 @@ import { compareSync } from 'bcryptjs';
 
 import { BaseSchema, commonShemaOptions, defineCommonVirtuals, lookupUserFields } from './BaseSchema';
 import {
-    USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE
+    USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE, FIELDS_GET_USER_PROFILE
 } from './query-fields';
 import { userGroups, userRoles, genders, bloodGroups } from '../configs/enum-constants';
 
@@ -139,10 +139,11 @@ UserSchema.statics.userProfile = function (userId) {
 
 UserSchema.statics.userProfileForAdmin = function (userId) {
     return this
-        .aggregate([
-            { $match: { userId } }
-        ])
-        .project({ userPin: 0, __v: 0, _id: 0 })
+        .findOne({ userId })
+        .populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
+        .select(FIELDS_GET_USER_PROFILE)
         .exec();
 };
 
