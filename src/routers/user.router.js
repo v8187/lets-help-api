@@ -37,8 +37,7 @@ export const getUserRouter = (passport) => {
         (req, res) => userProfile(req, res)
     ]);
 
-    // User Profile Routes
-    router.get('/profile', [
+    router.get('/myProfile', [
         validateWithToken,
         (req, res) => myProfile(req, res)
     ]);

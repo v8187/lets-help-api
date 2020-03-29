@@ -79,6 +79,23 @@ export const commonShemaOptions = (fnTransform) => {
     };
 };
 
+
+export const lookupRefFields = (byId, as) => {
+    return [{
+        $lookup: {
+            from: 'User', as, let: { byId: `$${byId}` },
+            pipeline: [
+                // { $match: { $expr: { $or: [{ $eq: ['$userId', '$$byId'] }, { $eq: ['$email', '$$byId'] }] } } },
+                // { $match: { $expr: { $or: [{ $eq: ['$userId', '$$referredById'] }, { $eq: ['$email', '$$referredById'] }] } } },
+                // { $match: { $or: [{ email: '$byId' }] } },
+                // { $match: { $expr: { $eq: ['$email', '$$byId'] } } },
+                { $limit: 1 },
+                { $project: { userId: 1, email: 1, name: 1, _id: 0 } }
+            ]
+        }
+    }, { $unwind: `$${as}` }, { $project: { [byId]: 0 } }];
+};
+
 export const lookupUserFields = (byId, as) => {
     return [{
         $lookup: {

@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { compareSync } from 'bcryptjs';
 
-import { BaseSchema, commonShemaOptions, defineCommonVirtuals, lookupUserFields } from './BaseSchema';
+import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
 import {
     USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE, FIELDS_GET_USER_PROFILE
 } from './query-fields';
@@ -62,11 +62,30 @@ UserSchema.virtual('referredBy', {
     ref: 'User',
     localField: 'referredById',
     foreignField: 'userId',
-    justOne: true
+    justOne: true,
+    // lookup: (doc) => {
+    //     return {
+    //         from: 'User',
+    //         let: { id: '$referredById' },
+    //         pipeline: [
+    //             {
+    //                 $match: {
+    //                     $expr: {
+    //                         $or: [
+    //                             { $eq: ['$userId', '$$id'] }, { $eq: ['$email', '$$id'] },
+    //                         ]
+    //                     }
+    //                 }
+    //             },
+    //             { $project: { userId: 1, email: 1, name: 1, _id: 0 } }
+    //         ],
+    //         as: 'referredBy',
+    //     };
+    // },
 });
 
 // User Schema's save pre hook
-UserSchema.pre('save', function (next) {
+UserSchema.pre('save', async function (next) {
     let user = this;
 
     user.createdById = user.updatedById = user.userId = user._id;
@@ -75,6 +94,11 @@ UserSchema.pre('save', function (next) {
         user.joinedOn = new Date();
     }
 
+    if (!user.referredById) {
+        const defaultReferrer = await UserModel.findOne({ email: 'vikram1vicky@gmail.com' }).select('userId email').exec();
+        // console.log('defaultReferrer = %o', defaultReferrer);
+        user.referredById = defaultReferrer ? defaultReferrer.userId : user.userId;
+    }
     next();
 });
 
@@ -139,11 +163,29 @@ UserSchema.statics.userProfile = function (userId) {
 
 UserSchema.statics.userProfileForAdmin = function (userId) {
     return this
+        // .aggregate([
+        //     { $match: { userId } },
+        //     ...lookupUserFields('createdById', 'createdBy'),
+        //     ...lookupUserFields('updatedById', 'updatedBy'),
+        //     ...lookupRefFields('referredById', 'referredBy'),
+        //     { $project: { _id: 0, userPin: 0, __v: 0 } }
+        // ]);
         .findOne({ userId })
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
         .select(FIELDS_GET_USER_PROFILE)
+        .exec();
+};
+
+UserSchema.statics.byUserId = function (userId) {
+    // console.log('USER_SELF_QUERY_FIELDS', USER_SELF_QUERY_FIELDS);
+    return this
+        .findOne({ userId })
+        .populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
+        .select(FIELDS_GET_OWN_PROFILE)
         .exec();
 };
 
@@ -179,17 +221,6 @@ UserSchema.statics.tempAll = function () {
 
 UserSchema.statics.keyProps = function () {
     return this.find().select(USER_KEY_FIELDS).exec();
-};
-
-UserSchema.statics.byUserId = function (userId) {
-    // console.log('USER_SELF_QUERY_FIELDS', USER_SELF_QUERY_FIELDS);
-    return this
-        .findOne({ userId })
-        .populate('createdBy', USER_KEY_FIELDS)
-        .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('referredBy', USER_KEY_FIELDS)
-        .select(FIELDS_GET_OWN_PROFILE)
-        .exec();
 };
 
 UserSchema.statics.byUserRoles = function (roles) {

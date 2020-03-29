@@ -3,47 +3,41 @@ import { userRoles, userGroups } from '../configs/enum-constants';
 import { pName, gender, email, dob, recentDate, country, state, city, bloodgroup, bool, phoneNo, addr } from './utils';
 
 // Add Mock Users data
-const mockUsersData = [{
-    name: 'Vikram Gupta',
+const common = {
     gender: 'm',
-    email: 'vik5sep@gmail.com',
     userPin: '1234',
-    country: 'Indian',
+    country: 'India',
     state: 'Punjab',
     city: 'Amritsar',
     isVerified: true,
-    phoneNos: ['919888811427']
-}, {
+};
+const myProfile = {
     name: 'Vikram Gupta',
-    gender: 'm',
     email: 'vikram1vicky@gmail.com',
-    userPin: '1234',
-    country: 'Indian',
-    state: 'Punjab',
-    city: 'Amritsar',
-    isVerified: true,
-    phoneNos: ['919779958985']
+    phoneNos: ['919779958985'],
+    ...common
+};
+const mockUsersData = [{
+    name: 'Vikram',
+    email: 'vik5sep@gmail.com',
+    phoneNos: ['919888811427'],
+    ...common
 }, {
     name: 'Gurinder Singh',
-    gender: 'm',
     email: 'gurinder1god@gmail.com',
-    userPin: '1234',
-    country: 'Indian',
-    state: 'Punjab',
-    city: 'Amritsar',
-    isVerified: true,
-    phoneNos: ['919814114034']
-}, ,
-...new Array(20).join(',').split(',')];
+    phoneNos: ['919814114034'],
+    ...common
+},
+...new Array(27).join(',').split(',')];
 
 let initiated = 0, added = 0, notAdded = 0;
 
-mockUsersData.map((mockUser, i) => {
+const addUser = (mockUser, callback) => {
     if (['vikram1vicky@gmail.com', 'gurinder1god@gmail.com'].indexOf(mockUser.email) !== -1) {
         mockUser.roles = userRoles;
         mockUser.groups = userGroups;
     }
-    if (i > 2) {
+    if (['vikram1vicky@gmail.com', 'gurinder1god@gmail.com', 'vik5sep@gmail.com'].indexOf(mockUser.email) === -1) {
         mockUser = {};
         mockUser.name = pName();
         mockUser.gender = gender();
@@ -73,6 +67,7 @@ mockUsersData.map((mockUser, i) => {
             if (initiated === added + notAdded) {
                 console.log('Users: %d added , %d failed to add', added, notAdded);
             }
+            callback instanceof Function && callback();
         },
         saveErr => {
             notAdded++;
@@ -86,6 +81,10 @@ mockUsersData.map((mockUser, i) => {
                 console.log('Users: %d added , %d failed to add', added, notAdded);
             }
         });
+};
+
+addUser(myProfile, () => {
+    mockUsersData.map(addUser);
 });
 
 // UserModel.insertMany(mockUsersData, (err, docs) => {

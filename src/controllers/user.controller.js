@@ -18,7 +18,9 @@ export class UserController extends BaseController {
         const user = getReqMetadata(req, 'user'),
             isAdmin = user.roles.indexOf('admin') !== -1;
 
-        handleModelRes(isAdmin ? UserModel.userProfileForAdmin(req.params.userId) : UserModel.userProfile(req.params.userId), res);
+        handleModelRes(isAdmin ?
+            UserModel.userProfileForAdmin(req.params.userId) :
+            UserModel.userProfile(req.params.userId), res);
     }
 
     myProfile(req, res) {
