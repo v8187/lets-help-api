@@ -56,6 +56,7 @@ export const defineCommonVirtuals = (schema) => {
 export const commonTransform = (doc, ret, options) => {
     delete ret.createdById;
     delete ret.updatedById;
+    delete ret.referredById;
 
     return ret;
 };

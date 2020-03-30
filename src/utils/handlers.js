@@ -1,6 +1,13 @@
 import httpStatus from 'http-status-codes';
 import rUpdate from 'react-addons-update';
 
+const ARRAYTOOBJECT_ROUTES = ['userProfile'];
+
+const arrayToObject = (res, data) => {
+    const hasRoute = ARRAYTOOBJECT_ROUTES.some(route => res.req.url.indexOf(route) !== -1);
+    return hasRoute && Array.isArray(data) ? data[0] : data;
+};
+
 export const sendResponse = (res, params) => {
 
     let resContent = rUpdate({}, { $merge: params });
@@ -43,8 +50,9 @@ export const sendResponse = (res, params) => {
 export const handleModelRes = (promise, res, messages = {}) => {
     promise.then(
         dbRes => {
+            console.log('res.req.url = %o', res.req.url);
             sendResponse(res, {
-                data: dbRes,
+                data: arrayToObject(res, dbRes),
                 message: messages.success || ''
             })
         }, dbErr => {
