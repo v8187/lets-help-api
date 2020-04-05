@@ -53,7 +53,7 @@ export class UserController extends BaseController {
 
         if (isAdmin) {
             FIELDS_PUT_USER_PROFILE.split(',').map(field => {
-                if (body[field]) {
+                if (body[field] !== undefined) {
                     tempData[field] = body[field];
                 }
             });
@@ -61,7 +61,7 @@ export class UserController extends BaseController {
 
         if (isMyProfile) {
             FIELDS_PUT_OWN_PROFILE.split(',').map(field => {
-                if (body[field]) {
+                if (body[field] !== undefined) {
                     tempData[field] = body[field];
                 }
             });
