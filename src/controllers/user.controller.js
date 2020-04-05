@@ -68,7 +68,7 @@ export class UserController extends BaseController {
         }
 
         handleModelRes(
-            UserModel.editProfile(getReqMetadata(req, 'user').userId, req.body.data),
+            UserModel.editProfile(body.userId, tempData),
             res, {
             success: 'Profile updated successfully.',
             error: 'Something went wrong while updating the Profile. Try again later.'
