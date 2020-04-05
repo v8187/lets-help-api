@@ -19,7 +19,7 @@ export function recordAuthorPlugin(schema, options) {
         let changes = this.getUpdate().$set;
 
         if (changes.vAuthUser !== undefined) {
-            changes.updatedBy = changes.vAuthUser;
+            changes.updatedById = changes.vAuthUser;
         }
 
         next();
