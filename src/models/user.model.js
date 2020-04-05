@@ -239,9 +239,9 @@ UserSchema.statics.changeUserPin = function (email, newUserPin) {
     ).exec();
 };
 
-UserSchema.statics.editProfile = function (userId, data) {
+UserSchema.statics.editProfile = function (userId, profileId, data) {
     return this.updateOne(
-        { userId },
+        { profileId },
         { $set: { ...data, vAuthUser: userId } },
         { upsert: false }
     ).exec();
