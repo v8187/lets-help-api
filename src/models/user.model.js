@@ -4,7 +4,7 @@ import { compareSync } from 'bcryptjs';
 import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
 import {
     USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE, FIELDS_GET_USER_PROFILE
-} from './query-fields';
+} from '../configs/query-fields';
 import { userGroups, userRoles, genders, bloodGroups } from '../configs/enum-constants';
 
 const UserSchema = new BaseSchema({
@@ -65,21 +65,11 @@ UserSchema.virtual('referredBy', {
     justOne: true,
     // lookup: (doc) => {
     //     return {
-    //         from: 'User',
-    //         let: { id: '$referredById' },
+    //         from: 'User', let: { id: '$referredById' },
     //         pipeline: [
-    //             {
-    //                 $match: {
-    //                     $expr: {
-    //                         $or: [
-    //                             { $eq: ['$userId', '$$id'] }, { $eq: ['$email', '$$id'] },
-    //                         ]
-    //                     }
-    //                 }
-    //             },
+    //             { $match: { $expr: { $or: [{ $eq: ['$userId', '$$id'] }, { $eq: ['$email', '$$id'] },] } } },
     //             { $project: { userId: 1, email: 1, name: 1, _id: 0 } }
-    //         ],
-    //         as: 'referredBy',
+    //         ], as: 'referredBy',
     //     };
     // },
 });
@@ -96,7 +86,6 @@ UserSchema.pre('save', async function (next) {
 
     if (!user.referredById) {
         const defaultReferrer = await UserModel.findOne({ email: 'vikram1vicky@gmail.com' }).select('userId email').exec();
-        // console.log('defaultReferrer = %o', defaultReferrer);
         user.referredById = defaultReferrer ? defaultReferrer.userId : user.userId;
     }
     next();
@@ -220,33 +209,12 @@ UserSchema.statics.tempAll = function () {
 };
 
 UserSchema.statics.keyProps = function () {
-    return this.find().select(USER_KEY_FIELDS).exec();
+    return this.find().select(USER_KEY_FIELDS).sort('name').exec();
 };
 
 UserSchema.statics.byUserRoles = function (roles) {
     return this
         .find({ roles })
-        .select(FIELDS_GET_PUBLIC_PROFILE)
-        .exec();
-};
-
-UserSchema.statics.byUserGroups = function (groups) {
-    return this
-        .find({ groups })
-        .select(FIELDS_GET_PUBLIC_PROFILE)
-        .exec();
-};
-
-UserSchema.statics.byEmail = function (email) {
-    return this
-        .findOne({ email })
-        .select(FIELDS_GET_PUBLIC_PROFILE)
-        .exec();
-};
-
-UserSchema.statics.byMobile = function (mobile) {
-    return this
-        .findOne({ mobile })
         .select(FIELDS_GET_PUBLIC_PROFILE)
         .exec();
 };
@@ -283,14 +251,6 @@ UserSchema.statics.editRoles = function (userId, newRoles, vAuthUser) {
     return this.updateOne(
         { userId },
         { $set: { roles: newRoles, vAuthUser } },
-        { upsert: false }
-    ).exec();
-};
-
-UserSchema.statics.editGroups = function (userId, newGroups, vAuthUser) {
-    return this.updateOne(
-        { userId },
-        { $set: { groups: newGroups, vAuthUser } },
         { upsert: false }
     ).exec();
 };

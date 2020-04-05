@@ -1,11 +1,16 @@
 import { BaseController } from './BaseController';
 import { UserModel } from '../models/user.model';
-import { handleModelRes, getReqMetadata } from '../utils/handlers';
+import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
+import { FIELDS_PUT_USER_PROFILE, FIELDS_PUT_OWN_PROFILE } from '../configs/query-fields';
 
 export class UserController extends BaseController {
 
     hasAccount(req, res) {
         handleModelRes(UserModel.hasAccount(req.params.userInfo), res);
+    }
+
+    ids(req, res) {
+        handleModelRes(UserModel.keyProps(), res);
     }
 
     usersList(req, res) {
@@ -28,6 +33,40 @@ export class UserController extends BaseController {
     }
 
     editProfile(req, res) {
+        const user = getReqMetadata(req, 'user'),
+            isAdmin = user.roles.indexOf('admin') !== -1,
+            isMyProfile = user.userId === req.body.userId;
+        /**
+         * If non-admin user try to update someone else's profile
+         */
+        if (!isAdmin && !isMyProfile) {
+            return sendResponse(res, {
+                error: 'Not Allowed',
+                message: `You are not allowed to update someone else's profile.`,
+                type: 'FORBIDDEN'
+            });
+        }
+
+        const { body } = req;
+
+        let tempData = {};
+
+        if (isAdmin) {
+            FIELDS_PUT_USER_PROFILE.split(',').map(field => {
+                if (body[field]) {
+                    tempData[field] = body[field];
+                }
+            });
+        }
+
+        if (isMyProfile) {
+            FIELDS_PUT_OWN_PROFILE.split(',').map(field => {
+                if (body[field]) {
+                    tempData[field] = body[field];
+                }
+            });
+        }
+
         handleModelRes(
             UserModel.editProfile(getReqMetadata(req, 'user').userId, req.body.data),
             res, {

@@ -8,10 +8,10 @@ name,gender,dob,,bloodGroup,email,
 export const USER_KEY_FIELDS = 'userId name email -_id';
 // own user profile
 export const FIELDS_GET_OWN_PROFILE = '-_id -userPin -__v';
-export const FIELDS_PUT_OWN_PROFILE = 'name,gender,dob,bloodGroup,email,address,phoneNos,city,state,country,showEmail,showPhoneNos,showBloodGroup,showAddress,showContributions,showBirthday';
+export const FIELDS_PUT_OWN_PROFILE = 'name,gender,dob,bloodGroup,address,phoneNos,city,state,country,showEmail,showPhoneNos,showBloodGroup,showAddress,showContributions,showBirthday';
 // user profile by Admin
 export const FIELDS_GET_USER_PROFILE = '-_id -userPin -__v -showEmail -showPhoneNos -showBloodGroup -showAddress -showContributions -showBirthday';
-export const FIELDS_PUT_USER_PROFILE = 'isVerified,roles,groups,referredById,joinedOn';
+export const FIELDS_PUT_USER_PROFILE = 'isVerified,roles,referredById,joinedOn,phoneNos';
 // user profile by all other users
 export const FIELDS_GET_PUBLIC_PROFILE = 'userId email roles groups phoneNos name gender referredBy joinedOn -_id';
 
