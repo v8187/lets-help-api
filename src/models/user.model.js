@@ -15,9 +15,9 @@ const UserSchema = new BaseSchema({
     roles: {
         type: Schema.Types.EnumArray, default: ['default'], enum: userRoles, required: true
     },
-    groups: {
-        type: Schema.Types.EnumArray, default: ['default'], enum: userGroups, required: true
-    },
+    // groups: {
+    //     type: Schema.Types.EnumArray, default: ['default'], enum: userGroups, required: true
+    // },
 
     // Personal Fields
     name: String,
@@ -77,8 +77,11 @@ UserSchema.virtual('referredBy', {
 // User Schema's save pre hook
 UserSchema.pre('save', async function (next) {
     let user = this;
+    
+    user.userId = user._id;
+    user.createdById = user.updatedById = user.vAuthUser || user.userId;
 
-    user.createdById = user.updatedById = user.userId = user._id;
+    delete user.vAuthUser;
 
     if (!user.joinedOn) {
         user.joinedOn = new Date();
@@ -138,7 +141,7 @@ UserSchema.statics.userProfile = function (userId) {
         .aggregate([{ $match: { userId } }, { $limit: 1 }])
         .project({
             userId: 1, name: 1, gender: 1, joinedOn: 1, isVerified: 1,
-            roles: 1, groups: 1, city: 1, state: 1, country: 1,
+            roles: 1,/*  groups: 1, */ city: 1, state: 1, country: 1,
             ...conditionalField('phoneNos', 'showPhoneNos'),
             ...conditionalField('email', 'showEmail'),
             ...conditionalField('bloodGroup', 'showBloodGroup'),
@@ -241,7 +244,7 @@ UserSchema.statics.changeUserPin = function (email, newUserPin) {
 
 UserSchema.statics.editProfile = function (userId, profileId, data) {
     return this.updateOne(
-        { userId:profileId },
+        { userId: profileId },
         { $set: { ...data, vAuthUser: userId } },
         { upsert: false }
     ).exec();
@@ -275,7 +278,7 @@ UserSchema.methods.tokenFields = function () {
     return {
         userId: this.userId,
         email: this.email,
-        groups: [...this.groups],
+        // groups: [...this.groups],
         roles: [...this.roles]
     };
 };

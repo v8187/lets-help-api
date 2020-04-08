@@ -1,4 +1,4 @@
-const userAllField = `userId,userPin,isVerified,roles,groups,
+const userAllField = `userId,userPin,isVerified,roles,
 name,gender,dob,,bloodGroup,email,
  address,phoneNos,city,state,country,
  referredById,joinedOn,showBloodGroup,
@@ -12,8 +12,9 @@ export const FIELDS_PUT_OWN_PROFILE = 'name,gender,dob,bloodGroup,address,phoneN
 // user profile by Admin
 export const FIELDS_GET_USER_PROFILE = '-_id -userPin -__v -showEmail -showPhoneNos -showBloodGroup -showAddress -showContributions -showBirthday';
 export const FIELDS_PUT_USER_PROFILE = 'isVerified,roles,referredById,joinedOn,phoneNos';
+export const FIELDS_POST_USER_PROFILE = 'name,gender,dob,bloodGroup,address,phoneNos,city,state,country,email,isVerified,roles,referredById,joinedOn';
 // user profile by all other users
-export const FIELDS_GET_PUBLIC_PROFILE = 'userId email roles groups phoneNos name gender referredBy joinedOn -_id';
+export const FIELDS_GET_PUBLIC_PROFILE = 'userId email roles phoneNos name gender referredBy joinedOn -_id';
 
 export const CASE_KEY_FIELDS = 'caseId caseTitle -_id';
 export const CASE_ADMIN_QUERY_FIELDS = '-_id -__v';

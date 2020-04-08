@@ -17,7 +17,7 @@ const hasAccountErr = (res, err = 'Server error') => {
 const signUpErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
-        message: `Cannot create account. Try again later`,
+        message: `Cannot register at this moment. Try again later`,
         type: 'INTERNAL_SERVER_ERROR'
     });
 };
@@ -140,7 +140,7 @@ export class AuthController extends BaseController {
         });
     }
 
-    createAccount(req, res, next, passport) {
+    signUp(req, res, next, passport) {
 
         const { name, email, userPin } = req.body;
 

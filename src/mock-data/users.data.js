@@ -35,7 +35,7 @@ let initiated = 0, added = 0, notAdded = 0;
 const addUser = (mockUser, callback) => {
     if (['vikram1vicky@gmail.com', 'gurinder1god@gmail.com'].indexOf(mockUser.email) !== -1) {
         mockUser.roles = userRoles;
-        mockUser.groups = userGroups;
+        // mockUser.groups = userGroups;
     }
     if (['vikram1vicky@gmail.com', 'gurinder1god@gmail.com', 'vik5sep@gmail.com'].indexOf(mockUser.email) === -1) {
         mockUser = {};

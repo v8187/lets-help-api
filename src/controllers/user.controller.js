@@ -1,7 +1,15 @@
 import { BaseController } from './BaseController';
 import { UserModel } from '../models/user.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_PUT_USER_PROFILE, FIELDS_PUT_OWN_PROFILE } from '../configs/query-fields';
+import { FIELDS_PUT_USER_PROFILE, FIELDS_PUT_OWN_PROFILE, FIELDS_POST_USER_PROFILE } from '../configs/query-fields';
+
+const createProfileErr = (res, err = 'Server error') => {
+    return sendResponse(res, {
+        error: err,
+        message: 'Something went wrong while creating new Profile. Try again later.',
+        type: 'INTERNAL_SERVER_ERROR'
+    });
+};
 
 export class UserController extends BaseController {
 
@@ -30,6 +38,44 @@ export class UserController extends BaseController {
 
     myProfile(req, res) {
         handleModelRes(UserModel.byUserId(getReqMetadata(req, 'user').userId), res);
+    }
+
+    createProfile(req, res) {
+        const { email } = req.body;
+
+        UserModel.hasAccount(req.body.email).then(user => {
+            if (user) {
+                return sendResponse(res, {
+                    error: 'Cannot create new Profile',
+                    message: `User already exist with "${email}".`,
+                    type: 'CONFLICT'
+                });
+            }
+            const { body } = req;
+            let newUser = new UserModel();
+
+            FIELDS_POST_USER_PROFILE.split(',').map(field => {
+                const data = body[field];
+                if (data !== undefined) {
+                    newUser[field] = Array.isArray(data) ? data.length ? data : newUser[field] : data;
+                }
+            });
+
+            newUser.vAuthUser = getReqMetadata(req, 'user').userId;
+
+            handleModelRes(
+                UserModel.saveUser(newUser),
+                res, {
+                success: 'Profile created successfully.',
+                error: 'Something went wrong while creating new Profile. Try again later.'
+            });
+        }, modelErr => {
+            console.error(modelErr);
+            return createProfileErr(res, modelErr.message);
+        }).catch(modelReason => {
+            console.log(modelReason);
+            return createProfileErr(res, modelReason.message);
+        });
     }
 
     editProfile(req, res) {
@@ -72,8 +118,7 @@ export class UserController extends BaseController {
             res, {
             success: 'Profile updated successfully.',
             error: 'Something went wrong while updating the Profile. Try again later.'
-        }
-        );
+        });
     }
 
     byUserId(req, res) {

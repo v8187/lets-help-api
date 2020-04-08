@@ -8,7 +8,7 @@ import {
 
 const {
     ids, usersList, userProfile, byUserId, editRoles, editGroups,
-    myProfile, editProfile,
+    myProfile, editProfile, createProfile,
     tempAll: userTempAll
 } = new UserController();
 
@@ -52,6 +52,13 @@ export const getUserRouter = (passport) => {
         (req, res) => editProfile(req, res)
     ]);
 
+    router.post('/createUser', [
+        validateWithToken,
+        (req, res, next) => validateRoles(req, res, next, 'admin'),
+        (req, res, next) => validateParams(req, res, next, 'email,name'),
+        (req, res) => createProfile(req, res)
+    ]);
+
     router.get('/info/:userId', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
@@ -66,12 +73,12 @@ export const getUserRouter = (passport) => {
         (req, res) => editRoles(req, res)
     ]);
 
-    router.put('/groups', [
-        validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'userId,newGroups'),
-        (req, res) => editGroups(req, res)
-    ]);
+    // router.put('/groups', [
+    //     validateWithToken,
+    //     (req, res, next) => validateRoles(req, res, next, 'admin'),
+    //     (req, res, next) => validateParams(req, res, next, 'userId,newGroups'),
+    //     (req, res) => editGroups(req, res)
+    // ]);
 
     // router.delete('/profile', [
     //     validateWithToken,
