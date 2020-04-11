@@ -30,7 +30,9 @@ const UserSchema = new BaseSchema({
         type: String, lowercase: true, required: true
     },
     address: String,
-    phoneNos: [{ type: String }],
+    contactNo: String,
+    alternateNo1: String,
+    alternateNo2: String,
     city: String,
     state: String,
     country: String,
@@ -41,7 +43,7 @@ const UserSchema = new BaseSchema({
 
     // Privacy fields
     showEmail: Boolean,
-    showPhoneNos: Boolean,
+    showContactNos: Boolean,
     showBloodGroup: Boolean,
     showAddress: Boolean,
     showContributions: Boolean,
@@ -77,7 +79,7 @@ UserSchema.virtual('referredBy', {
 // User Schema's save pre hook
 UserSchema.pre('save', async function (next) {
     let user = this;
-    
+
     user.userId = user._id;
     user.createdById = user.updatedById = user.vAuthUser || user.userId;
 
@@ -131,7 +133,7 @@ UserSchema.statics.list = function () {
 UserSchema.statics.listForAdmin = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ userId: 1, name: 1, joinedOn: 1, email: 1, phoneNos: 1, _id: 0 })
+        .project({ userId: 1, name: 1, joinedOn: 1, email: 1, contactNo: 1, alternateNo1: 1, alternateNo2: 1, _id: 0 })
         .sort('name')
         .exec();
 };
@@ -142,7 +144,9 @@ UserSchema.statics.userProfile = function (userId) {
         .project({
             userId: 1, name: 1, gender: 1, joinedOn: 1, isVerified: 1,
             roles: 1,/*  groups: 1, */ city: 1, state: 1, country: 1,
-            ...conditionalField('phoneNos', 'showPhoneNos'),
+            ...conditionalField('contactNo', 'showContactNos'),
+            ...conditionalField('alternateNo1', 'showContactNos'),
+            ...conditionalField('alternateNo2', 'showContactNos'),
             ...conditionalField('email', 'showEmail'),
             ...conditionalField('bloodGroup', 'showBloodGroup'),
             ...conditionalField('address', 'showAddress'),
@@ -186,7 +190,7 @@ UserSchema.statics.tempAll = function () {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        // .populate('phoneNos', PHONE_QUERY_FIELDS)
+        // .populate('contactNo', PHONE_QUERY_FIELDS)
         // .populate('city', 'city name -_id')
         // .populate('state', 'state name -_id')
         // .populate('country', 'country name -_id')

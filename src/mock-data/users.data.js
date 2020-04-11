@@ -1,5 +1,5 @@
 import { UserModel } from '../models/user.model';
-import { userRoles, userGroups } from '../configs/enum-constants';
+import { userRoles } from '../configs/enum-constants';
 import { pName, gender, email, dob, recentDate, country, state, city, bloodgroup, bool, phoneNo, addr } from './utils';
 
 // Add Mock Users data
@@ -14,18 +14,18 @@ const common = {
 const myProfile = {
     name: 'Vikram Gupta',
     email: 'vikram1vicky@gmail.com',
-    phoneNos: ['919779958985'],
+    contactNo: '919779958985',
     ...common
 };
 const mockUsersData = [{
     name: 'Vikram',
     email: 'vik5sep@gmail.com',
-    phoneNos: ['919888811427'],
+    contactNo: '919888811427',
     ...common
 }, {
     name: 'Gurinder Singh',
     email: 'gurinder1god@gmail.com',
-    phoneNos: ['919814114034'],
+    contactNo: '919814114034',
     ...common
 },
 ...new Array(87).join(',').split(',')];
@@ -42,7 +42,9 @@ const addUser = (mockUser, callback) => {
         mockUser.name = pName();
         mockUser.gender = gender();
         mockUser.email = email(mockUser.name);
-        mockUser.phoneNos = [phoneNo()];
+        mockUser.contactNo = phoneNo();
+        mockUser.alternateNo1 = phoneNo();
+        mockUser.alternateNo2 = phoneNo();
         mockUser.country = country();
         mockUser.state = state();
         mockUser.city = city();
@@ -54,7 +56,7 @@ const addUser = (mockUser, callback) => {
     mockUser.joinedOn = recentDate();
     mockUser.bloodGroup = bloodgroup();
     mockUser.showEmail = bool();
-    mockUser.showPhoneNos = bool();
+    mockUser.showContactNos = bool();
     mockUser.showBloodGroup = bool();
     mockUser.showAddress = bool();
     mockUser.showContributions = bool();

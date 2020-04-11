@@ -26,6 +26,14 @@ export const caseCategories = [
     'education--books', 'education--fees', 'ration', 'medical--operate', 'medical--medicines', 'legal', 'financial'
 ];
 
+export const caseTyes = [
+    'education', 'grocery', 'medical', 'legal', 'financial'
+];
+
+export const relationTypes = [
+    'self', 'referrer', 'mother', 'father', 'husband', 'wife', 'brother', 'sister', 'son', 'daughter', 'uncle', 'aunt', 'cusion', 'friend', 'neighbours'
+];
+
 export const frequencies = [
     'one-time', 'daily', 'weekly', 'bi-weekly', 'monthly', 'quarterly'
 ];

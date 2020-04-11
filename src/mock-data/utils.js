@@ -7,7 +7,7 @@ const DAY_MILISECONDS = 24 * 60 * 60 * 1000;
 export const pName = () => personName({ female: true, male: true, format: EPersonNameFormats.NAME_INITIAL_SURNAME });
 export const email = (name) => `${name.replace(/\s+/g, '.')}@gmail.com`.replace(/\.+/g, '.');
 export const phoneType = () => randomItem(phoneNoTypes);
-export const phoneNo = () => alphanumeric({ format: '+91-9xxxxxxxxx' });
+export const phoneNo = () => alphanumeric({ format: '9xxxxxxxxx' });
 export const addType = () => randomItem(addressTypes);
 export const addr = () => address();
 export const pincode = () => alphanumeric({ format: 'xxxxxx' });
