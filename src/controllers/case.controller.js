@@ -31,6 +31,44 @@ export class CaseController extends BaseController {
             CaseModel.caseDetails(req.params.caseId), res);
     }
 
+    requestCase(req, res) {
+        const { email } = req.body;
+
+        CaseModel.hasAccount(req.body.email).then($case => {
+            if ($case) {
+                return sendResponse(res, {
+                    error: 'Cannot create new Profile',
+                    message: `Case already exist with "${email}".`,
+                    type: 'CONFLICT'
+                });
+            }
+            const { body } = req;
+            let newCase = new CaseModel();
+
+            FIELDS_POST_USER_PROFILE.split(',').map(field => {
+                const data = body[field];
+                if (data !== undefined) {
+                    newCase[field] = Array.isArray(data) ? data.length ? data : newCase[field] : data;
+                }
+            });
+
+            newCase.vAuthCase = getReqMetadata(req, 'user').userId;
+
+            handleModelRes(
+                CaseModel.saveCase(newCase),
+                res, {
+                success: 'Profile created successfully.',
+                error: 'Something went wrong while creating new Profile. Try again later.'
+            });
+        }, modelErr => {
+            console.error(modelErr);
+            return createCaseErr(res, modelErr.message);
+        }).catch(modelReason => {
+            console.log(modelReason);
+            return createCaseErr(res, modelReason.message);
+        });
+    }
+
     createCase(req, res) {
         const { email } = req.body;
 

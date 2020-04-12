@@ -42,24 +42,31 @@ export const getCaseRouter = (passport) => {
         (req, res) => caseDetails(req, res)
     ]);
 
-    router.put('/update', [
+    router.put('/updateCase', [
         validateWithToken,
         (req, res) => editCase(req, res)
     ]);
 
-    router.post('/create', [
+    router.post('/createCase', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
         (req, res, next) => validateParams(req, res, next, 'email,name'),
         (req, res) => createCase(req, res)
     ]);
 
-    router.get('/info/:caseId', [
+    router.post('/requestCase', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'caseId'),
-        (req, res) => byCaseId(req, res)
+        (req, res, next) => validateParams(req, res, next, 'email,name'),
+        (req, res) => createCase(req, res)
     ]);
+
+    // router.get('/info/:caseId', [
+    //     validateWithToken,
+    //     (req, res, next) => validateRoles(req, res, next, 'admin'),
+    //     (req, res, next) => validateParams(req, res, next, 'caseId'),
+    //     (req, res) => byCaseId(req, res)
+    // ]);
 
     // Temporary Routes
     router.get('/tempAll', (req, res) => caseTempAll(req, res));

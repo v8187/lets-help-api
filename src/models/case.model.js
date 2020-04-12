@@ -1,30 +1,26 @@
 import { Schema, model } from 'mongoose';
-import { compareSync } from 'bcryptjs';
 
-import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
+import { BaseSchema, commonShemaOptions, defineCommonVirtuals, lookupUserFields } from './BaseSchema';
 import {
-    CASE_KEY_FIELDS, FIELDS_GET_CASE_ALL
+    CASE_KEY_FIELDS, FIELDS_GET_CASE_ALL, USER_KEY_FIELDS
 } from '../configs/query-fields';
 import { caseTyes, relationTypes, genders } from '../configs/enum-constants';
+import { UserModel } from './user.model';
 
 const CaseSchema = new BaseSchema({
     caseId: String,
     title: { type: String, required: true },
     description: { type: String },
     name: { type: String, required: true },
-    caseTypes: {
-        type: Schema.Types.EnumArray, default: [caseTyes[0]], enum: caseTyes, required: true
-    },
-    contactRelation: {
-        type: String, default: relationTypes[0], enum: relationTypes, required: true
-    },
+    caseTypes: { type: Schema.Types.EnumArray, default: [caseTyes[0]], enum: caseTyes, required: true },
+    contactRelation: { type: String, default: relationTypes[0], enum: relationTypes, required: true },
     contactPerson: { type: String, required: true },
     contactNo: String,
     alternateNo1: String,
     alternateNo2: String,
     gender: { type: String, enum: genders, lowercase: true },
     age: Number,
-    isApproved: { type: Number, default: 0, enum: [0, 1] },
+    isApproved: { type: Boolean, default: false, enum: [true, false] },
     approvedOn: { type: Date, default: new Date() },
     referredById: String,
     referredOn: { type: Date, default: new Date() },
@@ -32,11 +28,13 @@ const CaseSchema = new BaseSchema({
     city: { type: String, required: true },
     state: { type: String, required: true },
     country: { type: String, required: true },
-    isClosed: { type: Number, default: 0, enum: [0, 1] },
-    closedOn: Date,
-    closingReason: String,
+    isClosed: { type: Boolean, default: false, enum: [true, false] },
+    closedOn: { type: Date, default: null },
+    closingReason: { type: String, default: null },
     showContactNos: Boolean,
-    showAddress: Boolean
+    showAddress: Boolean,
+    upVoters: { type: [String], default: [] },
+    downVoters: { type: [String], default: [] }
 },
     {
         collection: 'Case',
@@ -66,9 +64,10 @@ CaseSchema.pre('save', async function (next) {
     delete $case.vAuthUser;
 
     if (!$case.referredById) {
-        const defaultReferrer = await CaseModel.findOne({ email: 'gurinder1god@gmail.com' }).select('userId email').exec();
+        const defaultReferrer = await UserModel.findOne({ email: 'gurinder1god@gmail.com' }).select('userId').exec();
         $case.referredById = defaultReferrer ? defaultReferrer.userId : '';
     }
+
     next();
 });
 
@@ -98,16 +97,16 @@ function conditionalField(name, condition) {
 CaseSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ caseId: 1, title: 1, approvedOn: 1, _id: 0 })
-        .sort('approvedOn')
+        .project({ caseId: 1, title: 1, isApproved: 1, _id: 0 })
+        .sort('title')
         .exec();
 };
 
 CaseSchema.statics.listForAdmin = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ caseId: 1, name: 1, title: 1, approvedOn: 1, contactNo: 1, alternateNo1: 1, alternateNo2: 1, _id: 0 })
-        .sort('approvedOn')
+        .project({ caseId: 1, name: 1, title: 1, isApproved: 1, contactNo: 1, alternateNo1: 1, alternateNo2: 1, _id: 0 })
+        .sort('title')
         .exec();
 };
 
@@ -131,56 +130,70 @@ CaseSchema.statics.caseDetails = function (caseId) {
 };
 
 CaseSchema.statics.caseDetailsForAdmin = function (caseId) {
-    return this.aggregate([
-        { $match: { caseId } },
-        { $limit: 1 },
-        ...lookupCaseFields('createdById', 'createdBy'),
-        ...lookupCaseFields('updatedById', 'updatedBy'),
-        ...lookupRefFields('referredById', 'referredBy'),
-    ]).project({
-        caseId: 1, title: 1, description: 1, name: 1, caseTypes: 1,
-        contactRelation: 1, contactPerson: 1, gender: 1, age: 1, isApproved: 1,
-        referredById: 1, referredOn: 1, city: 1, state: 1, country: 1, isClosed: 1,
-        ...conditionalField('contactNo', 'showContactNos'),
-        ...conditionalField('alternateNo1', 'showContactNos'),
-        ...conditionalField('alternateNo2', 'showContactNos'),
-        ...conditionalField('address', 'showAddress'),
-        ...conditionalField('closedOn', 'isClosed'),
-        ...conditionalField('closingReason', 'isClosed'),
-        ...conditionalField('approvedOn', 'isApproved'),
-        _id: 0
-    })
+    return this
+        // .aggregate([
+        //     { $match: { caseId } },
+        //     { $limit: 1 },
+        //     ...lookupUserFields('createdById', 'createdBy'),
+        //     ...lookupUserFields('updatedById', 'updatedBy'),
+        //     ...lookupUserFields('referredById', 'referredBy'),
+        // {
+        //     $project: {
+        //         createdById: 1, updatedById: 1,
+        //         caseId: 1, title: 1, description: 1, name: 1, caseTypes: 1,
+        //         contactNo: 1, alternateNo1: 1, alternateNo2: 1, address: 1,
+        //         contactRelation: 1, contactPerson: 1, gender: 1, age: 1, isApproved: 1,
+        //         referredById: 1, referredOn: 1, city: 1, state: 1, country: 1, isClosed: 1,
+        //         ...conditionalField('closedOn', 'isClosed'),
+        //         ...conditionalField('closingReason', 'isClosed'),
+        //         ...conditionalField('approvedOn', 'isApproved'),
+        //         upVotes: { $size: '$upVoters' }, downVotes: { $size: '$downVoters' },
+        //         _id: 0
+        //     }
+        // }
+        // ])
+        // .project({
+        //     caseId: 1, title: 1, description: 1, name: 1, caseTypes: 1,
+        //     contactNo: 1, alternateNo1: 1, alternateNo2: 1, address: 1,
+        //     contactRelation: 1, contactPerson: 1, gender: 1, age: 1, isApproved: 1,
+        //     referredById: 1, referredOn: 1, city: 1, state: 1, country: 1, isClosed: 1,
+        //     upVotes: { $size: '$upVoters' }, downVotes: { $size: '$downVoters' },
+        //     ...conditionalField('closedOn', 'isClosed'),
+        //     ...conditionalField('closingReason', 'isClosed'),
+        //     ...conditionalField('approvedOn', 'isApproved'),
+        //     _id: 0
+        // })
+
+        // .aggregate([
+        //     { $match: { caseId } },
+        //     ...lookupCaseFields('createdById', 'createdBy'),
+        //     ...lookupCaseFields('updatedById', 'updatedBy'),
+        //     ...lookupRefFields('referredById', 'referredBy'),
+        //     { $project: { _id: 0, casePin: 0, __v: 0 } }
+        // ]);
+    .findOne({ caseId })
+        .populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
+        .select('-_id')
         .exec();
-    // .aggregate([
-    //     { $match: { caseId } },
-    //     ...lookupCaseFields('createdById', 'createdBy'),
-    //     ...lookupCaseFields('updatedById', 'updatedBy'),
-    //     ...lookupRefFields('referredById', 'referredBy'),
-    //     { $project: { _id: 0, casePin: 0, __v: 0 } }
-    // ]);
-    // .findOne({ caseId })
-    // .populate('createdBy', CASE_KEY_FIELDS)
-    // .populate('updatedBy', CASE_KEY_FIELDS)
-    // .populate('referredBy', CASE_KEY_FIELDS)
-    // .select(FIELDS_GET_CASE_ALL)
-    // .exec();
 };
 
 CaseSchema.statics.byCaseId = function (caseId) {
     return this
         .findOne({ caseId })
-        .populate('createdBy', CASE_KEY_FIELDS)
-        .populate('updatedBy', CASE_KEY_FIELDS)
-        .populate('referredBy', CASE_KEY_FIELDS)
+        .populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
         .select(FIELDS_GET_CASE_ALL)
         .exec();
 };
 
 CaseSchema.statics.tempAll = function () {
     return this.find()
-        .populate('createdBy', CASE_KEY_FIELDS)
-        .populate('updatedBy', CASE_KEY_FIELDS)
-        .populate('referredBy', CASE_KEY_FIELDS)
+        .populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
         .select().exec();
 };
 

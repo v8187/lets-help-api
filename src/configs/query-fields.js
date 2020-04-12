@@ -1,10 +1,3 @@
-const userAllField = `userId,userPin,isVerified,roles,
-name,gender,dob,,bloodGroup,email,
- address,contactNo,alternateNo1,alternateNo2,city,state,country,
- referredById,joinedOn,showBloodGroup,
- showAddress,showContributions,
- showBirthday`
-
 export const USER_KEY_FIELDS = 'userId name email -_id';
 // own user profile
 export const FIELDS_GET_OWN_PROFILE = '-_id -userPin -__v';

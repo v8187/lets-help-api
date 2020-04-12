@@ -1,7 +1,7 @@
 import httpStatus from 'http-status-codes';
 import rUpdate from 'react-addons-update';
 
-const ARRAYTOOBJECT_ROUTES = ['userProfile'];
+const ARRAYTOOBJECT_ROUTES = ['userProfile', 'caseInfo'];
 
 const arrayToObject = (res, data) => {
     const hasRoute = ARRAYTOOBJECT_ROUTES.some(route => res.req.url.indexOf(route) !== -1);

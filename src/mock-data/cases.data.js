@@ -1148,16 +1148,17 @@ const actualCasesData = [{
     country: 'India',
 }];
 
-let initiated = 0, added = 0, notAdded = 0, vAuthUser;
+let initiated = 0, added = 0, notAdded = 0, vikram, gurinder;
 
 const addCase = ($case, callback) => {
 
     $case.showContactNos = bool();
     $case.showAddress = bool();
-    $case.vAuthUser = vAuthUser;
-    $case.isApproved = 1;
+    $case.vAuthUser = vikram;
+    $case.isApproved = true;
     $case.approvedOn = new Date($case.approvedOn);
     $case.referredOn = new Date($case.referredOn);
+    $case.upVoters = [vikram, gurinder];
 
     initiated++;
     CaseModel.saveCase(Object.assign(new CaseModel(), $case)).then(
@@ -1183,8 +1184,8 @@ const addCase = ($case, callback) => {
 };
 
 (async () => {
-    vAuthUser = (await UserModel.findOne({ email: 'vikram1vicky@gmail.com' }).select('userId -_id').exec()).userId;
-
+    vikram = (await UserModel.findOne({ email: 'vikram1vicky@gmail.com' }).select('userId -_id').exec()).userId;
+    gurinder = (await UserModel.findOne({ email: 'gurinder1god@gmail.com' }).select('userId -_id').exec()).userId;
     actualCasesData.map(addCase);
 })();
 

@@ -143,7 +143,7 @@ UserSchema.statics.userProfile = function (userId) {
         .aggregate([{ $match: { userId } }, { $limit: 1 }])
         .project({
             userId: 1, name: 1, gender: 1, joinedOn: 1, isVerified: 1,
-            roles: 1,/*  groups: 1, */ city: 1, state: 1, country: 1,
+            roles: 1, city: 1, state: 1, country: 1,
             ...conditionalField('contactNo', 'showContactNos'),
             ...conditionalField('alternateNo1', 'showContactNos'),
             ...conditionalField('alternateNo2', 'showContactNos'),
