@@ -1,10 +1,13 @@
 import { Schema, model } from 'mongoose';
 
-import { BaseSchema, commonShemaOptions, defineCommonVirtuals, lookupUserFields } from './BaseSchema';
+import {
+    BaseSchema, commonShemaOptions,
+    conditionalField, defineCommonVirtuals, lookupUserFields
+} from './BaseSchema';
 import {
     CASE_KEY_FIELDS, FIELDS_GET_CASE_ALL, USER_KEY_FIELDS
 } from '../configs/query-fields';
-import { caseTyes, relationTypes, genders } from '../configs/enum-constants';
+import { caseTypes, relationTypes, genders } from '../configs/enum-constants';
 import { UserModel } from './user.model';
 
 const CaseSchema = new BaseSchema({
@@ -12,7 +15,7 @@ const CaseSchema = new BaseSchema({
     title: { type: String, required: true },
     description: { type: String },
     name: { type: String, required: true },
-    caseTypes: { type: Schema.Types.EnumArray, default: [caseTyes[0]], enum: caseTyes, required: true },
+    caseTypes: { type: Schema.Types.EnumArray, default: [caseTypes[0]], enum: caseTypes, required: true },
     contactRelation: { type: String, default: relationTypes[0], enum: relationTypes, required: true },
     contactPerson: { type: String, required: true },
     contactNo: String,
@@ -75,18 +78,6 @@ CaseSchema.pre('updateOne', function (next) {
     next();
 });
 
-function conditionalField(name, condition) {
-    return {
-        [name]: {
-            $cond: {
-                if: { $eq: [`$${condition}`, true] },
-                then: `$${name}`,
-                else: 0
-            }
-        }
-    };
-}
-
 /*
  * Add Custom static methods
  * =========================
@@ -97,7 +88,7 @@ function conditionalField(name, condition) {
 CaseSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ caseId: 1, title: 1, isApproved: 1, _id: 0 })
+        .project({ caseId: 1, title: 1, isApproved: 1, isClosed: 1, upVoters: 1, downVoters: 1, _id: 0 })
         .sort('title')
         .exec();
 };
@@ -105,18 +96,23 @@ CaseSchema.statics.list = function () {
 CaseSchema.statics.listForAdmin = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ caseId: 1, name: 1, title: 1, isApproved: 1, contactNo: 1, alternateNo1: 1, alternateNo2: 1, _id: 0 })
+        .project({ caseId: 1, name: 1, title: 1, isClosed: 1, isApproved: 1, contactNo: 1, alternateNo1: 1, alternateNo2: 1, upVoters: 1, downVoters: 1, _id: 0 })
         .sort('title')
         .exec();
 };
 
 CaseSchema.statics.caseDetails = function (caseId) {
     return this
-        .aggregate([{ $match: { caseId } }, { $limit: 1 }])
+        .aggregate([
+            { $match: { caseId } },
+            { $limit: 1 },
+            ...lookupUserFields('referredById', 'referredBy'),
+        ])
         .project({
             caseId: 1, title: 1, description: 1, name: 1, caseTypes: 1,
-            contactRelation: 1, contactPerson: 1, gender: 1, age: 1, isApproved: 1,
-            referredById: 1, referredOn: 1, city: 1, state: 1, country: 1, isClosed: 1,
+            contactRelation: 1, contactPerson: 1, gender: 1, age: 1,
+            isApproved: 1, approvedOn: 1, referredOn: 1, city: 1, referredBy: 1,
+            state: 1, country: 1, isClosed: 1, upVoters: 1, downVoters: 1,
             ...conditionalField('contactNo', 'showContactNos'),
             ...conditionalField('alternateNo1', 'showContactNos'),
             ...conditionalField('alternateNo2', 'showContactNos'),
@@ -131,51 +127,11 @@ CaseSchema.statics.caseDetails = function (caseId) {
 
 CaseSchema.statics.caseDetailsForAdmin = function (caseId) {
     return this
-        // .aggregate([
-        //     { $match: { caseId } },
-        //     { $limit: 1 },
-        //     ...lookupUserFields('createdById', 'createdBy'),
-        //     ...lookupUserFields('updatedById', 'updatedBy'),
-        //     ...lookupUserFields('referredById', 'referredBy'),
-        // {
-        //     $project: {
-        //         createdById: 1, updatedById: 1,
-        //         caseId: 1, title: 1, description: 1, name: 1, caseTypes: 1,
-        //         contactNo: 1, alternateNo1: 1, alternateNo2: 1, address: 1,
-        //         contactRelation: 1, contactPerson: 1, gender: 1, age: 1, isApproved: 1,
-        //         referredById: 1, referredOn: 1, city: 1, state: 1, country: 1, isClosed: 1,
-        //         ...conditionalField('closedOn', 'isClosed'),
-        //         ...conditionalField('closingReason', 'isClosed'),
-        //         ...conditionalField('approvedOn', 'isApproved'),
-        //         upVotes: { $size: '$upVoters' }, downVotes: { $size: '$downVoters' },
-        //         _id: 0
-        //     }
-        // }
-        // ])
-        // .project({
-        //     caseId: 1, title: 1, description: 1, name: 1, caseTypes: 1,
-        //     contactNo: 1, alternateNo1: 1, alternateNo2: 1, address: 1,
-        //     contactRelation: 1, contactPerson: 1, gender: 1, age: 1, isApproved: 1,
-        //     referredById: 1, referredOn: 1, city: 1, state: 1, country: 1, isClosed: 1,
-        //     upVotes: { $size: '$upVoters' }, downVotes: { $size: '$downVoters' },
-        //     ...conditionalField('closedOn', 'isClosed'),
-        //     ...conditionalField('closingReason', 'isClosed'),
-        //     ...conditionalField('approvedOn', 'isApproved'),
-        //     _id: 0
-        // })
-
-        // .aggregate([
-        //     { $match: { caseId } },
-        //     ...lookupCaseFields('createdById', 'createdBy'),
-        //     ...lookupCaseFields('updatedById', 'updatedBy'),
-        //     ...lookupRefFields('referredById', 'referredBy'),
-        //     { $project: { _id: 0, casePin: 0, __v: 0 } }
-        // ]);
-    .findOne({ caseId })
+        .findOne({ caseId })
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id')
+        .select(FIELDS_GET_CASE_ALL)
         .exec();
 };
 

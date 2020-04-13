@@ -1,7 +1,10 @@
 import { Schema, model } from 'mongoose';
 import { compareSync } from 'bcryptjs';
 
-import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
+import {
+    BaseSchema, commonShemaOptions,
+    conditionalField, defineCommonVirtuals
+} from './BaseSchema';
 import {
     USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE, FIELDS_GET_USER_PROFILE
 } from '../configs/query-fields';
@@ -99,18 +102,6 @@ UserSchema.pre('save', async function (next) {
 UserSchema.pre('updateOne', function (next) {
     next();
 });
-
-function conditionalField(name, condition) {
-    return {
-        [name]: {
-            $cond: {
-                if: { $eq: [`$${condition}`, true] },
-                then: `$${name}`,
-                else: 0
-            }
-        }
-    };
-}
 
 /*
  * Add Custom static methods

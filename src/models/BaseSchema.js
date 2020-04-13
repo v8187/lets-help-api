@@ -110,6 +110,18 @@ export const lookupUserFields = (byId, as) => {
     }, { $unwind: `$${as}` }, { $project: { [byId]: 0 } }];
 };
 
+export function conditionalField(name, condition) {
+    return {
+        [name]: {
+            $cond: {
+                if: { $eq: [`$${condition}`, true] },
+                then: `$${name}`,
+                else: null
+            }
+        }
+    };
+}
+
 export const lookupCountryFields = (byId, as) => {
     return [{
         $lookup: {

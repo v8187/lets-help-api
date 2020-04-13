@@ -26,7 +26,7 @@ export const caseCategories = [
     'education--books', 'education--fees', 'ration', 'medical--operate', 'medical--medicines', 'legal', 'financial'
 ];
 
-export const caseTyes = [
+export const caseTypes = [
     'education', 'grocery', 'medical', 'legal', 'financial'
 ];
 
