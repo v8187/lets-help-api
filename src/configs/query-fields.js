@@ -13,3 +13,6 @@ export const FIELDS_GET_CASE_ALL = '-_id -__v';
 export const CASE_KEY_FIELDS = 'caseId title -_id';
 export const CASE_ADMIN_QUERY_FIELDS = '-_id -__v';
 export const CASE_PUBLIC_QUERY_FIELDS = '-_id -userPin -__v -createdById -updatedById -createdOn -updatedOn';
+// Case Create/Update fields based on Role
+export const FIELDS_CREATE_CASE = 'caseTypes,contactRelation,referredOn,contactNo,title,name,contactPerson,description,gender,age,address,city,state,country,referredBy';
+export const FIELDS_CREATE_CASE_ADMIN = FIELDS_CREATE_CASE + ',isApproved,approvedOn,isClosed,closedOn,closingReason,showContactNos,showAddress';

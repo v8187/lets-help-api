@@ -7,8 +7,8 @@ import {
 } from '../middlewares/routes';
 
 const {
-    ids, casesList, caseDetails, byCaseId,
-    editCase, createCase,
+    ids, casesList, caseDetails,
+    editCase, createCase, count, toggleReaction,
     tempAll: caseTempAll
 } = new CaseController();
 
@@ -24,6 +24,11 @@ router.use((req, res, next) => {
 export const getCaseRouter = (passport) => {
 
     const validateWithToken = (req, res, next) => validateToken(req, res, next, passport);
+
+    router.get('/count', [
+        validateWithToken,
+        (req, res) => count(req, res)
+    ]);
 
     router.get('/ids', [
         validateWithToken,
@@ -44,21 +49,27 @@ export const getCaseRouter = (passport) => {
 
     router.put('/updateCase', [
         validateWithToken,
+        (req, res, next) => validateParams(req, res, next, 'caseId'),
         (req, res) => editCase(req, res)
     ]);
 
     router.post('/createCase', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'email,name'),
+        (req, res, next) => validateParams(req, res, next, 'title,name,contactNo,city'),
         (req, res) => createCase(req, res)
     ]);
 
     router.post('/requestCase', [
         validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'email,name'),
+        (req, res, next) => validateParams(req, res, next, 'title,name,contactNo,city'),
         (req, res) => createCase(req, res)
+    ]);
+
+    router.put('/react', [
+        validateWithToken,
+        (req, res, next) => validateParams(req, res, next, 'caseId,reactionType'),
+        (req, res) => toggleReaction(req, res)
     ]);
 
     // router.get('/info/:caseId', [

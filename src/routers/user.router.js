@@ -7,7 +7,7 @@ import {
 } from '../middlewares/routes';
 
 const {
-    ids, usersList, userProfile, byUserId, editRoles, editGroups,
+    ids, usersList, userProfile, byUserId, editRoles, count,
     myProfile, editProfile, createProfile,
     tempAll: userTempAll
 } = new UserController();
@@ -24,6 +24,11 @@ router.use((req, res, next) => {
 export const getUserRouter = (passport) => {
 
     const validateWithToken = (req, res, next) => validateToken(req, res, next, passport);
+
+    router.get('/count', [
+        validateWithToken,
+        (req, res) => count(req, res)
+    ]);
 
     router.get('/ids', [
         validateWithToken,

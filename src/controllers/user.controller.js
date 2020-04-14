@@ -17,6 +17,10 @@ export class UserController extends BaseController {
         handleModelRes(UserModel.hasAccount(req.params.userInfo), res);
     }
 
+    count(req, res) {
+        handleModelRes(UserModel.count(), res);
+    }
+
     ids(req, res) {
         handleModelRes(UserModel.keyProps(), res);
     }

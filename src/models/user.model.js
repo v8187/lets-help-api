@@ -206,6 +206,10 @@ UserSchema.statics.tempAll = function () {
         .select().exec();
 };
 
+UserSchema.statics.count = function () {
+    return this.countDocuments();
+};
+
 UserSchema.statics.keyProps = function () {
     return this.find().select(USER_KEY_FIELDS).sort('name').exec();
 };

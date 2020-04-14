@@ -15,10 +15,10 @@ const CaseSchema = new BaseSchema({
     title: { type: String, required: true },
     description: { type: String },
     name: { type: String, required: true },
-    caseTypes: { type: Schema.Types.EnumArray, default: [caseTypes[0]], enum: caseTypes, required: true },
-    contactRelation: { type: String, default: relationTypes[0], enum: relationTypes, required: true },
-    contactPerson: { type: String, required: true },
-    contactNo: String,
+    caseTypes: { type: Schema.Types.EnumArray, default: [caseTypes[0]], enum: caseTypes },
+    contactRelation: { type: String, default: relationTypes[0], enum: relationTypes },
+    contactPerson: { type: String },
+    contactNo: { type: String, required: true },
     alternateNo1: String,
     alternateNo2: String,
     gender: { type: String, enum: genders, lowercase: true },
@@ -29,8 +29,8 @@ const CaseSchema = new BaseSchema({
     referredOn: { type: Date, default: new Date() },
     address: String,
     city: { type: String, required: true },
-    state: { type: String, required: true },
-    country: { type: String, required: true },
+    state: { type: String },
+    country: { type: String },
     isClosed: { type: Boolean, default: false, enum: [true, false] },
     closedOn: { type: Date, default: null },
     closingReason: { type: String, default: null },
@@ -63,8 +63,8 @@ CaseSchema.pre('save', async function (next) {
 
     $case.caseId = $case._id;
 
-    $case.createdById = $case.updatedById = $case.vAuthUser;
-    delete $case.vAuthUser;
+    // $case.createdById = $case.updatedById = $case.vAuthUser;
+    // delete $case.vAuthUser;
 
     if (!$case.referredById) {
         const defaultReferrer = await UserModel.findOne({ email: 'gurinder1god@gmail.com' }).select('userId').exec();
@@ -145,6 +145,13 @@ CaseSchema.statics.byCaseId = function (caseId) {
         .exec();
 };
 
+CaseSchema.statics.byId = function (caseId) {
+    return this
+        .findOne({ caseId })
+        .select('-_id')
+        .exec();
+};
+
 CaseSchema.statics.tempAll = function () {
     return this.find()
         .populate('createdBy', USER_KEY_FIELDS)
@@ -153,14 +160,37 @@ CaseSchema.statics.tempAll = function () {
         .select().exec();
 };
 
+CaseSchema.statics.count = function () {
+    return this.countDocuments();
+};
+
 CaseSchema.statics.keyProps = function () {
     return this.find().select(CASE_KEY_FIELDS).sort('title').exec();
+};
+
+CaseSchema.statics.caseExists = function (caseInfo) {
+    return this
+        .findOne({
+            $and: [
+                { contactNo: caseInfo.contactNo },
+                { title: caseInfo.title }
+            ]
+        })
+        .exec();
 };
 
 CaseSchema.statics.editCase = function (vAuthUser, caseId, data) {
     return this.updateOne(
         { caseId },
         { $set: { ...data, vAuthUser } },
+        { upsert: false }
+    ).exec();
+};
+
+CaseSchema.statics.toggleReaction = function (caseId, data) {
+    return this.updateOne(
+        { caseId },
+        { $set: { ...data } },
         { upsert: false }
     ).exec();
 };
