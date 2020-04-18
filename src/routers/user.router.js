@@ -7,7 +7,7 @@ import {
 } from '../middlewares/routes';
 
 const {
-    ids, usersList, userProfile, byUserId, editRoles, count,
+    ids, usersList, userProfile, byUserId, count,
     myProfile, editProfile, createProfile,
     tempAll: userTempAll
 } = new UserController();
@@ -70,20 +70,6 @@ export const getUserRouter = (passport) => {
         (req, res, next) => validateParams(req, res, next, 'userId'),
         (req, res) => byUserId(req, res)
     ]);
-
-    router.put('/roles', [
-        validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'userId,newRoles'),
-        (req, res) => editRoles(req, res)
-    ]);
-
-    // router.put('/groups', [
-    //     validateWithToken,
-    //     (req, res, next) => validateRoles(req, res, next, 'admin'),
-    //     (req, res, next) => validateParams(req, res, next, 'userId,newGroups'),
-    //     (req, res) => editGroups(req, res)
-    // ]);
 
     // router.delete('/profile', [
     //     validateWithToken,

@@ -1,11 +1,10 @@
 import { Schema, model } from 'mongoose';
 
 import {
-    BaseSchema, commonShemaOptions,
-    conditionalField, defineCommonVirtuals, lookupUserFields
+    BaseSchema, commonShemaOptions, defineCommonVirtuals
 } from './BaseSchema';
 import {
-    CASE_KEY_FIELDS, FIELDS_GET_CASE_ALL, USER_KEY_FIELDS
+    CASE_KEY_FIELDS,  USER_KEY_FIELDS
 } from '../configs/query-fields';
 import { caseTypes, relationTypes, genders } from '../configs/enum-constants';
 import { UserModel } from './user.model';
@@ -74,9 +73,20 @@ CaseSchema.pre('save', async function (next) {
     next();
 });
 
-CaseSchema.pre('updateOne', function (next) {
+CaseSchema.post('save', async function ($case, next) {
+
+    const populatedCase = await $case.
+        populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
+        .execPopulate();
+
     next();
 });
+
+// CaseSchema.pre('updateOne', function (next) {
+//     next();
+// });
 
 /*
  * Add Custom static methods
@@ -85,45 +95,48 @@ CaseSchema.pre('updateOne', function (next) {
  * Do not declare methods using ES6 arrow functions (=>). 
  * Arrow functions explicitly prevent binding this
  */
-CaseSchema.statics.list = function () {
-    return this
-        .aggregate([{ $match: {} }])
-        .project({ caseId: 1, title: 1, isApproved: 1, isClosed: 1, upVoters: 1, downVoters: 1, _id: 0 })
-        .sort('title')
-        .exec();
-};
+// CaseSchema.statics.list = function () {
+//     return this
+//         .aggregate([{ $match: {} }])
+//         .project({ caseId: 1, name: 1, title: 1, isApproved: 1, isClosed: 1, upVoters: 1, downVoters: 1, _id: 0 })
+//         .sort('title')
+//         .exec();
+// };
 
 CaseSchema.statics.listForAdmin = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ caseId: 1, name: 1, title: 1, isClosed: 1, isApproved: 1, contactNo: 1, alternateNo1: 1, alternateNo2: 1, upVoters: 1, downVoters: 1, _id: 0 })
+        .project({
+            caseId: 1, name: 1, title: 1, isApproved: 1, isClosed: 1,
+            upVoters: 1, downVoters: 1, contactNo: 1, alternateNo1: 1, alternateNo2: 1, _id: 0
+        })
         .sort('title')
         .exec();
 };
 
-CaseSchema.statics.caseDetails = function (caseId) {
-    return this
-        .aggregate([
-            { $match: { caseId } },
-            { $limit: 1 },
-            ...lookupUserFields('referredById', 'referredBy'),
-        ])
-        .project({
-            caseId: 1, title: 1, description: 1, name: 1, caseTypes: 1,
-            contactRelation: 1, contactPerson: 1, gender: 1, age: 1,
-            isApproved: 1, approvedOn: 1, referredOn: 1, city: 1, referredBy: 1,
-            state: 1, country: 1, isClosed: 1, upVoters: 1, downVoters: 1,
-            ...conditionalField('contactNo', 'showContactNos'),
-            ...conditionalField('alternateNo1', 'showContactNos'),
-            ...conditionalField('alternateNo2', 'showContactNos'),
-            ...conditionalField('address', 'showAddress'),
-            ...conditionalField('closedOn', 'isClosed'),
-            ...conditionalField('closingReason', 'isClosed'),
-            ...conditionalField('approvedOn', 'isApproved'),
-            _id: 0
-        })
-        .exec();
-};
+// CaseSchema.statics.caseDetails = function (caseId) {
+//     return this
+//         .aggregate([
+//             { $match: { caseId } },
+//             { $limit: 1 },
+//             ...lookupUserFields('referredById', 'referredBy'),
+//         ])
+//         .project({
+//             caseId: 1, title: 1, description: 1, name: 1, caseTypes: 1,
+//             contactRelation: 1, contactPerson: 1, gender: 1, age: 1,
+//             isApproved: 1, approvedOn: 1, referredOn: 1, city: 1, referredBy: 1,
+//             state: 1, country: 1, isClosed: 1, upVoters: 1, downVoters: 1,
+//             ...conditionalField('contactNo', 'showContactNos'),
+//             ...conditionalField('alternateNo1', 'showContactNos'),
+//             ...conditionalField('alternateNo2', 'showContactNos'),
+//             ...conditionalField('address', 'showAddress'),
+//             ...conditionalField('closedOn', 'isClosed'),
+//             ...conditionalField('closingReason', 'isClosed'),
+//             ...conditionalField('approvedOn', 'isApproved'),
+//             _id: 0
+//         })
+//         .exec();
+// };
 
 CaseSchema.statics.caseDetailsForAdmin = function (caseId) {
     return this
@@ -131,8 +144,7 @@ CaseSchema.statics.caseDetailsForAdmin = function (caseId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select(FIELDS_GET_CASE_ALL)
-        .exec();
+        .select('-_id -__v').exec();
 };
 
 CaseSchema.statics.byCaseId = function (caseId) {
@@ -141,8 +153,7 @@ CaseSchema.statics.byCaseId = function (caseId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select(FIELDS_GET_CASE_ALL)
-        .exec();
+        .select('-_id -__v').exec();
 };
 
 CaseSchema.statics.byId = function (caseId) {
@@ -180,19 +191,31 @@ CaseSchema.statics.caseExists = function (caseInfo) {
 };
 
 CaseSchema.statics.editCase = function (vAuthUser, caseId, data) {
-    return this.updateOne(
+    return this.findOneAndUpdate(
         { caseId },
         { $set: { ...data, vAuthUser } },
-        { upsert: false }
-    ).exec();
+        { upsert: false, new: true, }
+    )
+        .populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
+        .select('-_id -__v').exec();
 };
 
 CaseSchema.statics.toggleReaction = function (caseId, data) {
-    return this.updateOne(
+    return this.findOneAndUpdate(
         { caseId },
         { $set: { ...data } },
-        { upsert: false }
-    ).exec();
+        {
+            upsert: false,
+            new: true,
+            timestamps: false
+        }
+    )
+        .populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
+        .select('-_id -__v').exec();
 };
 
 CaseSchema.statics.saveCase = function ($case) {

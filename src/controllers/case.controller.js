@@ -34,16 +34,20 @@ export class CaseController extends BaseController {
     }
 
     casesList(req, res) {
-        const isAdmin = getReqMetadata(req, 'user').roles.indexOf('admin') !== -1;
-        handleModelRes(isAdmin ? CaseModel.listForAdmin() : CaseModel.list(), res);
+        // const isAdmin = getReqMetadata(req, 'user').roles.indexOf('admin') !== -1;
+        handleModelRes(CaseModel.listForAdmin()/* isAdmin ? CaseModel.listForAdmin() : CaseModel.list() */, res, {
+            onSuccess: data => parseResponseData(req, data)
+        });
     }
 
     caseDetails(req, res) {
-        const isAdmin = getReqMetadata(req, 'user').roles.indexOf('admin') !== -1;
+        // const isAdmin = getReqMetadata(req, 'user').roles.indexOf('admin') !== -1;
 
-        handleModelRes(isAdmin ?
+        handleModelRes(CaseModel.caseDetailsForAdmin(req.params.caseId)/* isAdmin ?
             CaseModel.caseDetailsForAdmin(req.params.caseId) :
-            CaseModel.caseDetails(req.params.caseId), res);
+            CaseModel.caseDetails(req.params.caseId) */, res, {
+            onSuccess: data => parseResponseData(req, data, true)
+        });
     }
 
     createCase(req, res) {
@@ -76,7 +80,8 @@ export class CaseController extends BaseController {
                 CaseModel.saveCase(newCase),
                 res, {
                 success: 'Case created successfully.',
-                error: 'Something went wrong while creating new Case. Try again later.'
+                error: 'Something went wrong while creating new Case. Try again later.',
+                onSuccess: data => parseResponseData(req, data, true)
             });
         }, modelErr => {
             console.error(modelErr);
@@ -104,7 +109,8 @@ export class CaseController extends BaseController {
             CaseModel.editCase(user.userId, body.caseId, tempData),
             res, {
             success: 'Case updated successfully.',
-            error: 'Something went wrong while updating the Case. Try again later.'
+            error: 'Something went wrong while updating the Case. Try again later.',
+            onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
@@ -160,7 +166,8 @@ export class CaseController extends BaseController {
                 CaseModel.toggleReaction(caseId, tempData),
                 res, {
                 success: 'Your reaction saved successfully.',
-                error: 'Something went wrong while updating "your reaction" for Case. Try again later.'
+                error: 'Something went wrong while updating "your reaction" for Case. Try again later.',
+                onSuccess: data => parseResponseData(req, data, true)
             });
         }, modelErr => {
             console.error(modelErr);
@@ -179,3 +186,47 @@ export class CaseController extends BaseController {
         handleModelRes(CaseModel.tempAll(), res);
     }
 }
+
+const parseResponseData = (req, data, toObject = false) => {
+    const user = getReqMetadata(req, 'user'),
+        isAdmin = user.roles.indexOf('admin') !== -1;
+
+    !Array.isArray(data) && (data = [data]);
+
+    data = data.map(item => {
+        item.toObject && (item = item.toObject());
+
+        if (!isAdmin) {
+            if (!item.showContactNos) {
+                delete item.contactNo;
+                delete item.alternateNo1;
+                delete item.alternateNo2;
+            }
+            if (!item.showAddress) {
+                delete item.address;
+            }
+            delete item.createdOn;
+            delete item.createdBy;
+            delete item.updatedOn;
+            delete item.createdBy;
+        }
+        if (!item.isClosed) {
+            delete item.closedOn;
+            delete item.closingReason;
+        }
+        if (!item.isApproved) {
+            delete item.approvedOn;
+        }
+        delete item.createdById;
+        delete item.updatedById;
+        delete item.referredById;
+        delete item._id;
+        delete item.__v;
+
+        return item;
+    });
+
+    data = toObject && Array.isArray(data) ? data[0] : data;
+
+    return data;
+};

@@ -1,14 +1,9 @@
 import { Schema, model } from 'mongoose';
 import { compareSync } from 'bcryptjs';
 
-import {
-    BaseSchema, commonShemaOptions,
-    conditionalField, defineCommonVirtuals
-} from './BaseSchema';
-import {
-    USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE, FIELDS_GET_USER_PROFILE
-} from '../configs/query-fields';
-import { userGroups, userRoles, genders, bloodGroups } from '../configs/enum-constants';
+import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
+import { USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE } from '../configs/query-fields';
+import { userRoles, genders, bloodGroups } from '../configs/enum-constants';
 
 const UserSchema = new BaseSchema({
     // Account Fields
@@ -99,9 +94,20 @@ UserSchema.pre('save', async function (next) {
     next();
 });
 
-UserSchema.pre('updateOne', function (next) {
+UserSchema.post('save', async function ($user, next) {
+
+    const populatedUser = await $user.
+        populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
+        .execPopulate();
+
     next();
 });
+
+// UserSchema.pre('updateOne', function (next) {
+//     next();
+// });
 
 /*
  * Add Custom static methods
@@ -110,43 +116,46 @@ UserSchema.pre('updateOne', function (next) {
  * Do not declare methods using ES6 arrow functions (=>). 
  * Arrow functions explicitly prevent binding this
  */
-UserSchema.statics.list = function () {
-    return this
-        .aggregate([
-            { $match: {} },
-            // ...lookupUserFields('referredById', 'referredBy')
-        ])
-        .project({ userId: 1, name: 1, joinedOn: 1, _id: 0 })
-        .sort('name')
-        .exec();
-};
+// UserSchema.statics.list = function () {
+//     return this
+//         .aggregate([
+//             { $match: {} },
+//             // ...lookupUserFields('referredById', 'referredBy')
+//         ])
+//         .project({ userId: 1, name: 1, joinedOn: 1, _id: 0 })
+//         .sort('name')
+//         .exec();
+// };
 
 UserSchema.statics.listForAdmin = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ userId: 1, name: 1, joinedOn: 1, email: 1, contactNo: 1, alternateNo1: 1, alternateNo2: 1, _id: 0 })
+        .project({
+            userId: 1, name: 1, joinedOn: 1, email: 1,
+            contactNo: 1, alternateNo1: 1, alternateNo2: 1, _id: 0
+        })
         .sort('name')
         .exec();
 };
 
-UserSchema.statics.userProfile = function (userId) {
-    return this
-        .aggregate([{ $match: { userId } }, { $limit: 1 }])
-        .project({
-            userId: 1, name: 1, gender: 1, joinedOn: 1, isVerified: 1,
-            roles: 1, city: 1, state: 1, country: 1,
-            ...conditionalField('contactNo', 'showContactNos'),
-            ...conditionalField('alternateNo1', 'showContactNos'),
-            ...conditionalField('alternateNo2', 'showContactNos'),
-            ...conditionalField('email', 'showEmail'),
-            ...conditionalField('bloodGroup', 'showBloodGroup'),
-            ...conditionalField('address', 'showAddress'),
-            // ...conditionalField('email', 'showContributions'),
-            ...conditionalField('dob', 'showBirthday'),
-            _id: 0
-        })
-        .exec();
-};
+// UserSchema.statics.userProfile = function (userId) {
+//     return this
+//         .aggregate([{ $match: { userId } }, { $limit: 1 }])
+//         .project({
+//             userId: 1, name: 1, gender: 1, joinedOn: 1, isVerified: 1,
+//             roles: 1, city: 1, state: 1, country: 1,
+//             ...conditionalField('contactNo', 'showContactNos'),
+//             ...conditionalField('alternateNo1', 'showContactNos'),
+//             ...conditionalField('alternateNo2', 'showContactNos'),
+//             ...conditionalField('email', 'showEmail'),
+//             ...conditionalField('bloodGroup', 'showBloodGroup'),
+//             ...conditionalField('address', 'showAddress'),
+//             // ...conditionalField('email', 'showContributions'),
+//             ...conditionalField('dob', 'showBirthday'),
+//             _id: 0
+//         })
+//         .exec();
+// };
 
 UserSchema.statics.userProfileForAdmin = function (userId) {
     return this
@@ -161,7 +170,7 @@ UserSchema.statics.userProfileForAdmin = function (userId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select(FIELDS_GET_USER_PROFILE)
+        .select('-_id -userPin -__v')
         .exec();
 };
 
@@ -172,7 +181,7 @@ UserSchema.statics.byUserId = function (userId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select(FIELDS_GET_OWN_PROFILE)
+        .select('-_id -userPin -__v')
         .exec();
 };
 
@@ -234,27 +243,27 @@ UserSchema.statics.hasAccount = function (userInfo) {
 };
 
 UserSchema.statics.changeUserPin = function (email, newUserPin) {
-    return this.updateOne(
+    return this.findOneAndUpdate(
         { email },
         { $set: { userPin: newUserPin } },
         { upsert: false }
-    ).exec();
+    )
+        .populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
+        .select('-_id -__v').exec();
 };
 
-UserSchema.statics.editProfile = function (userId, profileId, data) {
-    return this.updateOne(
-        { userId: profileId },
-        { $set: { ...data, vAuthUser: userId } },
-        { upsert: false }
-    ).exec();
-};
-
-UserSchema.statics.editRoles = function (userId, newRoles, vAuthUser) {
-    return this.updateOne(
+UserSchema.statics.editProfile = function (vAuthUser, userId, data) {
+    return this.findOneAndUpdate(
         { userId },
-        { $set: { roles: newRoles, vAuthUser } },
-        { upsert: false }
-    ).exec();
+        { $set: { ...data, vAuthUser } },
+        { upsert: false, new: true, }
+    )
+        .populate('createdBy', USER_KEY_FIELDS)
+        .populate('updatedBy', USER_KEY_FIELDS)
+        .populate('referredBy', USER_KEY_FIELDS)
+        .select('-_id -userPin -__v').exec();
 };
 
 UserSchema.statics.saveUser = function (user) {

@@ -47,26 +47,26 @@ export const sendResponse = (res, params) => {
     res.json(resContent);
 };
 
-export const handleModelRes = (promise, res, messages = {}) => {
+export const handleModelRes = (promise, res, options = {}) => {
     promise.then(
         dbRes => {
             console.log('res.req.url = %o', res.req.url);
             sendResponse(res, {
-                data: arrayToObject(res, dbRes),
-                message: messages.success || ''
+                data: options.onSuccess ? options.onSuccess(dbRes) : dbRes, //arrayToObject(res, dbRes),
+                message: options.success || ''
             })
         }, dbErr => {
             console.log(dbErr);
             if (/invalid/i.test(dbErr.message) || /must be array/i.test(dbErr.message)) {
                 return sendResponse(res, {
                     error: 'Invalid values',
-                    message: dbErr.message || messages.error,
+                    message: dbErr.message || options.error,
                     type: 'BAD_REQUEST'
                 })
             }
             return sendResponse(res, {
                 error: dbErr,
-                message: messages.error || 'Cannot handle request. Try again later',
+                message: options.error || 'Cannot handle request. Try again later',
                 type: 'INTERNAL_SERVER_ERROR'
             });
         }
@@ -74,7 +74,7 @@ export const handleModelRes = (promise, res, messages = {}) => {
         console.log(dbReason);
         sendResponse(res, {
             error: dbReason,
-            message: messages.error || 'Cannot handle request. Try again later',
+            message: options.error || 'Cannot handle request. Try again later',
             type: 'INTERNAL_SERVER_ERROR'
         });
     });

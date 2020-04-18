@@ -27,21 +27,27 @@ export class UserController extends BaseController {
 
     usersList(req, res) {
         // console.log('getReqMetadata = %o', getReqMetadata(req, 'user'));
-        const isAdmin = getReqMetadata(req, 'user').roles.indexOf('admin') !== -1;
-        handleModelRes(isAdmin ? UserModel.listForAdmin() : UserModel.list(), res);
+        // const isAdmin = getReqMetadata(req, 'user').roles.indexOf('admin') !== -1;
+        handleModelRes(UserModel.listForAdmin()/* isAdmin ? UserModel.listForAdmin() : UserModel.list() */, res, {
+            onSuccess: data => parseResponseData(req, data)
+        });
     }
 
     userProfile(req, res) {
-        const user = getReqMetadata(req, 'user'),
-            isAdmin = user.roles.indexOf('admin') !== -1;
+        // const user = getReqMetadata(req, 'user'),
+        //     isAdmin = user.roles.indexOf('admin') !== -1;
 
-        handleModelRes(isAdmin ?
+        handleModelRes(UserModel.userProfileForAdmin(req.params.userId)/* isAdmin ?
             UserModel.userProfileForAdmin(req.params.userId) :
-            UserModel.userProfile(req.params.userId), res);
+            UserModel.userProfile(req.params.userId) */, res, {
+            onSuccess: data => parseResponseData(req, data, true)
+        });
     }
 
     myProfile(req, res) {
-        handleModelRes(UserModel.byUserId(getReqMetadata(req, 'user').userId), res);
+        handleModelRes(UserModel.byUserId(getReqMetadata(req, 'user').userId), res, {
+            onSuccess: data => parseResponseData(req, data, true)
+        });
     }
 
     createProfile(req, res) {
@@ -71,7 +77,8 @@ export class UserController extends BaseController {
                 UserModel.saveUser(newUser),
                 res, {
                 success: 'Profile created successfully.',
-                error: 'Something went wrong while creating new Profile. Try again later.'
+                error: 'Something went wrong while creating new Profile. Try again later.',
+                onSuccess: data => parseResponseData(req, data, true)
             });
         }, modelErr => {
             console.error(modelErr);
@@ -121,32 +128,15 @@ export class UserController extends BaseController {
             UserModel.editProfile(user.userId, body.userId, tempData),
             res, {
             success: 'Profile updated successfully.',
-            error: 'Something went wrong while updating the Profile. Try again later.'
+            error: 'Something went wrong while updating the Profile. Try again later.',
+            onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
     byUserId(req, res) {
-        handleModelRes(UserModel.byUserId(req.params.userId), res);
-    }
-
-    editRoles(req, res) {
-        handleModelRes(
-            UserModel.editRoles(req.body.userId, req.body.newRoles, getReqMetadata(req, 'user').userId),
-            res, {
-            success: 'Roles updated successfully.',
-            error: 'Something went wrong while updating the Roles. Try again later.'
-        }
-        );
-    }
-
-    editGroups(req, res) {
-        handleModelRes(
-            UserModel.editGroups(req.body.userId, req.body.newGroups, getReqMetadata(req, 'user').userId),
-            res, {
-            success: 'Groups updated successfully.',
-            error: 'Something went wrong while updating the Groups. Try again later.'
-        }
-        );
+        handleModelRes(UserModel.byUserId(req.params.userId), res, {
+            onSuccess: data => parseResponseData(req, data, true)
+        });
     }
 
     deleteProfile(req, res) {
@@ -157,3 +147,63 @@ export class UserController extends BaseController {
         handleModelRes(UserModel.tempAll(), res);
     }
 }
+
+const parseResponseData = (req, data, toObject = false) => {
+    const user = getReqMetadata(req, 'user'),
+        isAdmin = user.roles.indexOf('admin') !== -1;
+
+    !Array.isArray(data) && (data = [data]);
+
+    data = data.map(item => {
+        item.toObject && (item = item.toObject());
+        const isOwnProfile = user.userId === item.userId;
+
+        if (!isAdmin && !isOwnProfile) {
+            if (!item.showContactNos) {
+                delete item.contactNo;
+                delete item.alternateNo1;
+                delete item.alternateNo2;
+            }
+            if (!item.showEmail) {
+                delete item.email;
+            }
+            if (!item.showBloodGroup) {
+                delete item.bloodGroup;
+            }
+            if (!item.showContributions) {
+                delete item.contributions;
+            }
+            if (!item.showBirthday) {
+                delete item.dob;
+            }
+           
+            delete item.isVerified;
+
+            delete item.createdOn;
+            delete item.createdBy;
+            delete item.updatedOn;
+            delete item.createdBy;
+        }
+        if (!isOwnProfile) {
+            delete item.showEmail;
+            delete item.showContactNos;
+            delete item.showBloodGroup;
+            delete item.showAddress;
+            delete item.showContributions;
+            delete item.showBirthday;
+        }
+       
+        delete item.createdById;
+        delete item.updatedById;
+        delete item.referredById;
+        delete item._id;
+        delete item.__v;
+        delete item.userPin;
+
+        return item;
+    });
+
+    data = toObject && Array.isArray(data) ? data[0] : data;
+
+    return data;
+};

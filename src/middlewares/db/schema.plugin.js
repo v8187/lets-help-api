@@ -24,6 +24,16 @@ export function recordAuthorPlugin(schema, options) {
 
         next();
     });
+
+    schema.pre('findOneAndUpdate', function (next) {
+        let changes = this.getUpdate().$set;
+
+        if (changes.vAuthUser !== undefined) {
+            changes.updatedById = changes.vAuthUser;
+        }
+
+        next();
+    });
 };
 
 export function hashUserPinPlugin(schema, options) {
