@@ -7,9 +7,9 @@ import { userRoles, genders, bloodGroups } from '../configs/enum-constants';
 
 const UserSchema = new BaseSchema({
     // Account Fields
-    userId: String,
-    userPin: { type: String, require: true },
-    isVerified: Boolean,
+    userId: { type: String, trim: true },
+    userPin: { type: String, require: true, trim: true },
+    isVerified: { type: Boolean, },
     roles: {
         type: Schema.Types.EnumArray, default: ['default'], enum: userRoles, required: true
     },
@@ -18,34 +18,32 @@ const UserSchema = new BaseSchema({
     // },
 
     // Personal Fields
-    name: String,
-    gender: { type: String, enum: genders, lowercase: true },
+    name: { type: String, trim: true },
+    gender: { type: String, enum: genders, lowercase: true, trim: true },
     dob: { type: Date },
     bloodGroup: { type: String, enum: bloodGroups, lowercase: false },
 
     // Communication Fields
-    email: {
-        type: String, lowercase: true, required: true
-    },
-    address: String,
-    contactNo: String,
-    alternateNo1: String,
-    alternateNo2: String,
-    city: String,
-    state: String,
-    country: String,
+    email: { type: String, lowercase: true, required: true },
+    address: { type: String, trim: true },
+    contactNo: { type: String, trim: true },
+    alternateNo1: { type: String, trim: true },
+    alternateNo2: { type: String, trim: true },
+    city: { type: String, trim: true },
+    state: { type: String, trim: true },
+    country: { type: String, trim: true },
 
     // Misc Fields
-    referredById: String,
+    referredById: { type: String, trim: true },
     joinedOn: Date,
 
     // Privacy fields
-    showEmail: Boolean,
-    showContactNos: Boolean,
-    showBloodGroup: Boolean,
-    showAddress: Boolean,
-    showContributions: Boolean,
-    showBirthday: Boolean
+    showEmail: { type: Boolean, },
+    showContactNos: { type: Boolean, },
+    showBloodGroup: { type: Boolean, },
+    showAddress: { type: Boolean, },
+    showContributions: { type: Boolean, },
+    showBirthday: { type: Boolean, }
 },
     {
         collection: 'User',

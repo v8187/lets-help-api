@@ -34,6 +34,10 @@ export const relationTypes = [
     'self', 'referrer', 'mother', 'father', 'husband', 'wife', 'brother', 'sister', 'son', 'daughter', 'uncle', 'aunt', 'cusion', 'friend', 'neighbours'
 ];
 
+export const transTypes = [
+    'c', 'd'
+];
+
 export const frequencies = [
     'one-time', 'daily', 'weekly', 'bi-weekly', 'monthly', 'quarterly'
 ];
