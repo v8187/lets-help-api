@@ -27,16 +27,16 @@ export const caseCategories = [
 ];
 
 export const caseTypes = [
-    'education', 'grocery', 'medical', 'legal', 'financial'
+    'education', 'ration', 'medical', 'legal', 'financial', 'commodity'
 ];
 
 export const relationTypes = [
     'self', 'referrer', 'mother', 'father', 'husband', 'wife', 'brother', 'sister', 'son', 'daughter', 'uncle', 'aunt', 'cusion', 'friend', 'neighbours'
 ];
 
-export const transTypes = [
-    'c', 'd'
-];
+export const transTypes = ['c', 'd'];
+
+export const transModes = ['bank-transfer', 'cash', 'upi', 'ewallet'];
 
 export const frequencies = [
     'one-time', 'daily', 'weekly', 'bi-weekly', 'monthly', 'quarterly'

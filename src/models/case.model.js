@@ -12,7 +12,7 @@ const CaseSchema = new BaseSchema({
     title: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
     name: { type: String, required: true, trim: true },
-    caseTypes: { type: Schema.Types.EnumArray, default: [caseTypes[0]], enum: caseTypes },
+    caseType: { type: String, default: caseTypes[0], enum: caseTypes },
     contactRelation: { type: String, default: relationTypes[0], enum: relationTypes },
     contactPerson: { type: String, trim: true },
     contactNo: { type: String, required: true, trim: true },

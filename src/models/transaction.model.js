@@ -4,20 +4,49 @@ import {
     BaseSchema, commonShemaOptions, defineCommonVirtuals
 } from './BaseSchema';
 import { CASE_KEY_FIELDS, USER_KEY_FIELDS } from '../configs/query-fields';
-import { transTypes } from '../configs/enum-constants';
+import { transTypes, transModes } from '../configs/enum-constants';
 import { UserModel } from './user.model';
+
+const BankDetailsSchema = new Schema({
+    accountName: { type: String, required: true },
+    accountNo: { type: String, required: true },
+    bankName: { type: String, required: true }
+});
+
+const UPIDetailsSchema = new Schema({
+    upiName: { type: String, required: true },
+    upiId: { type: String, required: true }
+});
+
+const EWalletDetailsSchema = new Schema({
+    ewalletName: { type: String, required: true },
+    ewalletNo: { type: String, required: true }
+});
 
 const TransactionSchema = new BaseSchema({
     transId: { type: String, trim: true },
-    transType: { type: Schema.Types.EnumArray, enum: transTypes },
+    transType: { type: String, enum: transTypes, required: true, lowercase: true },
     amount: { type: Number, required: true },
-    forMonth: { type: Number, min: 1, max: 12, required: true },
-    forYear: { type: Number, min: 2012, max: 2100, required: true },
+    forMonth: { type: Number, min: 1, max: 12, default: (new Date().getMonth() + 1), required: true },
+    forYear: { type: Number, min: 2012, max: 2100, default: (new Date().getFullYear()), required: true },
     transDate: { type: Date, default: new Date() },
-    forCaseId: { type: String, required: true },
-    fromUserId: { type: String, required: true },
-    spentById: { type: String, required: true },
-    remarks: { type: String, required: true },
+    forCaseId: { type: String, required: function () { return this.transType === 'd'; } },
+    fromUserId: { type: String, required: function () { return !this.forCaseId || this.transType === 'c'; } },
+    transMode: { type: String, default: 'cash', enum: transModes },
+    bankDetails: {
+        required: function () { return this.transType === 'd' && this.transMode === 'bank-transfer'; },
+        type: BankDetailsSchema
+    },
+    upiDetails: {
+        required: function () { return this.transType === 'd' && this.transMode === 'upi'; },
+        type: UPIDetailsSchema
+    },
+    ewalletDetails: {
+        required: function () { return this.transType === 'd' && this.transMode === 'ewallet'; },
+        type: EWalletDetailsSchema
+    },
+    spentById: { type: String, required: function () { return this.transType === 'd'; } },
+    remarks: { type: String, required: function () { return this.transType === 'd'; }, trim: true },
 },
     {
         collection: 'Transaction',
@@ -30,9 +59,21 @@ const TransactionSchema = new BaseSchema({
 defineCommonVirtuals(TransactionSchema);
 
 // Transaction Schema's virtual fields
-TransactionSchema.virtual('referredBy', {
+TransactionSchema.virtual('spentBy', {
     ref: 'User',
-    localField: 'referredById',
+    localField: 'spentById',
+    foreignField: 'userId',
+    justOne: true
+});
+TransactionSchema.virtual('forCase', {
+    ref: 'Case',
+    localField: 'forCaseId',
+    foreignField: 'caseId',
+    justOne: true
+});
+TransactionSchema.virtual('fromUser', {
+    ref: 'User',
+    localField: 'fromUserId',
     foreignField: 'userId',
     justOne: true
 });
@@ -43,12 +84,9 @@ TransactionSchema.pre('save', async function (next) {
 
     $trans.transId = $trans._id;
 
-    // $trans.createdById = $trans.updatedById = $trans.vAuthUser;
-    // delete $trans.vAuthUser;
-
-    if (!$trans.referredById) {
-        const defaultReferrer = await UserModel.findOne({ email: 'gurinder1god@gmail.com' }).select('userId').exec();
-        $trans.referredById = defaultReferrer ? defaultReferrer.userId : '';
+    if (!$trans.spentById) {
+        const defaultId = await UserModel.findOne({ email: 'gurinder1god@gmail.com' }).select('userId').exec();
+        $trans.spentById = defaultId ? defaultId.userId : '';
     }
 
     next();
@@ -59,16 +97,13 @@ TransactionSchema.post('save', async function ($trans, next) {
     const populatedTransaction = await $trans.
         populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('referredBy', USER_KEY_FIELDS)
+        .populate('spentBy', USER_KEY_FIELDS)
+        .populate('forCase', CASE_KEY_FIELDS)
+        .populate('fromUser', USER_KEY_FIELDS)
         .execPopulate();
 
     next();
 });
-
-// TransactionSchema.pre('updateOne', function (next) {
-//     next();
-// });
-
 /*
  * Add Custom static methods
  * =========================
@@ -76,71 +111,29 @@ TransactionSchema.post('save', async function ($trans, next) {
  * Do not declare methods using ES6 arrow functions (=>). 
  * Arrow functions explicitly prevent binding this
  */
-// TransactionSchema.statics.list = function () {
-//     return this
-//         .aggregate([{ $match: {} }])
-//         .project({ transId: 1, name: 1, title: 1, isApproved: 1, isClosed: 1, upVoters: 1, downVoters: 1, _id: 0 })
-//         .sort('title')
-//         .exec();
-// };
-
-TransactionSchema.statics.listForAdmin = function () {
-    return this
-        .aggregate([{ $match: {} }])
-        .project({
-            transId: 1, name: 1, title: 1, isApproved: 1, isClosed: 1,
-            upVoters: 1, downVoters: 1, contactNo: 1, alternateNo1: 1, alternateNo2: 1, _id: 0
-        })
-        .sort('title')
-        .exec();
+TransactionSchema.statics.list = function () {
+    return this.find()
+        .populate('forCase', CASE_KEY_FIELDS)
+        .populate('fromUser', USER_KEY_FIELDS)
+        .select('transId transType amount transDate forCaseId fromUserId -_id')
+        .sort('transDate').exec();
 };
 
-// TransactionSchema.statics.transDetails = function (transId) {
-//     return this
-//         .aggregate([
-//             { $match: { transId } },
-//             { $limit: 1 },
-//             ...lookupUserFields('referredById', 'referredBy'),
-//         ])
-//         .project({
-//             transId: 1, title: 1, description: 1, name: 1, transTypes: 1,
-//             contactRelation: 1, contactPerson: 1, gender: 1, age: 1,
-//             isApproved: 1, approvedOn: 1, referredOn: 1, city: 1, referredBy: 1,
-//             state: 1, country: 1, isClosed: 1, upVoters: 1, downVoters: 1,
-//             ...conditionalField('contactNo', 'showContactNos'),
-//             ...conditionalField('alternateNo1', 'showContactNos'),
-//             ...conditionalField('alternateNo2', 'showContactNos'),
-//             ...conditionalField('address', 'showAddress'),
-//             ...conditionalField('closedOn', 'isClosed'),
-//             ...conditionalField('closingReason', 'isClosed'),
-//             ...conditionalField('approvedOn', 'isApproved'),
-//             _id: 0
-//         })
-//         .exec();
-// };
-
-TransactionSchema.statics.transDetailsForAdmin = function (transId) {
+TransactionSchema.statics.transDetails = function (transId) {
     return this
         .findOne({ transId })
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
-};
-
-TransactionSchema.statics.byTransactionId = function (transId) {
-    return this
-        .findOne({ transId })
-        .populate('createdBy', USER_KEY_FIELDS)
-        .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('referredBy', USER_KEY_FIELDS)
+        .populate('spentBy', USER_KEY_FIELDS)
+        .populate('forCase', CASE_KEY_FIELDS)
+        .populate('fromUser', USER_KEY_FIELDS)
         .select('-_id -__v').exec();
 };
 
 TransactionSchema.statics.byId = function (transId) {
     return this
         .findOne({ transId })
-        .select('-_id')
+        .select('-_id -__v')
         .exec();
 };
 
@@ -148,28 +141,30 @@ TransactionSchema.statics.tempAll = function () {
     return this.find()
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('referredBy', USER_KEY_FIELDS)
+        .populate('spentBy', USER_KEY_FIELDS)
+        .populate('forCase', CASE_KEY_FIELDS)
+        .populate('fromUser', USER_KEY_FIELDS)
         .select().exec();
 };
 
-TransactionSchema.statics.count = function () {
-    return this.countDocuments();
-};
+// TransactionSchema.statics.count = function () {
+//     return this.countDocuments();
+// };
 
-TransactionSchema.statics.keyProps = function () {
-    return this.find().select(CASE_KEY_FIELDS).sort('title').exec();
-};
+// TransactionSchema.statics.keyProps = function () {
+//     return this.find().select(CASE_KEY_FIELDS).sort('title').exec();
+// };
 
-TransactionSchema.statics.transExists = function (transInfo) {
-    return this
-        .findOne({
-            $and: [
-                { contactNo: transInfo.contactNo },
-                { title: transInfo.title }
-            ]
-        })
-        .exec();
-};
+// TransactionSchema.statics.transExists = function (transInfo) {
+//     return this
+//         .findOne({
+//             $and: [
+//                 { contactNo: transInfo.contactNo },
+//                 { title: transInfo.title }
+//             ]
+//         })
+//         .exec();
+// };
 
 TransactionSchema.statics.editTransaction = function (vAuthUser, transId, data) {
     return this.findOneAndUpdate(
@@ -179,23 +174,9 @@ TransactionSchema.statics.editTransaction = function (vAuthUser, transId, data) 
     )
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
-};
-
-TransactionSchema.statics.toggleReaction = function (transId, data) {
-    return this.findOneAndUpdate(
-        { transId },
-        { $set: { ...data } },
-        {
-            upsert: false,
-            new: true,
-            timestamps: false
-        }
-    )
-        .populate('createdBy', USER_KEY_FIELDS)
-        .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('referredBy', USER_KEY_FIELDS)
+        .populate('spentBy', USER_KEY_FIELDS)
+        .populate('forCase', CASE_KEY_FIELDS)
+        .populate('fromUser', USER_KEY_FIELDS)
         .select('-_id -__v').exec();
 };
 
@@ -203,24 +184,5 @@ TransactionSchema.statics.saveTransaction = function ($trans) {
     // console.log('saveTransaction', $trans);
     return $trans.save();
 };
-
-/**
- * Add Custom instance methods
- * =========================
- * Do not declare methods using ES6 arrow functions (=>)
- * rrow functions explicitly prevent binding this
- */
-// TransactionSchema.methods.validateTransactionPin = function (pwd) {
-//     return compareSync(pwd, this.transPin);
-// };
-
-// TransactionSchema.methods.tokenFields = function () {
-//     return {
-//         transId: this.transId,
-//         email: this.email,
-//         // groups: [...this.groups],
-//         roles: [...this.roles]
-//     };
-// };
 
 export const TransactionModel = model('Transaction', TransactionSchema);

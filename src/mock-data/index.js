@@ -20,7 +20,8 @@ const
         /** Dependent on Country, State, City Data */
         // { file: 'users', name: 'User' },
         /** Dependent on User, Country, State, City Data */
-        { file: 'cases', name: 'Case' },       
+        // { file: 'cases', name: 'Case' },
+        { file: 'transactions', name: 'Transaction' },
     ];
 // initDatabase(() => {
 //     require(`./${COLLECTIONS[0].file}.data`);

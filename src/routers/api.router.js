@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { enumValuesRouter } from './enum-values.router';
 import { getUserRouter } from './user.router';
 import { getCaseRouter } from './case.router';
+import { getTransactionRouter } from './transaction.router';
 
 const router = Router();
 
@@ -17,5 +18,6 @@ export const getApiRouter = (passport) => {
     router.use('/enumValues', enumValuesRouter);
     router.use('/user', getUserRouter(passport));
     router.use('/case', getCaseRouter(passport));
+    router.use('/transaction', getTransactionRouter(passport));
     return router;
 };
