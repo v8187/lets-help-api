@@ -116,7 +116,7 @@ TransactionSchema.statics.list = function () {
         .populate('forCase', CASE_KEY_FIELDS)
         .populate('fromUser', USER_KEY_FIELDS)
         .select('transId transType amount transDate forCaseId fromUserId -_id')
-        .sort('transDate').exec();
+        .sort({ 'transDate': -1 }).exec();
 };
 
 TransactionSchema.statics.transDetails = function (transId) {
