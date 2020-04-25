@@ -26,6 +26,11 @@ export const getTransactionRouter = (passport) => {
 
     const validateWithToken = (req, res, next) => validateToken(req, res, next, passport);
 
+    router.get('/find', [
+        validateWithToken,
+        (req, res) => transactionsList(req, res)
+    ]);
+
     router.get('/list', [
         validateWithToken,
         (req, res) => transactionsList(req, res)
