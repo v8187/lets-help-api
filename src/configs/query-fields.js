@@ -17,5 +17,6 @@ export const CASE_PUBLIC_QUERY_FIELDS = '-_id -__v -createdById -updatedById -cr
 export const FIELDS_CREATE_CASE = 'caseType,contactRelation,referredOn,contactNo,title,name,contactPerson,description,gender,age,address,city,state,country,referredBy';
 export const FIELDS_CREATE_CASE_ADMIN = FIELDS_CREATE_CASE + ',isApproved,approvedOn,isClosed,closedOn,closingReason,showContactNos,showAddress';
 
+export const FIELDS_TRANSACTION_AD_SEARCH = 'transType,minAmount,maxAmount,fromDate,toDate,forCase,fromUser,transMode,spentBy';
 export const FIELDS_TRANSACTION_REQUIRED = 'transType,amount,forMonth,forYear,transDate,remarks';
 export const FIELDS_TRANSACTION_ADD_UPDATE = FIELDS_TRANSACTION_REQUIRED + 'forCaseId,spentById,fromUserId,transMode,bankDetails,upiDetails,ewalletDetails';

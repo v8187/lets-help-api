@@ -111,6 +111,31 @@ TransactionSchema.post('save', async function ($trans, next) {
  * Do not declare methods using ES6 arrow functions (=>). 
  * Arrow functions explicitly prevent binding this
  */
+TransactionSchema.statics.advanceSearch = function (filters) {
+    let queries = [];
+    filters.transType && filters.transType.length && queries.push({ transType: { $in: filters.transType } });
+    filters.forCase && filters.forCase.length && queries.push({ forCaseId: { $in: filters.forCase } });
+    filters.fromUser && filters.fromUser.length && queries.push({ fromUserId: { $in: filters.fromUser } });
+    filters.transMode && filters.transMode.length && queries.push({ transMode: { $in: filters.transMode } });
+    filters.spentBy && filters.spentBy.length && queries.push({ spentById: { $in: filters.spentBy } });
+    if (filters.minAmount || filters.maxAmount) {
+        let amount = filters.minAmount ? { $gte: parseFloat(filters.minAmount) } : {};
+        amount = filters.maxAmount ? { ...amount, $lte: parseFloat(filters.maxAmount) } : amount;
+        queries.push({ amount });
+    }
+    if (filters.fromDate || filters.toDate) {
+        let transDate = filters.fromDate ? { $gte: new Date(filters.fromDate) } : {};
+        transDate = filters.toDate ? { ...transDate, $lte: new Date(filters.toDate) } : transDate;
+        queries.push({ transDate });
+    }
+
+    return this.find(queries.length ? { $and: queries } : {})
+        .populate('forCase', CASE_KEY_FIELDS)
+        .populate('fromUser', USER_KEY_FIELDS)
+        .select('transId transType amount transDate forCaseId fromUserId -_id')
+        .sort({ 'transDate': -1 }).exec();
+};
+
 TransactionSchema.statics.list = function () {
     return this.find()
         .populate('forCase', CASE_KEY_FIELDS)

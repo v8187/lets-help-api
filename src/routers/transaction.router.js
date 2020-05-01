@@ -1,15 +1,12 @@
 import { Router } from 'express';
 
 import { TransactionController } from '../controllers/transaction.controller';
-import {
-    validateParams,
-    validateToken, validateRoles
-} from '../middlewares/routes';
+import { validateParams, validateToken, validateRoles } from '../middlewares/routes';
 import { FIELDS_TRANSACTION_REQUIRED } from '../configs/query-fields';
 
 const {
-    ids, transactionsList, transDetails,
-    editTransaction, createTransaction, count, toggleReaction,
+    findTransaction, transactionsList, transDetails,
+    editTransaction, createTransaction,
     tempAll: transTempAll
 } = new TransactionController();
 
@@ -26,9 +23,9 @@ export const getTransactionRouter = (passport) => {
 
     const validateWithToken = (req, res, next) => validateToken(req, res, next, passport);
 
-    router.get('/find', [
+    router.post('/find', [
         validateWithToken,
-        (req, res) => transactionsList(req, res)
+        (req, res) => findTransaction(req, res)
     ]);
 
     router.get('/list', [

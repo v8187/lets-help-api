@@ -1,7 +1,7 @@
 import { BaseController } from './BaseController';
 import { TransactionModel } from '../models/transaction.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_TRANSACTION_ADD_UPDATE } from '../configs/query-fields';
+import { FIELDS_TRANSACTION_ADD_UPDATE, FIELDS_TRANSACTION_AD_SEARCH } from '../configs/query-fields';
 
 const addTransErr = (res, err = 'Server error') => {
     return sendResponse(res, {
@@ -24,6 +24,27 @@ export class TransactionController extends BaseController {
     // ids(req, res) {
     //     handleModelRes(TransactionModel.keyProps(), res);
     // }
+
+    findTransaction(req, res) {
+        const user = getReqMetadata(req, 'user');
+        const { body } = req;
+
+        let tempData = {};
+
+        FIELDS_TRANSACTION_AD_SEARCH.split(',').map(field => {
+            if (body[field] !== undefined) {
+                tempData[field] = body[field];
+            }
+        });
+
+        handleModelRes(
+            TransactionModel.advanceSearch(tempData),
+            res, {
+            success: 'Transaction Search successfully done.',
+            error: 'Something went wrong while searching Transactions. Try again later.',
+            onSuccess: data => parseResponseData(req, data)
+        });
+    }
 
     transactionsList(req, res) {
         handleModelRes(TransactionModel.list(), res, {
