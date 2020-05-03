@@ -1,4 +1,4 @@
-import { bool, oneYearDate } from './utils';
+import { bool, NYearDate } from './utils';
 import { UserModel } from '../models/user.model';
 import { CaseModel } from '../models/case.model';
 import { TransactionModel } from '../models/transaction.model';
@@ -8,15 +8,15 @@ import { randomWords } from '@v8187/rs-mock';
 // Add Dump Transactions data
 const common = {};
 
-const dumpTransactionsData = new Array(300).join(',').split(',');
+const dumpTransactionsData = new Array(1000).join(',').split(',');
 
 let initiated = 0, added = 0, notAdded = 0, usersData, casesData,
     vikram, gurinder;
 
 const addTransaction = (trans) => {
 
-    const ranDate = oneYearDate();
-    trans={};
+    const ranDate = NYearDate(3);
+    trans = {};
 
     trans.vAuthUser = randomItem([vikram, gurinder]);
     trans.transType = randomItem(transTypes);

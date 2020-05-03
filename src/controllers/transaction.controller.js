@@ -46,6 +46,26 @@ export class TransactionController extends BaseController {
         });
     }
 
+    transStats(req, res) {
+        const { body } = req;
+
+        let tempData = {};
+
+        // FIELDS_TRANSACTION_AD_SEARCH.split(',').map(field => {
+        //     if (body[field] !== undefined) {
+        //         tempData[field] = body[field];
+        //     }
+        // });
+
+        handleModelRes(
+            TransactionModel.statistics(tempData),
+            res, {
+            success: 'Transaction Stats fetched successfully.',
+            error: 'Something went wrong while getting Transactions\'s stats. Try again later.',
+            onSuccess: data => parseResponseData(req, data)
+        });
+    }
+
     transactionsList(req, res) {
         handleModelRes(TransactionModel.list(), res, {
             onSuccess: data => parseResponseData(req, data)

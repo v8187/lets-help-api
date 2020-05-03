@@ -17,7 +17,7 @@ export const bloodgroup = () => randomItem(bloodGroups);
 
 export const dob = () => dateTime({ sqlTimestamp: true, from: +new Date(1975, 0, 1), to: +new Date(2003, 11, 31) });
 export const recentDate = () => dateTime({ sqlTimestamp: true, from: (+new Date() - (DAY_MILISECONDS * 60)), to: +new Date() });
-export const oneYearDate = () => dateTime({ sqlTimestamp: true, from: (+new Date() - (DAY_MILISECONDS * 365)), to: +new Date() });
+export const NYearDate = (num) => dateTime({ sqlTimestamp: true, from: (+new Date() - (DAY_MILISECONDS * 365 * (num || 1))), to: +new Date() });
 
 export const country = () => 'India';
 export const state = () => 'Punjab';

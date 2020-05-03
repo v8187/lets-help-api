@@ -5,7 +5,7 @@ import { validateParams, validateToken, validateRoles } from '../middlewares/rou
 import { FIELDS_TRANSACTION_REQUIRED } from '../configs/query-fields';
 
 const {
-    findTransaction, transactionsList, transDetails,
+    findTransaction, transStats, transactionsList, transDetails,
     editTransaction, createTransaction,
     tempAll: transTempAll
 } = new TransactionController();
@@ -26,6 +26,11 @@ export const getTransactionRouter = (passport) => {
     router.post('/find', [
         validateWithToken,
         (req, res) => findTransaction(req, res)
+    ]);
+
+    router.get('/stats', [
+        validateWithToken,
+        (req, res) => transStats(req, res)
     ]);
 
     router.get('/list', [
