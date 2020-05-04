@@ -136,7 +136,7 @@ TransactionSchema.statics.advanceSearch = function (filters) {
         .sort({ 'transDate': -1 }).exec();
 };
 // 
-TransactionSchema.statics.statistics = function (filters) {
+TransactionSchema.statics.statistics = function () {
 
     return this.aggregate([
         { $project: { transType: 1, amount: 1, transDate: 1, _id: 0 } },
@@ -145,14 +145,8 @@ TransactionSchema.statics.statistics = function (filters) {
                 _id: { transType: '$transType', year: { $year: '$transDate' }, month: { $month: '$transDate' } },
                 totalAmount: { $sum: '$amount' }
             },
-        }, {
-            $group: {
-                _id: { transType: '$_id.transType' },
-                monthWise: { $push: { k: '$_id.transType', v: { totalAmount: '$totalAmount', year: '$_id.year', month: '$_id.month', } } },
-            }
         },
-        // { $replaceRoot: { newRoot: { $arrayToObject: '$monthWise' } } },
-        // { $project: { monthWise: 1, transType: '$_id.transType', year: '$_id.year', month: '$_id.month', totalAmount: 1 } },
+        { $project: { transType: '$_id.transType', year: '$_id.year', month: '$_id.month', totalAmount: 1 } },
         { $sort: { year: -1, month: -1 } },
     ]).exec();
 };

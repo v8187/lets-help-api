@@ -51,18 +51,12 @@ export class TransactionController extends BaseController {
 
         let tempData = {};
 
-        // FIELDS_TRANSACTION_AD_SEARCH.split(',').map(field => {
-        //     if (body[field] !== undefined) {
-        //         tempData[field] = body[field];
-        //     }
-        // });
-
         handleModelRes(
             TransactionModel.statistics(tempData),
             res, {
             success: 'Transaction Stats fetched successfully.',
             error: 'Something went wrong while getting Transactions\'s stats. Try again later.',
-            onSuccess: data => parseResponseData(req, data)
+            onSuccess: data => parseTransStats(req, data)
         });
     }
 
@@ -159,3 +153,17 @@ const parseResponseData = (req, data, toObject = false) => {
 
     return data;
 };
+
+const parseTransStats = (req, data) => {
+    let monthWise = { c: {}, d: {} },
+        yearWise = { c: {}, d: {} },
+        tillDate = { c: 0, d: 0 };
+
+    data.map(item => {
+        monthWise[item.transType][`${item.year}-${item.month}`] = item.totalAmount;
+        yearWise[item.transType][`${item.year}`] = yearWise[item.transType][`${item.year}`] ? yearWise[item.transType][`${item.year}`] + item.totalAmount : item.totalAmount;
+        tillDate[item.transType] += item.totalAmount;
+    });
+
+    return { monthWise, yearWise, tillDate };
+}
