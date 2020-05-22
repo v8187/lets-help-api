@@ -8,7 +8,7 @@ import {
 
 const {
     ids, usersList, userProfile, byUserId, count,
-    myProfile, editProfile, createProfile,
+    myProfile, editProfile, createProfile, editDevice,
     tempAll: userTempAll
 } = new UserController();
 
@@ -55,6 +55,11 @@ export const getUserRouter = (passport) => {
     router.put('/updateUser', [
         validateWithToken,
         (req, res) => editProfile(req, res)
+    ]);
+
+    router.put('/updateDevice', [
+        validateWithToken,
+        (req, res) => editDevice(req, res)
     ]);
 
     router.post('/createUser', [

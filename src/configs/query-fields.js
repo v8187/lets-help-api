@@ -1,4 +1,5 @@
 export const USER_KEY_FIELDS = 'userId name email -_id';
+export const FIELDS_PUT_DEVICE_INFO = 'token,os';
 // own user profile
 export const FIELDS_GET_OWN_PROFILE = '-_id -userPin -__v';
 export const FIELDS_PUT_OWN_PROFILE = 'name,gender,dob,bloodGroup,address,contactNo,alternateNo1,alternateNo2,city,state,country,showEmail,showContactNos,showBloodGroup,showAddress,showContributions,showBirthday';

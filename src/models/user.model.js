@@ -5,6 +5,11 @@ import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSche
 import { USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE } from '../configs/query-fields';
 import { userRoles, genders, bloodGroups } from '../configs/enum-constants';
 
+const DeviceInfoSchema = new Schema({
+    token: { type: String, required: true },
+    os: { type: String, required: true }
+});
+
 const UserSchema = new BaseSchema({
     // Account Fields
     userId: { type: String, trim: true },
@@ -43,7 +48,8 @@ const UserSchema = new BaseSchema({
     showBloodGroup: { type: Boolean, },
     showAddress: { type: Boolean, },
     showContributions: { type: Boolean, },
-    showBirthday: { type: Boolean, }
+    showBirthday: { type: Boolean, },
+    deviceInfo: { type: DeviceInfoSchema }
 },
     {
         collection: 'User',
@@ -262,6 +268,14 @@ UserSchema.statics.editProfile = function (vAuthUser, userId, data) {
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
         .select('-_id -userPin -__v').exec();
+};
+
+UserSchema.statics.setDevice = function (vAuthUser, userId, deviceInfo) {
+    return this.update(
+        { userId },
+        { $set: { deviceInfo, vAuthUser } },
+        { upsert: false, new: true, }
+    ).exec();
 };
 
 UserSchema.statics.saveUser = function (user) {

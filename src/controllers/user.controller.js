@@ -1,7 +1,10 @@
 import { BaseController } from './BaseController';
 import { UserModel } from '../models/user.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_PUT_USER_PROFILE, FIELDS_PUT_OWN_PROFILE, FIELDS_POST_USER_PROFILE } from '../configs/query-fields';
+import {
+    FIELDS_PUT_USER_PROFILE, FIELDS_PUT_OWN_PROFILE,
+    FIELDS_PUT_DEVICE_INFO, FIELDS_POST_USER_PROFILE
+} from '../configs/query-fields';
 
 const createProfileErr = (res, err = 'Server error') => {
     return sendResponse(res, {
@@ -133,6 +136,27 @@ export class UserController extends BaseController {
         });
     }
 
+    editDevice(req, res) {
+        const user = getReqMetadata(req, 'user');
+        const { body } = req;
+
+        let tempData = {};
+
+        FIELDS_PUT_DEVICE_INFO.split(',').map(field => {
+            if (body[field] !== undefined) {
+                tempData[field] = body[field];
+            }
+        });
+
+        handleModelRes(
+            UserModel.setDevice(user.userId, body.userId, tempData),
+            res, {
+            success: 'Device updated successfully.',
+            error: 'Something went wrong while updating the User device. Try again later.',
+            onSuccess: data => parseResponseData(req, data, true)
+        });
+    }
+
     byUserId(req, res) {
         handleModelRes(UserModel.byUserId(req.params.userId), res, {
             onSuccess: data => parseResponseData(req, data, true)
@@ -176,7 +200,7 @@ const parseResponseData = (req, data, toObject = false) => {
             if (!item.showBirthday) {
                 delete item.dob;
             }
-           
+
             delete item.isVerified;
 
             delete item.createdOn;
@@ -192,7 +216,7 @@ const parseResponseData = (req, data, toObject = false) => {
             delete item.showContributions;
             delete item.showBirthday;
         }
-       
+
         delete item.createdById;
         delete item.updatedById;
         delete item.referredById;
