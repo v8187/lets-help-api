@@ -168,13 +168,13 @@ UserSchema.statics.userProfileForAdmin = function (userId) {
         //     ...lookupUserFields('createdById', 'createdBy'),
         //     ...lookupUserFields('updatedById', 'updatedBy'),
         //     ...lookupRefFields('referredById', 'referredBy'),
-        //     { $project: { _id: 0, userPin: 0, __v: 0 } }
+        //     { $project: { _id: 0, userPin: 0, deviceInfo:0, __v: 0 } }
         // ]);
         .findOne({ userId })
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -userPin -__v')
+        .select('-_id -userPin -deviceInfo -__v')
         .exec();
 };
 
@@ -185,7 +185,7 @@ UserSchema.statics.byUserId = function (userId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -userPin -__v')
+        .select('-_id -userPin -deviceInfo -__v')
         .exec();
 };
 
@@ -267,13 +267,13 @@ UserSchema.statics.editProfile = function (vAuthUser, userId, data) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -userPin -__v').exec();
+        .select('-_id -userPin -deviceInfo -__v').exec();
 };
 
-UserSchema.statics.setDevice = function (vAuthUser, userId, deviceInfo) {
+UserSchema.statics.setDevice = function (userId, deviceInfo) {
     return this.update(
         { userId },
-        { $set: { deviceInfo, vAuthUser } },
+        { $set: { deviceInfo, vAuthUser: userId } },
         { upsert: false, new: true, }
     ).exec();
 };

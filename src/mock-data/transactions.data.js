@@ -20,7 +20,7 @@ const addTransaction = (trans) => {
 
     trans.vAuthUser = randomItem([vikram, gurinder]);
     trans.transType = randomItem(transTypes);
-    trans.amount = randomNum(100, 5000);
+    trans.amount = randomNum(100, 1000);
     trans.forMonth = new Date(ranDate).getMonth() + 1;
     trans.forYear = new Date(ranDate).getFullYear();
     trans.transDate = ranDate;

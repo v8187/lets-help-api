@@ -1,6 +1,10 @@
+import { randomWords } from '@v8187/rs-mock';
+import { randomItem } from '@v8187/rs-utils';
+
 import { CaseModel } from '../models/case.model';
-import { bool } from './utils';
+import { bool, phoneNo, recentDate, pName, gender, country, state, city, } from './utils';
 import { UserModel } from '../models/user.model';
+import { caseTypes, relationTypes } from '../configs/enum-constants';
 
 // Add Default Cases data
 const common = {};
@@ -1170,9 +1174,28 @@ const actualCasesData = [{
     country: 'India',
 }];
 
+const mockCasesData = new Array(200).join(',').split(',');
+
 let initiated = 0, added = 0, notAdded = 0, vikram, gurinder;
 
 const addCase = ($case, callback) => {
+
+    // For Mock Data
+    // START
+    $case = {};
+    $case.contactNo = phoneNo();
+    $case.referredOn = $case.approvedOn = recentDate();
+    $case.description = randomWords(10, 60);
+    $case.title = randomWords(3, 8);
+    $case.caseType = randomItem(caseTypes);
+    $case.name = pName();
+    $case.contactRelation = randomItem(relationTypes);
+    $case.contactPerson = pName();
+    $case.gender = gender();
+    $case.country = country();
+    $case.state = state();
+    $case.city = city();
+    //   END
 
     $case.showContactNos = bool();
     $case.showAddress = bool();
@@ -1208,7 +1231,7 @@ const addCase = ($case, callback) => {
 (async () => {
     vikram = (await UserModel.findOne({ email: 'vikram1vicky@gmail.com' }).select('userId -_id').exec()).userId;
     gurinder = (await UserModel.findOne({ email: 'gurinder1god@gmail.com' }).select('userId -_id').exec()).userId;
-    actualCasesData.map(addCase);
+    mockCasesData.map(addCase);
 })();
 
 // CaseModel.insertMany(mockCasesData, (err, docs) => {

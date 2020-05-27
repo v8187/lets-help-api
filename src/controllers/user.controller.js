@@ -149,7 +149,7 @@ export class UserController extends BaseController {
         });
 
         handleModelRes(
-            UserModel.setDevice(user.userId, body.userId, tempData),
+            UserModel.setDevice(user.userId, tempData),
             res, {
             success: 'Device updated successfully.',
             error: 'Something went wrong while updating the User device. Try again later.',
