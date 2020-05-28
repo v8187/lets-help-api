@@ -10,6 +10,11 @@ export class EnumArray extends mongoose.SchemaType {
     }
 
     cast(values, options) {
+        //  Ignore validations for query
+        if (options.op === 'find') {
+            return values;
+        }
+
         if (!Array.isArray(values) || !values.length) {
             throw new Error(`Input must be array with atleast 1 element in it.`);
         }

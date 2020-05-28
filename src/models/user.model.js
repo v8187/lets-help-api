@@ -2,13 +2,8 @@ import { Schema, model } from 'mongoose';
 import { compareSync } from 'bcryptjs';
 
 import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
-import { USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE } from '../configs/query-fields';
+import { USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE } from '../configs/query-fields';
 import { userRoles, genders, bloodGroups } from '../configs/enum-constants';
-
-const DeviceInfoSchema = new Schema({
-    token: { type: String, required: true },
-    os: { type: String, required: true }
-});
 
 const UserSchema = new BaseSchema({
     // Account Fields
@@ -49,7 +44,8 @@ const UserSchema = new BaseSchema({
     showAddress: { type: Boolean, },
     showContributions: { type: Boolean, },
     showBirthday: { type: Boolean, },
-    deviceInfo: { type: DeviceInfoSchema }
+    deviceToken: { type: String },
+    deviceOS: { type: String }
 },
     {
         collection: 'User',
@@ -168,13 +164,13 @@ UserSchema.statics.userProfileForAdmin = function (userId) {
         //     ...lookupUserFields('createdById', 'createdBy'),
         //     ...lookupUserFields('updatedById', 'updatedBy'),
         //     ...lookupRefFields('referredById', 'referredBy'),
-        //     { $project: { _id: 0, userPin: 0, deviceInfo:0, __v: 0 } }
+        //     { $project: { _id: 0, userPin: 0, deviceToken: 0, __v: 0 } }
         // ]);
         .findOne({ userId })
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -userPin -deviceInfo -__v')
+        .select(FIELDS_GET_OWN_PROFILE)
         .exec();
 };
 
@@ -185,7 +181,7 @@ UserSchema.statics.byUserId = function (userId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -userPin -deviceInfo -__v')
+        .select(FIELDS_GET_OWN_PROFILE)
         .exec();
 };
 
@@ -227,10 +223,10 @@ UserSchema.statics.keyProps = function () {
     return this.find().select(USER_KEY_FIELDS).sort('name').exec();
 };
 
-UserSchema.statics.byUserRoles = function (roles) {
+UserSchema.statics.getAdminDeviceTokens = function () {
     return this
-        .find({ roles })
-        .select(FIELDS_GET_PUBLIC_PROFILE)
+        .find({ roles: 'admin' })
+        .select('-_id deviceToken')
         .exec();
 };
 
@@ -267,13 +263,13 @@ UserSchema.statics.editProfile = function (vAuthUser, userId, data) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -userPin -deviceInfo -__v').exec();
+        .select(FIELDS_GET_OWN_PROFILE).exec();
 };
 
 UserSchema.statics.setDevice = function (userId, deviceInfo) {
     return this.update(
         { userId },
-        { $set: { deviceInfo, vAuthUser: userId } },
+        { $set: { ...deviceInfo, vAuthUser: userId } },
         { upsert: false, new: true, }
     ).exec();
 };

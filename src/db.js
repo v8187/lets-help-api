@@ -18,6 +18,7 @@ export const initDatabase = (cb) => {
     }).then(
         (db) => {
             console.log('Connected to MongoDB successfully!');
+            require('./firebase-sdk');
             cb && cb(db);
         },
         error => {

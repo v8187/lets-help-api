@@ -8,6 +8,8 @@ import { getAuthRouter } from './routers/auth.router';
 import { getApiRouter } from './routers/api.router';
 import { setupAuthorization } from './auth';
 import { initDatabase } from './db';
+// Initialize Firebase Admin for Notifications
+// import { sendNotificationToAdmins } from './firebase-sdk';
 
 const app = express();
 
@@ -28,6 +30,8 @@ export const initApp = () => {
 
     // Initialize Database
     initDatabase();
+
+
 
     // Configure CORS
     app.use(cors());
