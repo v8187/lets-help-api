@@ -2,6 +2,7 @@ import { BaseController } from './BaseController';
 import { CaseModel } from '../models/case.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import { FIELDS_CREATE_CASE_ADMIN, FIELDS_CREATE_CASE } from '../configs/query-fields';
+import { sendNotification } from '../firebase-sdk';
 
 const createCaseErr = (res, err = 'Server error') => {
     return sendResponse(res, {
@@ -50,7 +51,7 @@ export class CaseController extends BaseController {
         });
     }
 
-    createCase(req, res) {
+    createCase(req, res, isRequest) {
         const { contactNo, title } = req.body;
 
         CaseModel.caseExists(req.body).then($case => {
@@ -81,7 +82,18 @@ export class CaseController extends BaseController {
                 res, {
                 success: 'Case created successfully.',
                 error: 'Something went wrong while creating new Case. Try again later.',
-                onSuccess: data => parseResponseData(req, data, true)
+                onSuccess: data => {
+                    parseResponseData(req, data, true);
+                    isRequest && sendNotification({
+                        data: {
+                            caseId: data.caseId
+                        },
+                        notification: {
+                            title: 'New Case',
+                            body: 'Someone requested a new case.'
+                        }
+                    }, ['admin']);
+                }
             });
         }, modelErr => {
             console.error(modelErr);

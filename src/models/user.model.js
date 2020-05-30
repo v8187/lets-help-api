@@ -223,9 +223,9 @@ UserSchema.statics.keyProps = function () {
     return this.find().select(USER_KEY_FIELDS).sort('name').exec();
 };
 
-UserSchema.statics.getAdminDeviceTokens = function () {
+UserSchema.statics.getDeviceTokens = function (roles) {
     return this
-        .find({ roles: 'admin' })
+        .find({ roles })
         .select('-_id deviceToken')
         .exec();
 };
@@ -267,7 +267,7 @@ UserSchema.statics.editProfile = function (vAuthUser, userId, data) {
 };
 
 UserSchema.statics.setDevice = function (userId, deviceInfo) {
-    return this.update(
+    return this.updateOne(
         { userId },
         { $set: { ...deviceInfo, vAuthUser: userId } },
         { upsert: false, new: true, }

@@ -63,7 +63,7 @@ export const getCaseRouter = (passport) => {
     router.post('/requestCase', [
         validateWithToken,
         (req, res, next) => validateParams(req, res, next, 'title,name,contactNo,city'),
-        (req, res) => createCase(req, res)
+        (req, res) => createCase(req, res, true)
     ]);
 
     router.put('/react', [

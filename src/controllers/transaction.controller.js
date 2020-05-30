@@ -92,7 +92,18 @@ export class TransactionController extends BaseController {
             res, {
             success: 'Transaction added successfully.',
             error: 'Something went wrong while adding a new Transaction. Try again later.',
-            onSuccess: data => parseResponseData(req, data, true)
+            onSuccess: data => {
+                parseResponseData(req, data, true);
+                data.transType === 'd' && sendNotification({
+                    data: {
+                        transId: data.transId,
+                    },
+                    notification: {
+                        title: 'New Transaction',
+                        body: `${data.amount} spent for Case Id ${data.forCaseId}. Click for details.`
+                    }
+                }, []);
+            }
         });
     }
 

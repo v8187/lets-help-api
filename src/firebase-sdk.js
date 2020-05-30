@@ -24,8 +24,8 @@ ref.once('value', function (snapshot) {
   // console.log(snapshot);
 });
 
-export const sendNotificationToAdmins = (notification) => {
-  UserModel.getAdminDeviceTokens().then(adminDeviceTokens => {
+export const sendNotification = (notification, roles) => {
+  UserModel.getDeviceTokens(roles).then(adminDeviceTokens => {
     const adminTokens = [];
     adminDeviceTokens.map(list => list.deviceToken && adminTokens.push(list.deviceToken));
     console.log('adminDeviceTokens', adminTokens);
@@ -36,10 +36,11 @@ export const sendNotificationToAdmins = (notification) => {
       //   score: '850',
       //   time: '2:45'
       // },
-      notification: {
-        title: '$GOOG up 1.43% on the day',
-        body: '$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.'
-      },
+      // notification: {
+      //   title: '$GOOG up 1.43% on the day',
+      //   body: '$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.'
+      // },
+      ...notification,
       tokens: adminTokens
     })
       .then((response) => {
@@ -54,4 +55,4 @@ export const sendNotificationToAdmins = (notification) => {
   }).catch(dbReason => console.log('Something went wrong fetching Device Tokens for Admins'))
 };
 
-sendNotificationToAdmins();
+// sendNotification('', ['admin']);
