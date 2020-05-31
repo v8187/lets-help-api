@@ -2,6 +2,8 @@ import { BaseController } from './BaseController';
 import { TransactionModel } from '../models/transaction.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import { FIELDS_TRANSACTION_ADD_UPDATE, FIELDS_TRANSACTION_AD_SEARCH } from '../configs/query-fields';
+import { sendNotification } from '../firebase-sdk';
+import { userRoles } from '../configs/enum-constants';
 
 const addTransErr = (res, err = 'Server error') => {
     return sendResponse(res, {
@@ -102,7 +104,7 @@ export class TransactionController extends BaseController {
                         title: 'New Transaction',
                         body: `${data.amount} spent for Case Id ${data.forCaseId}. Click for details.`
                     }
-                }, []);
+                }, [...userRoles]);
             }
         });
     }

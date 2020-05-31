@@ -3,6 +3,7 @@ import { CaseModel } from '../models/case.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import { FIELDS_CREATE_CASE_ADMIN, FIELDS_CREATE_CASE } from '../configs/query-fields';
 import { sendNotification } from '../firebase-sdk';
+import { userRoles } from '../configs/enum-constants';
 
 const createCaseErr = (res, err = 'Server error') => {
     return sendResponse(res, {
@@ -84,15 +85,15 @@ export class CaseController extends BaseController {
                 error: 'Something went wrong while creating new Case. Try again later.',
                 onSuccess: data => {
                     parseResponseData(req, data, true);
-                    isRequest && sendNotification({
+                    sendNotification({
                         data: {
                             caseId: data.caseId
                         },
                         notification: {
                             title: 'New Case',
-                            body: 'Someone requested a new case.'
+                            body: isRequest ? 'Someone requested a new case.' : 'New case added. Click for details.'
                         }
-                    }, ['admin']);
+                    }, isRequest ? ['admin'] : [...userRoles]);
                 }
             });
         }, modelErr => {
