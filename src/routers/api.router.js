@@ -19,5 +19,10 @@ export const getApiRouter = (passport) => {
     router.use('/user', getUserRouter(passport));
     router.use('/case', getCaseRouter(passport));
     router.use('/transaction', getTransactionRouter(passport));
+    router.use('/userRole', getCaseRouter(passport));
+    router.use('/caseType', getCaseRouter(passport));
+    router.use('/personRelation', getCaseRouter(passport));
+    router.use('/location', getCaseRouter(passport));
+    router.use('/message', getCaseRouter(passport));
     return router;
 };
