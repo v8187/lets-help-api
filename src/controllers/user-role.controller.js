@@ -27,14 +27,6 @@ export class UserRoleController extends BaseController {
         handleModelRes(UserRoleModel.userRoleExists(req.params.userInfo), res);
     }
 
-    count(req, res) {
-        handleModelRes(UserRoleModel.count(), res);
-    }
-
-    ids(req, res) {
-        handleModelRes(UserRoleModel.keyProps(), res);
-    }
-
     userRolesList(req, res) {
         handleModelRes(UserRoleModel.list(), res, {
             onSuccess: data => parseResponseData(req, data)
@@ -71,9 +63,9 @@ export class UserRoleController extends BaseController {
                 res, {
                 success: 'User Role created successfully.',
                 error: 'Something went wrong while creating new User Role. Try again later.',
-                onSuccess: data => {
-                    parseResponseData(req, data, true);
-                }
+                // onSuccess: data => {
+                //     parseResponseData(req, data, true);
+                // }
             });
         }, modelErr => {
             console.error(modelErr);
@@ -101,7 +93,7 @@ export class UserRoleController extends BaseController {
             res, {
             success: 'User Role updated successfully.',
             error: 'Something went wrong while updating the User Role. Try again later.',
-            onSuccess: data => parseResponseData(req, data, true)
+            // onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
@@ -122,7 +114,6 @@ const parseResponseData = (req, data, toObject = false) => {
         delete item.createdBy;
         delete item.createdById;
         delete item.updatedById;
-        delete item.referredById;
         delete item._id;
         delete item.__v;
 

@@ -4,6 +4,7 @@ import { enumValuesRouter } from './enum-values.router';
 import { getUserRouter } from './user.router';
 import { getCaseRouter } from './case.router';
 import { getTransactionRouter } from './transaction.router';
+import { getUserRoleRouter } from './user-role.router';
 
 const router = Router();
 
@@ -19,10 +20,10 @@ export const getApiRouter = (passport) => {
     router.use('/user', getUserRouter(passport));
     router.use('/case', getCaseRouter(passport));
     router.use('/transaction', getTransactionRouter(passport));
-    router.use('/userRole', getCaseRouter(passport));
-    router.use('/caseType', getCaseRouter(passport));
-    router.use('/personRelation', getCaseRouter(passport));
-    router.use('/location', getCaseRouter(passport));
-    router.use('/message', getCaseRouter(passport));
+    router.use('/userRole', getUserRoleRouter(passport));
+    // router.use('/caseType', getCaseRouter(passport));
+    // router.use('/personRelation', getCaseRouter(passport));
+    // router.use('/location', getCaseRouter(passport));
+    // router.use('/message', getCaseRouter(passport));
     return router;
 };

@@ -17,11 +17,12 @@ const
     db = mongoose.connection,
     COLLECTIONS = [
         // { file: 'countries', name: 'Country' }, { file: 'states', name: 'State' }, { file: 'cities', name: 'City' },
+        { file: 'user-roles', name: 'UserRole' },
         /** Dependent on Country, State, City Data */
         // { file: 'users', name: 'User' },
         /** Dependent on User, Country, State, City Data */
         // { file: 'cases', name: 'Case' },
-        { file: 'transactions', name: 'Transaction' },
+        // { file: 'transactions', name: 'Transaction' },
     ];
 // initDatabase(() => {
 //     require(`./${COLLECTIONS[0].file}.data`);
