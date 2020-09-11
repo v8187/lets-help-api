@@ -5,33 +5,33 @@ import {
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
-const UserRoleSchema = new BaseSchema({
-    userRoleId: { type: String, },
+const CaseTypeSchema = new BaseSchema({
+    caseTypeId: { type: String, },
     name: { type: String, required: true, trim: true },
     label: { type: String, trim: true }
 },
     {
-        collection: 'UserRole',
+        collection: 'CaseType',
         ...commonShemaOptions((doc, ret, options) => {
             return ret;
         })
     }
 );
 
-defineCommonVirtuals(UserRoleSchema);
+defineCommonVirtuals(CaseTypeSchema);
 
-// UserRole Schema's save pre hook
-UserRoleSchema.pre('save', async function (next) {
-    let $userRole = this;
+// CaseType Schema's save pre hook
+CaseTypeSchema.pre('save', async function (next) {
+    let $caseType = this;
 
-    $userRole.userRoleId = $userRole._id;
+    $caseType.caseTypeId = $caseType._id;
 
     next();
 });
 
-UserRoleSchema.post('save', async function ($userRole, next) {
+CaseTypeSchema.post('save', async function ($caseType, next) {
 
-    const populatedUserRole = await $userRole.
+    const populatedCaseType = await $caseType.
         populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
@@ -47,34 +47,34 @@ UserRoleSchema.post('save', async function ($userRole, next) {
  * Do not declare methods using ES6 arrow functions (=>). 
  * Arrow functions explicitly prevent binding this
  */
-UserRoleSchema.statics.list = function () {
+CaseTypeSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ userRoleId: 1, name: 1, label: 1, _id: 0 })
+        .project({ caseTypeId: 1, name: 1, label: 1, _id: 0 })
         .sort('label')
         .exec();
 };
 
-UserRoleSchema.statics.tempAll = function () {
+CaseTypeSchema.statics.tempAll = function () {
     return this.find()
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .select().exec();
 };
 
-UserRoleSchema.statics.count = function () {
+CaseTypeSchema.statics.count = function () {
     return this.countDocuments();
 };
 
-UserRoleSchema.statics.userRoleExists = function ({ name }) {
+CaseTypeSchema.statics.caseTypeExists = function ({ name }) {
     return this
         .findOne({ name })
         .exec();
 };
 
-UserRoleSchema.statics.editUserRole = function (vAuthUser, userRoleId, data) {
+CaseTypeSchema.statics.editCaseType = function (vAuthUser, caseTypeId, data) {
     return this.findOneAndUpdate(
-        { userRoleId },
+        { caseTypeId },
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
@@ -83,9 +83,9 @@ UserRoleSchema.statics.editUserRole = function (vAuthUser, userRoleId, data) {
         .select('-_id -__v').exec();
 };
 
-UserRoleSchema.statics.saveUserRole = function ($userRole) {
-    // console.log('saveUserRole', $userRole);
-    return $userRole.save();
+CaseTypeSchema.statics.saveCaseType = function ($caseType) {
+    // console.log('saveCaseType', $caseType);
+    return $caseType.save();
 };
 
-export const UserRoleModel = model('UserRole', UserRoleSchema);
+export const CaseTypeModel = model('CaseType', CaseTypeSchema);

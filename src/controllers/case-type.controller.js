@@ -1,102 +1,102 @@
 import { BaseController } from './BaseController';
-import { UserRoleModel } from '../models/user-role.model';
+import { CaseTypeModel } from '../models/case-type.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_USER_ROLE } from '../configs/query-fields';
+import { FIELDS_CASE_TYPE } from '../configs/query-fields';
 
-const createUserRoleErr = (res, err = 'Server error') => {
+const createCaseTypeErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
-        message: 'Something went wrong while creating new User Role. Try again later.',
+        message: 'Something went wrong while creating new Case Type. Try again later.',
         type: 'INTERNAL_SERVER_ERROR'
     });
 };
 
-const reactUserRoleErr = (res, err = 'Server error') => {
+const reactCaseTypeErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
-        message: 'Something went wrong while saving your reaction for User Role. Try again later.',
+        message: 'Something went wrong while saving your reaction for Case Type. Try again later.',
         type: 'INTERNAL_SERVER_ERROR'
     });
 };
 
-export class UserRoleController extends BaseController {
+export class CaseTypeController extends BaseController {
 
-    userRoleExists(req, res) {
-        handleModelRes(UserRoleModel.userRoleExists(req.params.userInfo), res);
+    caseTypeExists(req, res) {
+        handleModelRes(CaseTypeModel.caseTypeExists(req.params.userInfo), res);
     }
 
-    userRolesList(req, res) {
-        handleModelRes(UserRoleModel.list(), res, {
+    caseTypesList(req, res) {
+        handleModelRes(CaseTypeModel.list(), res, {
             onSuccess: data => parseResponseData(req, data)
         });
     }
 
-    createUserRole(req, res, isRequest) {
+    createCaseType(req, res, isRequest) {
         const { name } = req.body;
 
-        UserRoleModel.userRoleExists(req.body).then($userRole => {
-            if (!!$userRole) {
+        CaseTypeModel.caseTypeExists(req.body).then($caseType => {
+            if (!!$caseType) {
                 return sendResponse(res, {
-                    error: 'Cannot create new User Role',
-                    message: `User Role already exist with Name "${name}".`,
+                    error: 'Cannot create new Case Type',
+                    message: `Case Type already exist with Name "${name}".`,
                     type: 'CONFLICT'
                 });
             }
             const user = getReqMetadata(req, 'user');
 
             const { body } = req;
-            let newUserRole = new UserRoleModel();
+            let newCaseType = new CaseTypeModel();
 
-            (FIELDS_USER_ROLE).split(',').map(field => {
+            (FIELDS_CASE_TYPE).split(',').map(field => {
                 const data = body[field];
                 if (data !== undefined) {
-                    newUserRole[field] = data;
+                    newCaseType[field] = data;
                 }
             });
 
-            newUserRole.vAuthUser = user.userId;
+            newCaseType.vAuthUser = user.userId;
 
             handleModelRes(
-                UserRoleModel.saveUserRole(newUserRole),
+                CaseTypeModel.saveCaseType(newCaseType),
                 res, {
-                success: 'User Role created successfully.',
-                error: 'Something went wrong while creating new User Role. Try again later.',
+                success: 'Case Type created successfully.',
+                error: 'Something went wrong while creating new Case Type. Try again later.',
                 // onSuccess: data => {
                 //     parseResponseData(req, data, true);
                 // }
             });
         }, modelErr => {
             console.error(modelErr);
-            return createUserRoleErr(res, modelErr.message);
+            return createCaseTypeErr(res, modelErr.message);
         }).catch(modelReason => {
             console.log(modelReason);
-            return createUserRoleErr(res, modelReason.message);
+            return createCaseTypeErr(res, modelReason.message);
         });
     }
 
-    editUserRole(req, res) {
+    editCaseType(req, res) {
         const user = getReqMetadata(req, 'user');
         const { body } = req;
 
         let tempData = {};
 
-        (FIELDS_USER_ROLE).split(',').map(field => {
+        (FIELDS_CASE_TYPE).split(',').map(field => {
             if (body[field] !== undefined) {
                 tempData[field] = body[field];
             }
         });
 
         handleModelRes(
-            UserRoleModel.editUserRole(user.userId, body.userRoleId, tempData),
+            CaseTypeModel.editCaseType(user.userId, body.caseTypeId, tempData),
             res, {
-            success: 'User Role updated successfully.',
-            error: 'Something went wrong while updating the User Role. Try again later.',
+            success: 'Case Type updated successfully.',
+            error: 'Something went wrong while updating the Case Type. Try again later.',
             // onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
     tempAll(req, res) {
-        handleModelRes(UserRoleModel.tempAll(), res);
+        handleModelRes(CaseTypeModel.tempAll(), res);
     }
 }
 

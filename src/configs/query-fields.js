@@ -23,3 +23,4 @@ export const FIELDS_TRANSACTION_REQUIRED = 'transType,amount,forMonth,forYear,tr
 export const FIELDS_TRANSACTION_ADD_UPDATE = FIELDS_TRANSACTION_REQUIRED + ',forCaseId,spentById,fromUserId,transMode,bankDetails,upiDetails,ewalletDetails';
 
 export const FIELDS_USER_ROLE = 'name,label';
+export const FIELDS_CASE_TYPE = 'name,label';
