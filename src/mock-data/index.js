@@ -17,7 +17,8 @@ const
     db = mongoose.connection,
     COLLECTIONS = [
         // { file: 'countries', name: 'Country' }, { file: 'states', name: 'State' }, { file: 'cities', name: 'City' },
-        { file: 'user-roles', name: 'UserRole' },
+        // { file: 'user-roles', name: 'UserRole' },
+        { file: 'case-types', name: 'CaseType' },
         /** Dependent on Country, State, City Data */
         // { file: 'users', name: 'User' },
         /** Dependent on User, Country, State, City Data */

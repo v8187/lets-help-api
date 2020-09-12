@@ -14,7 +14,8 @@ export const initDatabase = (cb) => {
         // reconnectTries: parseInt(DB_RECONNECT_TRIES),
         useNewUrlParser: true,
         // dbName: 'heroku_1rgknm91' || process.env.DB_NAME,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
+        useFindAndModify: false // Set to false to make findOneAndUpdate() and findOneAndRemove() use native findOneAndUpdate() rather than findAndModify()
     }).then(
         (db) => {
             console.log('Connected to MongoDB successfully!');

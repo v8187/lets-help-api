@@ -31,11 +31,7 @@ CaseTypeSchema.pre('save', async function (next) {
 
 CaseTypeSchema.post('save', async function ($caseType, next) {
 
-    const populatedCaseType = await $caseType.
-        populate('createdBy', USER_KEY_FIELDS)
-        .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('referredBy', USER_KEY_FIELDS)
-        .execPopulate();
+    const populatedCaseType = await $caseType.execPopulate();
 
     next();
 });
@@ -78,13 +74,10 @@ CaseTypeSchema.statics.editCaseType = function (vAuthUser, caseTypeId, data) {
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
-        .populate('createdBy', USER_KEY_FIELDS)
-        .populate('updatedBy', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
+        .select('name label caseTypeId -_id').exec();
 };
 
 CaseTypeSchema.statics.saveCaseType = function ($caseType) {
-    // console.log('saveCaseType', $caseType);
     return $caseType.save();
 };
 

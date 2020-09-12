@@ -31,10 +31,9 @@ UserRoleSchema.pre('save', async function (next) {
 
 UserRoleSchema.post('save', async function ($userRole, next) {
 
-    const populatedUserRole = await $userRole.
-        populate('createdBy', USER_KEY_FIELDS)
-        .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('referredBy', USER_KEY_FIELDS)
+    const populatedUserRole = await $userRole
+        // .populate('createdBy', USER_KEY_FIELDS)
+        // .populate('updatedBy', USER_KEY_FIELDS)
         .execPopulate();
 
     next();
@@ -78,9 +77,9 @@ UserRoleSchema.statics.editUserRole = function (vAuthUser, userRoleId, data) {
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
-        .populate('createdBy', USER_KEY_FIELDS)
-        .populate('updatedBy', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
+        // .populate('createdBy', USER_KEY_FIELDS)
+        // .populate('updatedBy', USER_KEY_FIELDS)
+        .select('name label userRoleId -_id').exec();
 };
 
 UserRoleSchema.statics.saveUserRole = function ($userRole) {
