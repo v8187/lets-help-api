@@ -6,6 +6,7 @@ import { getCaseRouter } from './case.router';
 import { getTransactionRouter } from './transaction.router';
 import { getUserRoleRouter } from './user-role.router';
 import { getCaseTypeRouter } from './case-type.router';
+import { getRelationshipRouter } from './relationship.router';
 
 const router = Router();
 
@@ -23,7 +24,7 @@ export const getApiRouter = (passport) => {
     router.use('/transaction', getTransactionRouter(passport));
     router.use('/userRole', getUserRoleRouter(passport));
     router.use('/caseType', getCaseTypeRouter(passport));
-    // router.use('/personRelation', getCaseRouter(passport));
+    router.use('/relationship', getRelationshipRouter(passport));
     // router.use('/location', getCaseRouter(passport));
     // router.use('/message', getCaseRouter(passport));
     return router;

@@ -24,3 +24,4 @@ export const FIELDS_TRANSACTION_ADD_UPDATE = FIELDS_TRANSACTION_REQUIRED + ',for
 
 export const FIELDS_USER_ROLE = 'name,label';
 export const FIELDS_CASE_TYPE = 'name,label';
+export const FIELDS_RELATIONSHIP = 'name,label';

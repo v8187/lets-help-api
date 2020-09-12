@@ -22,7 +22,7 @@ const reactCaseTypeErr = (res, err = 'Server error') => {
 export class CaseTypeController extends BaseController {
 
     caseTypeExists(req, res) {
-        handleModelRes(CaseTypeModel.caseTypeExists(req.params.userInfo), res);
+        handleModelRes(CaseTypeModel.caseTypeExists(req.params.name), res);
     }
 
     caseTypesList(req, res) {

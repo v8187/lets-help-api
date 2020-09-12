@@ -18,7 +18,8 @@ const
     COLLECTIONS = [
         // { file: 'countries', name: 'Country' }, { file: 'states', name: 'State' }, { file: 'cities', name: 'City' },
         // { file: 'user-roles', name: 'UserRole' },
-        { file: 'case-types', name: 'CaseType' },
+        // { file: 'case-types', name: 'CaseType' },
+        { file: 'relationships', name: 'Relationships' },
         /** Dependent on Country, State, City Data */
         // { file: 'users', name: 'User' },
         /** Dependent on User, Country, State, City Data */

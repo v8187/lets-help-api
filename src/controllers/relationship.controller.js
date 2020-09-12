@@ -1,102 +1,102 @@
 import { BaseController } from './BaseController';
-import { UserRoleModel } from '../models/user-role.model';
+import { RelationshipModel } from '../models/relationship.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_USER_ROLE } from '../configs/query-fields';
+import { FIELDS_RELATIONSHIP } from '../configs/query-fields';
 
-const createUserRoleErr = (res, err = 'Server error') => {
+const createRelationshipErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
-        message: 'Something went wrong while creating new User Role. Try again later.',
+        message: 'Something went wrong while creating new Relationship. Try again later.',
         type: 'INTERNAL_SERVER_ERROR'
     });
 };
 
-const reactUserRoleErr = (res, err = 'Server error') => {
+const reactRelationshipErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
-        message: 'Something went wrong while saving your reaction for User Role. Try again later.',
+        message: 'Something went wrong while saving your reaction for Relationship. Try again later.',
         type: 'INTERNAL_SERVER_ERROR'
     });
 };
 
-export class UserRoleController extends BaseController {
+export class RelationshipController extends BaseController {
 
-    userRoleExists(req, res) {
-        handleModelRes(UserRoleModel.userRoleExists(req.params.name), res);
+    relationshipExists(req, res) {
+        handleModelRes(RelationshipModel.relationshipExists(req.params.name), res);
     }
 
-    userRolesList(req, res) {
-        handleModelRes(UserRoleModel.list(), res, {
+    relationshipsList(req, res) {
+        handleModelRes(RelationshipModel.list(), res, {
             onSuccess: data => parseResponseData(req, data)
         });
     }
 
-    createUserRole(req, res, isRequest) {
+    createRelationship(req, res, isRequest) {
         const { name } = req.body;
 
-        UserRoleModel.userRoleExists(req.body).then($userRole => {
-            if (!!$userRole) {
+        RelationshipModel.relationshipExists(req.body).then($relationship => {
+            if (!!$relationship) {
                 return sendResponse(res, {
-                    error: 'Cannot create new User Role',
-                    message: `User Role already exist with Name "${name}".`,
+                    error: 'Cannot create new Relationship',
+                    message: `Relationship already exist with Name "${name}".`,
                     type: 'CONFLICT'
                 });
             }
             const user = getReqMetadata(req, 'user');
 
             const { body } = req;
-            let newUserRole = new UserRoleModel();
+            let newRelationship = new RelationshipModel();
 
-            (FIELDS_USER_ROLE).split(',').map(field => {
+            (FIELDS_RELATIONSHIP).split(',').map(field => {
                 const data = body[field];
                 if (data !== undefined) {
-                    newUserRole[field] = data;
+                    newRelationship[field] = data;
                 }
             });
 
-            newUserRole.vAuthUser = user.userId;
+            newRelationship.vAuthUser = user.userId;
 
             handleModelRes(
-                UserRoleModel.saveUserRole(newUserRole),
+                RelationshipModel.saveRelationship(newRelationship),
                 res, {
-                success: 'User Role created successfully.',
-                error: 'Something went wrong while creating new User Role. Try again later.',
+                success: 'Relationship created successfully.',
+                error: 'Something went wrong while creating new Relationship. Try again later.',
                 // onSuccess: data => {
                 //     parseResponseData(req, data, true);
                 // }
             });
         }, modelErr => {
             console.error(modelErr);
-            return createUserRoleErr(res, modelErr.message);
+            return createRelationshipErr(res, modelErr.message);
         }).catch(modelReason => {
             console.log(modelReason);
-            return createUserRoleErr(res, modelReason.message);
+            return createRelationshipErr(res, modelReason.message);
         });
     }
 
-    editUserRole(req, res) {
+    editRelationship(req, res) {
         const user = getReqMetadata(req, 'user');
         const { body } = req;
 
         let tempData = {};
 
-        (FIELDS_USER_ROLE).split(',').map(field => {
+        (FIELDS_RELATIONSHIP).split(',').map(field => {
             if (body[field] !== undefined) {
                 tempData[field] = body[field];
             }
         });
 
         handleModelRes(
-            UserRoleModel.editUserRole(user.userId, body.userRoleId, tempData),
+            RelationshipModel.editRelationship(user.userId, body.relationshipId, tempData),
             res, {
-            success: 'User Role updated successfully.',
-            error: 'Something went wrong while updating the User Role. Try again later.',
+            success: 'Relationship updated successfully.',
+            error: 'Something went wrong while updating the Relationship. Try again later.',
             // onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
     tempAll(req, res) {
-        handleModelRes(UserRoleModel.tempAll(), res);
+        handleModelRes(RelationshipModel.tempAll(), res);
     }
 }
 
