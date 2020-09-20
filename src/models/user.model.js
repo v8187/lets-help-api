@@ -225,8 +225,11 @@ UserSchema.statics.keyProps = function () {
 
 UserSchema.statics.getDeviceTokens = function (roles) {
     return this
-        .find({ roles })
-        .select('-_id deviceToken')
+        .find({
+            roles,
+            deviceToken: { $ne: undefined }
+        })
+        .select('-_id deviceToken userId')
         .exec();
 };
 
