@@ -5,6 +5,8 @@ import {
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
+const NOTI_QUERY_FIELDS = 'notificationId userId title body image data sentOn isRead readOn isDeleted -_id';
+
 const NotificationSchema = new BaseSchema({
     notificationId: { type: String, },
     userId: { type: String, required: true },
@@ -16,6 +18,7 @@ const NotificationSchema = new BaseSchema({
     isRead: { type: Boolean, default: false },
     readOn: { type: Date, required: function () { return this.isRead; } },
     isDeleted: { type: Boolean, default: false },
+    deletedOn: { type: Date, required: function () { return this.isDeleted; } },
 },
     {
         collection: 'Notification',
@@ -50,12 +53,12 @@ NotificationSchema.post('save', async function ($notification, next) {
  * Do not declare methods using ES6 arrow functions (=>). 
  * Arrow functions explicitly prevent binding this
  */
-NotificationSchema.statics.list = function () {
-    return this
-        .aggregate([{ $match: {} }])
-        .project({ notificationId: 1, name: 1, label: 1, _id: 0 })
-        .sort('label')
-        .exec();
+NotificationSchema.statics.list = function (userId) {
+    return this.find({
+        userId,
+        isDeleted: false,
+        status: 1
+    }).select(NOTI_QUERY_FIELDS).exec();
 };
 
 NotificationSchema.statics.tempAll = function () {
@@ -69,19 +72,28 @@ NotificationSchema.statics.count = function () {
     return this.countDocuments();
 };
 
-NotificationSchema.statics.notificationExists = function ({ name }) {
-    return this
-        .findOne({ name })
-        .exec();
+NotificationSchema.statics.markRead = function (vAuthUser, notificationId) {
+    return this.updateOne(
+        { notificationId, userId: vAuthUser },
+        { $set: { isRead: true, readOn: new Date(), vAuthUser } },
+        { upsert: false, new: true }
+    ).exec();
 };
 
-NotificationSchema.statics.editNotification = function (vAuthUser, notificationId, data) {
-    return this.findOneAndUpdate(
-        { notificationId },
-        { $set: { ...data, vAuthUser } },
+NotificationSchema.statics.markAllRead = function (vAuthUser) {
+    return this.updateMany(
+        { userId: vAuthUser },
+        { $set: { isRead: true, readOn: new Date(), vAuthUser } },
         { upsert: false, new: true }
-    )
-        .select('name label notificationId -_id').exec();
+    ).exec();
+};
+
+NotificationSchema.statics.markDeleted = function (vAuthUser, notificationId) {
+    return this.updateOne(
+        { notificationId, userId: vAuthUser },
+        { $set: { isDeleted: true, deletedOn: new Date(), vAuthUser } },
+        { upsert: false, new: true }
+    ).exec();
 };
 
 NotificationSchema.statics.saveNotification = function ($notification) {

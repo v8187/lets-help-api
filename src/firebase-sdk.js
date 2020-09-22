@@ -63,12 +63,12 @@ export const sendNotification = (notification, roles) => {
                             const newNoti = new NotificationModel();
                             const tokenInfo = resDeviceTokens[i];
 
-                            NotificationModel.saveNotification({
-                                ...newNoti,
-                                userId: tokenInfo.userId,
-                                data: notification.data,
-                                ...notification.notification,
-                            });
+                            newNoti.userId = tokenInfo.userId;
+                            newNoti.data = notification.data;
+                            newNoti.title = notification.notification.title;
+                            newNoti.body = notification.notification.body;
+
+                            NotificationModel.saveNotification(newNoti);
                         }
                     });
                 }
