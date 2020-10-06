@@ -1,18 +1,19 @@
-import { Schema, model } from 'mongoose';
+import { model } from 'mongoose';
 import { compareSync } from 'bcryptjs';
 
 import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
-import { USER_KEY_FIELDS, FIELDS_GET_PUBLIC_PROFILE, FIELDS_GET_OWN_PROFILE } from '../configs/query-fields';
-import { userRoles, genders, bloodGroups } from '../configs/enum-constants';
+import {
+    USER_KEY_FIELDS, FIELDS_GET_OWN_PROFILE,
+    FIELDS_USER_ROLE_POPU, FIELDS_BLOOD_GROUP_POPU
+} from '../configs/query-fields';
+import { genders } from '../configs/enum-constants';
 
 const UserSchema = new BaseSchema({
     // Account Fields
     userId: { type: String, trim: true },
     userPin: { type: String, require: true, trim: true },
     isVerified: { type: Boolean, },
-    roles: {
-        type: Schema.Types.EnumArray, default: ['default'], enum: userRoles, required: true
-    },
+    roleIds: [{ type: String, required: true }],
     // groups: {
     //     type: Schema.Types.EnumArray, default: ['default'], enum: userGroups, required: true
     // },
@@ -21,7 +22,7 @@ const UserSchema = new BaseSchema({
     name: { type: String, trim: true },
     gender: { type: String, enum: genders, lowercase: true, trim: true },
     dob: { type: Date },
-    bloodGroup: { type: String, enum: bloodGroups, lowercase: false },
+    bloodGroupId: { type: String },
 
     // Communication Fields
     email: { type: String, lowercase: true, required: true },
@@ -58,6 +59,19 @@ const UserSchema = new BaseSchema({
 defineCommonVirtuals(UserSchema);
 
 // User Schema's virtual fields
+UserSchema.virtual('roles', {
+    ref: 'UserRole',
+    localField: 'roleIds',
+    foreignField: 'userRoleId',
+});
+
+UserSchema.virtual('bloodGroup', {
+    ref: 'BloodGroup',
+    localField: 'bloodGroupId',
+    foreignField: 'bloodGroupId',
+    justOne: true,
+});
+
 UserSchema.virtual('referredBy', {
     ref: 'User',
     localField: 'referredById',
@@ -170,6 +184,8 @@ UserSchema.statics.userProfileForAdmin = function (userId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
+        .populate('roles', FIELDS_USER_ROLE_POPU)
+        .populate('bloodGroup', FIELDS_BLOOD_GROUP_POPU)
         .select(FIELDS_GET_OWN_PROFILE)
         .exec();
 };
@@ -181,6 +197,8 @@ UserSchema.statics.byUserId = function (userId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
+        .populate('roles', FIELDS_USER_ROLE_POPU)
+        .populate('bloodGroup', FIELDS_BLOOD_GROUP_POPU)
         .select(FIELDS_GET_OWN_PROFILE)
         .exec();
 };
@@ -190,6 +208,8 @@ UserSchema.statics.tempAll = function () {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
+        .populate('roles', FIELDS_USER_ROLE_POPU)
+        .populate('bloodGroup', FIELDS_BLOOD_GROUP_POPU)
         // .populate('contactNo', PHONE_QUERY_FIELDS)
         // .populate('city', 'city name -_id')
         // .populate('state', 'state name -_id')
