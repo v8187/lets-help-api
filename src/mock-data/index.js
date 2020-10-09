@@ -17,12 +17,12 @@ const
     db = mongoose.connection,
     COLLECTIONS = [
         // { file: 'countries', name: 'Country' }, { file: 'states', name: 'State' }, { file: 'cities', name: 'City' },
-        // { file: 'blood-groups', name: 'BloodGroup' },
+        { file: 'blood-groups', name: 'BloodGroup' },
         // { file: 'case-types', name: 'CaseType' },
         // { file: 'user-roles', name: 'UserRole' },
         // { file: 'relationships', name: 'Relationships' },
         /** Dependent on Country, State, City Data */
-        { file: 'users', name: 'User' },
+        // { file: 'users', name: 'User' },
         /** Dependent on User, Country, State, City Data */
         // { file: 'cases', name: 'Case' },
         // { file: 'transactions', name: 'Transaction' },

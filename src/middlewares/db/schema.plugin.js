@@ -18,7 +18,7 @@ export function recordAuthorPlugin(schema, options) {
     schema.pre('updateOne', function (next) {
         let changes = this.getUpdate().$set;
 
-        if (changes.vAuthUser !== undefined) {
+        if (changes && changes.vAuthUser !== undefined) {
             changes.updatedById = changes.vAuthUser;
         }
 
@@ -28,7 +28,7 @@ export function recordAuthorPlugin(schema, options) {
     schema.pre('findOneAndUpdate', function (next) {
         let changes = this.getUpdate().$set;
 
-        if (changes.vAuthUser !== undefined) {
+        if (changes && changes.vAuthUser !== undefined) {
             changes.updatedById = changes.vAuthUser;
         }
 
@@ -49,7 +49,7 @@ export function hashUserPinPlugin(schema, options) {
     schema.pre('updateOne', function (next) {
         let changes = this.getUpdate().$set;
 
-        if (changes.userPin !== undefined) {
+        if (changes && changes.userPin !== undefined) {
             changes.userPin = hashUserPin(changes.userPin);
         }
         next();

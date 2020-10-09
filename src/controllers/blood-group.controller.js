@@ -1,5 +1,6 @@
 import { BaseController } from './BaseController';
 import { BloodGroupModel } from '../models/blood-group.model';
+import { IncrementModel } from '../models/increment.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import { FIELDS_BLOOD_GROUP } from '../configs/query-fields';
 
@@ -34,7 +35,7 @@ export class BloodGroupController extends BaseController {
     createBloodGroup(req, res, isRequest) {
         const { name } = req.body;
 
-        BloodGroupModel.bloodGroupExists(req.body).then($bloodGroup => {
+        BloodGroupModel.bloodGroupExists(req.body).then(async $bloodGroup => {
             if (!!$bloodGroup) {
                 return sendResponse(res, {
                     error: 'Cannot create new Blood Group',
@@ -53,6 +54,11 @@ export class BloodGroupController extends BaseController {
                     newBloodGroup[field] = data;
                 }
             });
+
+            const srNo = await IncrementModel.getSrNo(88);
+            console.log('controller == ', 88, srNo.srNo);
+
+            newBloodGroup.bloodGroupId = Number(srNo.srNo);
 
             newBloodGroup.vAuthUser = user.userId;
 

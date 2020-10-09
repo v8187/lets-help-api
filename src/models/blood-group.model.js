@@ -4,6 +4,7 @@ import {
     BaseSchema, commonShemaOptions, defineCommonVirtuals
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
+import { IncrementModel } from './increment.model';
 
 const BloodGroupSchema = new BaseSchema({
     bloodGroupId: { type: String, },
@@ -24,13 +25,15 @@ defineCommonVirtuals(BloodGroupSchema);
 BloodGroupSchema.pre('save', async function (next) {
     let $bloodGroup = this;
 
-    $bloodGroup.bloodGroupId = $bloodGroup._id;
+    // $bloodGroup.bloodGroupId = $bloodGroup._id;
 
     next();
 });
 
 BloodGroupSchema.post('save', async function ($bloodGroup, next) {
 
+    const coit = await BloodGroupModel.countDocuments();
+    console.log(this._id, coit);
     const populatedBloodGroup = await $bloodGroup.execPopulate();
 
     next();

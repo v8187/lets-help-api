@@ -38,7 +38,7 @@ export const getBloodGroupRouter = (passport) => {
 
     router.post('/createBloodGroup', [
         validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
+        // (req, res, next) => validateRoles(req, res, next, 'admin'),
         (req, res, next) => validateParams(req, res, next, 'name,label'),
         (req, res) => createBloodGroup(req, res)
     ]);
