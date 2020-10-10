@@ -22,7 +22,7 @@ const UserSchema = new BaseSchema({
     name: { type: String, trim: true },
     gender: { type: String, enum: genders, lowercase: true, trim: true },
     dob: { type: Date },
-    bloodGroupId: { type: String },
+    bgId: { type: String },
 
     // Communication Fields
     email: { type: String, lowercase: true, required: true },
@@ -67,8 +67,8 @@ UserSchema.virtual('roles', {
 
 UserSchema.virtual('bloodGroup', {
     ref: 'BloodGroup',
-    localField: 'bloodGroupId',
-    foreignField: 'bloodGroupId',
+    localField: 'bgId',
+    foreignField: 'bgId',
     justOne: true,
 });
 

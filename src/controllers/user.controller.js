@@ -223,7 +223,6 @@ const parseResponseData = (req, data, toObject = false) => {
         delete item._id;
         delete item.__v;
         delete item.userPin;
-        delete item.bloodGroupId;
         delete item.roleIds;
 
         return item;

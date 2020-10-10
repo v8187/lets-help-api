@@ -25,6 +25,9 @@ const errorRes = (res, err) => {
  * and send the appropiate custom messages for un-authorized requests
  */
 export const validateToken = (req, res, next, passport) => {
+    if (process.env.DB_MODE === 'ON') {
+        return next();
+    }
     passport.authenticate('myJwt', { session: false }, (err, user, info) => {
         console.log('validateToken', { err, user, infoType: info, 'req.headers': req.headers });
         // If there is some error

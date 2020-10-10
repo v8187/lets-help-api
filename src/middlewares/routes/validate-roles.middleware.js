@@ -5,7 +5,9 @@ import { sendResponse, getToken, extract } from '../../utils';
  * is made by user with Authorized Roles
  */
 export const validateRoles = (req, res, next, roles) => {
-
+    if (process.env.DB_MODE === 'ON') {
+        return next();
+    }
     let { payload } = extract(getToken(req));
 
     if (payload.roles.indexOf(roles) === -1) {

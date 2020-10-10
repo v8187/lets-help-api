@@ -4,12 +4,11 @@ import {
     BaseSchema, commonShemaOptions, defineCommonVirtuals
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
-import { IncrementModel } from './increment.model';
 
 const BloodGroupSchema = new BaseSchema({
-    bloodGroupId: { type: String, },
-    name: { type: String, required: true, trim: true },
-    label: { type: String, trim: true }
+    bgId: { type: String, },
+    name: { type: String, required: true, trim: true, lowercase: true },
+    // label: { type: String, trim: true }
 },
     {
         collection: 'BloodGroup',
@@ -25,15 +24,13 @@ defineCommonVirtuals(BloodGroupSchema);
 BloodGroupSchema.pre('save', async function (next) {
     let $bloodGroup = this;
 
-    // $bloodGroup.bloodGroupId = $bloodGroup._id;
+    // $bloodGroup.bgId = $bloodGroup._id;
 
     next();
 });
 
 BloodGroupSchema.post('save', async function ($bloodGroup, next) {
 
-    const coit = await BloodGroupModel.countDocuments();
-    console.log(this._id, coit);
     const populatedBloodGroup = await $bloodGroup.execPopulate();
 
     next();
@@ -49,7 +46,7 @@ BloodGroupSchema.post('save', async function ($bloodGroup, next) {
 BloodGroupSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ bloodGroupId: 1, name: 1, label: 1, _id: 0 })
+        .project({ bgId: 1, name: 1, label: 1, _id: 0 })
         .sort('label')
         .exec();
 };
@@ -71,13 +68,13 @@ BloodGroupSchema.statics.bloodGroupExists = function ({ name }) {
         .exec();
 };
 
-BloodGroupSchema.statics.editBloodGroup = function (vAuthUser, bloodGroupId, data) {
+BloodGroupSchema.statics.editBloodGroup = function (vAuthUser, bgId, data) {
     return this.findOneAndUpdate(
-        { bloodGroupId },
+        { bgId },
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
-        .select('name label bloodGroupId -_id').exec();
+        .select('name label bgId -_id').exec();
 };
 
 BloodGroupSchema.statics.saveBloodGroup = function ($bloodGroup) {

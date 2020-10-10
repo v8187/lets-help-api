@@ -15,7 +15,7 @@
             "type": "node",
             "request": "launch",
             "name": "Reset DB",
-            "program": "${workspaceFolder}\\src\\mock-data\\index.js"
+            "program": "${workspaceFolder}\\src\\mock-data\\index-new.js"
         }
     ]
 }
