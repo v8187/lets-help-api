@@ -6,8 +6,8 @@ import {
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
 const RelationshipSchema = new BaseSchema({
-    relationshipId: { type: String, },
-    name: { type: String, required: true, trim: true },
+    relId: { type: Number },
+    name: { type: String, required: true, trim: true, lowercase: true },
     label: { type: String, trim: true }
 },
     {
@@ -22,16 +22,16 @@ defineCommonVirtuals(RelationshipSchema);
 
 // Relationship Schema's save pre hook
 RelationshipSchema.pre('save', async function (next) {
-    let $relationship = this;
+    // let $relationship = this;
 
-    $relationship.relationshipId = $relationship._id;
+    // $relationship.relId = $relationship._id;
 
     next();
 });
 
 RelationshipSchema.post('save', async function ($relationship, next) {
 
-    const populatedRelationship = await $relationship.execPopulate();
+    await $relationship.execPopulate();
 
     next();
 });
@@ -46,8 +46,8 @@ RelationshipSchema.post('save', async function ($relationship, next) {
 RelationshipSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ relationshipId: 1, name: 1, label: 1, _id: 0 })
-        .sort('label')
+        .project({ relId: 1, name: 1, _id: 0 })
+        .sort('name')
         .exec();
 };
 
@@ -68,13 +68,13 @@ RelationshipSchema.statics.relationshipExists = function ({ name }) {
         .exec();
 };
 
-RelationshipSchema.statics.editRelationship = function (vAuthUser, relationshipId, data) {
+RelationshipSchema.statics.editRelationship = function (vAuthUser, relId, data) {
     return this.findOneAndUpdate(
-        { relationshipId },
+        { relId },
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
-        .select('name label relationshipId -_id').exec();
+        .select('name relId -_id').exec();
 };
 
 RelationshipSchema.statics.saveRelationship = function ($relationship) {

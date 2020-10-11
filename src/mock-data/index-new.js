@@ -45,6 +45,9 @@ function fillDB() {
     db.createCollection(colName).then((res) => {
         console.log(`${colName} created successfully!!!`);
         require('./blood-groups.data');
+        require('./case-types.data');
+        require('./relationships.data');
+        require('./user-roles.data');
     }, (err) => {
         console.log(`Cannot create ${colName} collection`);
     });

@@ -12,14 +12,6 @@ const createBloodGroupErr = (res, err = 'Server error') => {
     });
 };
 
-const reactBloodGroupErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while saving your reaction for Blood Group. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
-
 export class BloodGroupController extends BaseController {
 
     bloodGroupExists(req, res) {
@@ -27,9 +19,7 @@ export class BloodGroupController extends BaseController {
     }
 
     bloodGroupsList(req, res) {
-        handleModelRes(BloodGroupModel.list(), res, {
-            onSuccess: data => parseResponseData(req, data)
-        });
+        handleModelRes(BloodGroupModel.list(), res);
     }
 
     createBloodGroup(req, res, isRequest) {
@@ -59,19 +49,14 @@ export class BloodGroupController extends BaseController {
                 newBloodGroup.vAuthUser = user.userId;
             }
 
-            const srNo = await IncrementModel.getSrNo(88);
-            console.log('controller == ', 88, srNo.srNo);
-
-            newBloodGroup.bgId = Number(srNo.srNo);
+            const srNoRes = await IncrementModel.getSrNo(88);
+            newBloodGroup.bgId = srNoRes.srNo;
 
             handleModelRes(
                 BloodGroupModel.saveBloodGroup(newBloodGroup),
                 res, {
                 success: 'Blood Group created successfully.',
                 error: 'Something went wrong while creating new Blood Group. Try again later.',
-                // onSuccess: data => {
-                //     parseResponseData(req, data, true);
-                // }
             });
         }, modelErr => {
             console.error(modelErr);
@@ -99,7 +84,6 @@ export class BloodGroupController extends BaseController {
             res, {
             success: 'BloodGroup updated successfully.',
             error: 'Something went wrong while updating the Blood Group. Try again later.',
-            // onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
@@ -107,26 +91,3 @@ export class BloodGroupController extends BaseController {
         handleModelRes(BloodGroupModel.tempAll(), res);
     }
 }
-
-const parseResponseData = (req, data, toObject = false) => {
-    !Array.isArray(data) && (data = [data]);
-
-    data = data.map(item => {
-        item.toObject && (item = item.toObject());
-
-        delete item.createdOn;
-        delete item.createdBy;
-        delete item.updatedOn;
-        delete item.createdBy;
-        delete item.createdById;
-        delete item.updatedById;
-        delete item._id;
-        delete item.__v;
-
-        return item;
-    });
-
-    data = toObject && Array.isArray(data) ? data[0] : data;
-
-    return data;
-};

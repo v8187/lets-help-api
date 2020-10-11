@@ -32,14 +32,14 @@ export const getUserRoleRouter = (passport) => {
     router.put('/updateUserRole', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'name,label,userRoleId'),
+        (req, res, next) => validateParams(req, res, next, 'name,urId'),
         (req, res) => editUserRole(req, res)
     ]);
 
     router.post('/createUserRole', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'name,label'),
+        (req, res, next) => validateParams(req, res, next, 'name'),
         (req, res) => createUserRole(req, res)
     ]);
 

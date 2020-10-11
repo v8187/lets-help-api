@@ -32,14 +32,14 @@ export const getBloodGroupRouter = (passport) => {
     router.put('/updateBloodGroup', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'name,label,bgId'),
+        (req, res, next) => validateParams(req, res, next, 'name,bgId'),
         (req, res) => editBloodGroup(req, res)
     ]);
 
     router.post('/createBloodGroup', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'name,label'),
+        (req, res, next) => validateParams(req, res, next, 'name'),
         (req, res) => createBloodGroup(req, res)
     ]);
 

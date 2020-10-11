@@ -32,14 +32,14 @@ export const getCaseTypeRouter = (passport) => {
     router.put('/updateCaseType', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'name,label,caseTypeId'),
+        (req, res, next) => validateParams(req, res, next, 'name,ctId'),
         (req, res) => editCaseType(req, res)
     ]);
 
     router.post('/createCaseType', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'name,label'),
+        (req, res, next) => validateParams(req, res, next, 'name'),
         (req, res) => createCaseType(req, res)
     ]);
 

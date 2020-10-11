@@ -1,5 +1,6 @@
 import { BaseController } from './BaseController';
 import { CaseTypeModel } from '../models/case-type.model';
+import { IncrementModel } from '../models/increment.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import { FIELDS_CASE_TYPE } from '../configs/query-fields';
 
@@ -11,14 +12,6 @@ const createCaseTypeErr = (res, err = 'Server error') => {
     });
 };
 
-const reactCaseTypeErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while saving your reaction for Case Type. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
-
 export class CaseTypeController extends BaseController {
 
     caseTypeExists(req, res) {
@@ -26,15 +19,13 @@ export class CaseTypeController extends BaseController {
     }
 
     caseTypesList(req, res) {
-        handleModelRes(CaseTypeModel.list(), res, {
-            onSuccess: data => parseResponseData(req, data)
-        });
+        handleModelRes(CaseTypeModel.list(), res);
     }
 
     createCaseType(req, res, isRequest) {
         const { name } = req.body;
 
-        CaseTypeModel.caseTypeExists(req.body).then($caseType => {
+        CaseTypeModel.caseTypeExists(req.body).then(async $caseType => {
             if (!!$caseType) {
                 return sendResponse(res, {
                     error: 'Cannot create new Case Type',
@@ -42,7 +33,6 @@ export class CaseTypeController extends BaseController {
                     type: 'CONFLICT'
                 });
             }
-            const user = getReqMetadata(req, 'user');
 
             const { body } = req;
             let newCaseType = new CaseTypeModel();
@@ -54,16 +44,19 @@ export class CaseTypeController extends BaseController {
                 }
             });
 
-            newCaseType.vAuthUser = user.userId;
+            if (process.env.DB_MODE !== 'ON') {
+                const user = getReqMetadata(req, 'user');
+                newCaseType.vAuthUser = user.userId;
+            }
+
+            const srNoRes = await IncrementModel.getSrNo(88);
+            newCaseType.ctId = srNoRes.srNo;
 
             handleModelRes(
                 CaseTypeModel.saveCaseType(newCaseType),
                 res, {
                 success: 'Case Type created successfully.',
                 error: 'Something went wrong while creating new Case Type. Try again later.',
-                // onSuccess: data => {
-                //     parseResponseData(req, data, true);
-                // }
             });
         }, modelErr => {
             console.error(modelErr);
@@ -87,11 +80,10 @@ export class CaseTypeController extends BaseController {
         });
 
         handleModelRes(
-            CaseTypeModel.editCaseType(user.userId, body.caseTypeId, tempData),
+            CaseTypeModel.editCaseType(user.userId, body.ctId, tempData),
             res, {
             success: 'Case Type updated successfully.',
             error: 'Something went wrong while updating the Case Type. Try again later.',
-            // onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
@@ -99,26 +91,3 @@ export class CaseTypeController extends BaseController {
         handleModelRes(CaseTypeModel.tempAll(), res);
     }
 }
-
-const parseResponseData = (req, data, toObject = false) => {
-    !Array.isArray(data) && (data = [data]);
-
-    data = data.map(item => {
-        item.toObject && (item = item.toObject());
-
-        delete item.createdOn;
-        delete item.createdBy;
-        delete item.updatedOn;
-        delete item.createdBy;
-        delete item.createdById;
-        delete item.updatedById;
-        delete item._id;
-        delete item.__v;
-
-        return item;
-    });
-
-    data = toObject && Array.isArray(data) ? data[0] : data;
-
-    return data;
-};

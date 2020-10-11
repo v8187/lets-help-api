@@ -96,7 +96,7 @@ const addUser = (mockUser, callback) => {
 
 (async () => {
     bloodGroups = (await BloodGroupModel.find({}).select('bgId -_id').exec()).map(bg => bg.bgId);
-    userRoles = (await UserRoleModel.find({}).select('userRoleId -_id').exec()).map(ur => ur.userRoleId);
+    userRoles = (await UserRoleModel.find({}).select('urId -_id').exec()).map(ur => ur.urId);
     console.log('bloodGroups = %o, userRoles = %o', bloodGroups, userRoles);
     addUser(myProfile, () => {
         mockUsersData.map(addUser);

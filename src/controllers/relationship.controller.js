@@ -1,5 +1,6 @@
 import { BaseController } from './BaseController';
 import { RelationshipModel } from '../models/relationship.model';
+import { IncrementModel } from '../models/increment.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import { FIELDS_RELATIONSHIP } from '../configs/query-fields';
 
@@ -11,14 +12,6 @@ const createRelationshipErr = (res, err = 'Server error') => {
     });
 };
 
-const reactRelationshipErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while saving your reaction for Relationship. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
-
 export class RelationshipController extends BaseController {
 
     relationshipExists(req, res) {
@@ -26,15 +19,13 @@ export class RelationshipController extends BaseController {
     }
 
     relationshipsList(req, res) {
-        handleModelRes(RelationshipModel.list(), res, {
-            onSuccess: data => parseResponseData(req, data)
-        });
+        handleModelRes(RelationshipModel.list(), res);
     }
 
     createRelationship(req, res, isRequest) {
         const { name } = req.body;
 
-        RelationshipModel.relationshipExists(req.body).then($relationship => {
+        RelationshipModel.relationshipExists(req.body).then(async $relationship => {
             if (!!$relationship) {
                 return sendResponse(res, {
                     error: 'Cannot create new Relationship',
@@ -42,7 +33,6 @@ export class RelationshipController extends BaseController {
                     type: 'CONFLICT'
                 });
             }
-            const user = getReqMetadata(req, 'user');
 
             const { body } = req;
             let newRelationship = new RelationshipModel();
@@ -54,16 +44,19 @@ export class RelationshipController extends BaseController {
                 }
             });
 
-            newRelationship.vAuthUser = user.userId;
+            if (process.env.DB_MODE !== 'ON') {
+                const user = getReqMetadata(req, 'user');
+                newRelationship.vAuthUser = user.userId;
+            }
+
+            const srNoRes = await IncrementModel.getSrNo(88);
+            newRelationship.relId = srNoRes.srNo;
 
             handleModelRes(
                 RelationshipModel.saveRelationship(newRelationship),
                 res, {
                 success: 'Relationship created successfully.',
                 error: 'Something went wrong while creating new Relationship. Try again later.',
-                // onSuccess: data => {
-                //     parseResponseData(req, data, true);
-                // }
             });
         }, modelErr => {
             console.error(modelErr);
@@ -91,7 +84,6 @@ export class RelationshipController extends BaseController {
             res, {
             success: 'Relationship updated successfully.',
             error: 'Something went wrong while updating the Relationship. Try again later.',
-            // onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
@@ -99,26 +91,3 @@ export class RelationshipController extends BaseController {
         handleModelRes(RelationshipModel.tempAll(), res);
     }
 }
-
-const parseResponseData = (req, data, toObject = false) => {
-    !Array.isArray(data) && (data = [data]);
-
-    data = data.map(item => {
-        item.toObject && (item = item.toObject());
-
-        delete item.createdOn;
-        delete item.createdBy;
-        delete item.updatedOn;
-        delete item.createdBy;
-        delete item.createdById;
-        delete item.updatedById;
-        delete item._id;
-        delete item.__v;
-
-        return item;
-    });
-
-    data = toObject && Array.isArray(data) ? data[0] : data;
-
-    return data;
-};

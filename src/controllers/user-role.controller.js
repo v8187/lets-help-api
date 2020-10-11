@@ -1,5 +1,6 @@
 import { BaseController } from './BaseController';
 import { UserRoleModel } from '../models/user-role.model';
+import { IncrementModel } from '../models/increment.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import { FIELDS_USER_ROLE } from '../configs/query-fields';
 
@@ -11,14 +12,6 @@ const createUserRoleErr = (res, err = 'Server error') => {
     });
 };
 
-const reactUserRoleErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while saving your reaction for User Role. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
-
 export class UserRoleController extends BaseController {
 
     userRoleExists(req, res) {
@@ -26,15 +19,13 @@ export class UserRoleController extends BaseController {
     }
 
     userRolesList(req, res) {
-        handleModelRes(UserRoleModel.list(), res, {
-            onSuccess: data => parseResponseData(req, data)
-        });
+        handleModelRes(UserRoleModel.list(), res);
     }
 
     createUserRole(req, res, isRequest) {
         const { name } = req.body;
 
-        UserRoleModel.userRoleExists(req.body).then($userRole => {
+        UserRoleModel.userRoleExists(req.body).then(async $userRole => {
             if (!!$userRole) {
                 return sendResponse(res, {
                     error: 'Cannot create new User Role',
@@ -42,7 +33,6 @@ export class UserRoleController extends BaseController {
                     type: 'CONFLICT'
                 });
             }
-            const user = getReqMetadata(req, 'user');
 
             const { body } = req;
             let newUserRole = new UserRoleModel();
@@ -54,16 +44,19 @@ export class UserRoleController extends BaseController {
                 }
             });
 
-            newUserRole.vAuthUser = user.userId;
+            if (process.env.DB_MODE !== 'ON') {
+                const user = getReqMetadata(req, 'user');
+                newUserRole.vAuthUser = user.userId;
+            }
+
+            const srNoRes = await IncrementModel.getSrNo(88);
+            newUserRole.urId = srNoRes.srNo;
 
             handleModelRes(
                 UserRoleModel.saveUserRole(newUserRole),
                 res, {
                 success: 'User Role created successfully.',
                 error: 'Something went wrong while creating new User Role. Try again later.',
-                // onSuccess: data => {
-                //     parseResponseData(req, data, true);
-                // }
             });
         }, modelErr => {
             console.error(modelErr);
@@ -87,11 +80,10 @@ export class UserRoleController extends BaseController {
         });
 
         handleModelRes(
-            UserRoleModel.editUserRole(user.userId, body.userRoleId, tempData),
+            UserRoleModel.editUserRole(user.userId, body.urId, tempData),
             res, {
             success: 'User Role updated successfully.',
             error: 'Something went wrong while updating the User Role. Try again later.',
-            // onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
@@ -99,26 +91,3 @@ export class UserRoleController extends BaseController {
         handleModelRes(UserRoleModel.tempAll(), res);
     }
 }
-
-const parseResponseData = (req, data, toObject = false) => {
-    !Array.isArray(data) && (data = [data]);
-
-    data = data.map(item => {
-        item.toObject && (item = item.toObject());
-
-        delete item.createdOn;
-        delete item.createdBy;
-        delete item.updatedOn;
-        delete item.createdBy;
-        delete item.createdById;
-        delete item.updatedById;
-        delete item._id;
-        delete item.__v;
-
-        return item;
-    });
-
-    data = toObject && Array.isArray(data) ? data[0] : data;
-
-    return data;
-};

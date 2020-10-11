@@ -6,8 +6,8 @@ import {
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
 const UserRoleSchema = new BaseSchema({
-    userRoleId: { type: String, },
-    name: { type: String, required: true, trim: true },
+    urId: { type: Number },
+    name: { type: String, required: true, trim: true, lowercase: true },
     label: { type: String, trim: true }
 },
     {
@@ -22,9 +22,9 @@ defineCommonVirtuals(UserRoleSchema);
 
 // UserRole Schema's save pre hook
 UserRoleSchema.pre('save', async function (next) {
-    let $userRole = this;
+    // let $userRole = this;
 
-    $userRole.userRoleId = $userRole._id;
+    // $userRole.urId = $userRole._id;
 
     next();
 });
@@ -49,7 +49,7 @@ UserRoleSchema.post('save', async function ($userRole, next) {
 UserRoleSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ userRoleId: 1, name: 1, label: 1, _id: 0 })
+        .project({ urId: 1, name: 1, _id: 0 })
         .sort('label')
         .exec();
 };
@@ -71,15 +71,15 @@ UserRoleSchema.statics.userRoleExists = function ({ name }) {
         .exec();
 };
 
-UserRoleSchema.statics.editUserRole = function (vAuthUser, userRoleId, data) {
+UserRoleSchema.statics.editUserRole = function (vAuthUser, urId, data) {
     return this.findOneAndUpdate(
-        { userRoleId },
+        { urId },
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
         // .populate('createdBy', USER_KEY_FIELDS)
         // .populate('updatedBy', USER_KEY_FIELDS)
-        .select('name label userRoleId -_id').exec();
+        .select('name urId -_id').exec();
 };
 
 UserRoleSchema.statics.saveUserRole = function ($userRole) {

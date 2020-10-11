@@ -22,11 +22,11 @@ export const FIELDS_TRANSACTION_AD_SEARCH = 'transType,minAmount,maxAmount,fromD
 export const FIELDS_TRANSACTION_REQUIRED = 'transType,amount,forMonth,forYear,transDate,remarks';
 export const FIELDS_TRANSACTION_ADD_UPDATE = FIELDS_TRANSACTION_REQUIRED + ',forCaseId,spentById,fromUserId,transMode,bankDetails,upiDetails,ewalletDetails';
 
-export const FIELDS_USER_ROLE = 'name,label';
-export const FIELDS_USER_ROLE_POPU = 'name label userRoleId -_id';
-export const FIELDS_CASE_TYPE = 'name,label';
-export const FIELDS_CASE_TYPE_POPU = 'name label caseTypeId -_id';
-export const FIELDS_RELATIONSHIP = 'name,label';
-export const FIELDS_RELATIONSHIP_POPU = 'name label relationshipId -_id';
+export const FIELDS_USER_ROLE = 'name';
+export const FIELDS_USER_ROLE_POPU = 'name urId -_id';
+export const FIELDS_CASE_TYPE = 'name';
+export const FIELDS_CASE_TYPE_POPU = 'name ctId -_id';
+export const FIELDS_RELATIONSHIP = 'name';
+export const FIELDS_RELATIONSHIP_POPU = 'name relId -_id';
 export const FIELDS_BLOOD_GROUP = 'name';
 export const FIELDS_BLOOD_GROUP_POPU = 'name bgId -_id';

@@ -6,9 +6,9 @@ import {
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
 const CaseTypeSchema = new BaseSchema({
-    caseTypeId: { type: String, },
-    name: { type: String, required: true, trim: true },
-    label: { type: String, trim: true }
+    ctId: { type: Number },
+    name: { type: String, required: true, trim: true, lowercase: true },
+    // label: { type: String, trim: true }
 },
     {
         collection: 'CaseType',
@@ -22,16 +22,16 @@ defineCommonVirtuals(CaseTypeSchema);
 
 // CaseType Schema's save pre hook
 CaseTypeSchema.pre('save', async function (next) {
-    let $caseType = this;
+    // let $caseType = this;
 
-    $caseType.caseTypeId = $caseType._id;
+    // $caseType.ctId = $caseType._id;
 
     next();
 });
 
 CaseTypeSchema.post('save', async function ($caseType, next) {
 
-    const populatedCaseType = await $caseType.execPopulate();
+    await $caseType.execPopulate();
 
     next();
 });
@@ -46,8 +46,8 @@ CaseTypeSchema.post('save', async function ($caseType, next) {
 CaseTypeSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ caseTypeId: 1, name: 1, label: 1, _id: 0 })
-        .sort('label')
+        .project({ ctId: 1, name: 1, _id: 0 })
+        .sort('name')
         .exec();
 };
 
@@ -68,13 +68,13 @@ CaseTypeSchema.statics.caseTypeExists = function ({ name }) {
         .exec();
 };
 
-CaseTypeSchema.statics.editCaseType = function (vAuthUser, caseTypeId, data) {
+CaseTypeSchema.statics.editCaseType = function (vAuthUser, ctId, data) {
     return this.findOneAndUpdate(
-        { caseTypeId },
+        { ctId },
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
-        .select('name label caseTypeId -_id').exec();
+        .select('name ctId -_id').exec();
 };
 
 CaseTypeSchema.statics.saveCaseType = function ($caseType) {

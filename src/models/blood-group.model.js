@@ -6,7 +6,7 @@ import {
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
 const BloodGroupSchema = new BaseSchema({
-    bgId: { type: String, },
+    bgId: { type: Number },
     name: { type: String, required: true, trim: true, lowercase: true },
     // label: { type: String, trim: true }
 },
@@ -22,7 +22,7 @@ defineCommonVirtuals(BloodGroupSchema);
 
 // BloodGroup Schema's save pre hook
 BloodGroupSchema.pre('save', async function (next) {
-    let $bloodGroup = this;
+    // let $bloodGroup = this;
 
     // $bloodGroup.bgId = $bloodGroup._id;
 
@@ -31,7 +31,7 @@ BloodGroupSchema.pre('save', async function (next) {
 
 BloodGroupSchema.post('save', async function ($bloodGroup, next) {
 
-    const populatedBloodGroup = await $bloodGroup.execPopulate();
+    await $bloodGroup.execPopulate();
 
     next();
 });
@@ -46,8 +46,8 @@ BloodGroupSchema.post('save', async function ($bloodGroup, next) {
 BloodGroupSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
-        .project({ bgId: 1, name: 1, label: 1, _id: 0 })
-        .sort('label')
+        .project({ bgId: 1, name: 1, _id: 0 })
+        .sort('name')
         .exec();
 };
 
@@ -74,7 +74,7 @@ BloodGroupSchema.statics.editBloodGroup = function (vAuthUser, bgId, data) {
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
-        .select('name label bgId -_id').exec();
+        .select('name bgId -_id').exec();
 };
 
 BloodGroupSchema.statics.saveBloodGroup = function ($bloodGroup) {

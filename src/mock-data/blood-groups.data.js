@@ -65,4 +65,4 @@ const addBloodGroup = ($bloodGroup, callback) => {
         });
 };
 
-actualBloodGroupsData.map(data => { addBloodGroup(data) });
+actualBloodGroupsData.map(addBloodGroup);

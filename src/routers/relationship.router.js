@@ -32,14 +32,14 @@ export const getRelationshipRouter = (passport) => {
     router.put('/updateRelationship', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'name,label,relationshipId'),
+        (req, res, next) => validateParams(req, res, next, 'name,relationshipId'),
         (req, res) => editRelationship(req, res)
     ]);
 
     router.post('/createRelationship', [
         validateWithToken,
         (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'name,label'),
+        (req, res, next) => validateParams(req, res, next, 'name'),
         (req, res) => createRelationship(req, res)
     ]);
 
