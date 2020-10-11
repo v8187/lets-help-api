@@ -62,7 +62,7 @@ db.on('open', () => {
         }
 
         // Clear DB and remove all collections
-        console.log('collections.length', collections, collections.length);
+        // console.log('collections.length', collections, collections.length);
 
         colLen = collections.length;
         colDropped = 0;

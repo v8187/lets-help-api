@@ -13,16 +13,13 @@ const UserSchema = new BaseSchema({
     userId: { type: String, trim: true },
     userPin: { type: String, require: true, trim: true },
     isVerified: { type: Boolean, },
-    roleIds: [{ type: String, required: true }],
-    // groups: {
-    //     type: Schema.Types.EnumArray, default: ['default'], enum: userGroups, required: true
-    // },
+    roleIds: [{ type: Number, required: true }],
 
     // Personal Fields
     name: { type: String, trim: true },
     gender: { type: String, enum: genders, lowercase: true, trim: true },
     dob: { type: Date },
-    bgId: { type: String },
+    bgId: { type: Number },
 
     // Communication Fields
     email: { type: String, lowercase: true, required: true },
@@ -110,18 +107,13 @@ UserSchema.pre('save', async function (next) {
 
 UserSchema.post('save', async function ($user, next) {
 
-    const populatedUser = await $user.
-        populate('createdBy', USER_KEY_FIELDS)
+    await $user.populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
         .execPopulate();
 
     next();
 });
-
-// UserSchema.pre('updateOne', function (next) {
-//     next();
-// });
 
 /*
  * Add Custom static methods
