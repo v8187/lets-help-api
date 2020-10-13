@@ -20,6 +20,4 @@ const actualRelationshipsData = [
     { name: 'neighbours', label: 'Neighbours' }
 ];
 
-fillCollection(actualRelationshipsData, 'api/relationship/createRelationship', 'Relationship', () => {
-    console.log('Relationships added....');
-});
+export default (callback) => fillCollection(actualRelationshipsData, 'api/relationship/createRelationship', 'Relationship', callback);

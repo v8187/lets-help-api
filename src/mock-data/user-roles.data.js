@@ -9,6 +9,4 @@ const actualUserRolesData = [
     { name: 'refferers', label: 'Refferer' }
 ];
 
-fillCollection(actualUserRolesData, 'api/userRole/createUserRole', 'User Role', () => {
-    console.log('User Roles added....');
-});
+export default (callback) => fillCollection(actualUserRolesData, 'api/userRole/createUserRole', 'User Role', callback);
