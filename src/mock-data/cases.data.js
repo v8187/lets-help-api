@@ -1,14 +1,12 @@
 import { randomWords } from '@v8187/rs-mock';
 import { randomItem } from '@v8187/rs-utils';
 
+import { UserModel } from '../models/user.model';
 import { CaseModel } from '../models/case.model';
 import { bool, phoneNo, recentDate, pName, gender, country, state, city, } from './utils';
-import { UserModel } from '../models/user.model';
 import { caseTypes, relationTypes } from '../configs/enum-constants';
 
-// Add Default Cases data
-const common = {};
-
+// Add Mock Cases data
 const actualCasesData = [{
     contactNo: '9988125734',
     referredOn: '05/02/2017',
@@ -1176,7 +1174,16 @@ const actualCasesData = [{
 
 const mockCasesData = new Array(200).join(',').split(',');
 
-let initiated = 0, added = 0, notAdded = 0, vikram, gurinder;
+let initiated, added, notAdded;
+
+let onCasesAddedCB, vikram, gurinder;
+
+function onCasesAdded(callback) {
+    if (initiated === added + notAdded) {
+        console.log('Cases: %d added , %d failed to add', added, notAdded);
+        notAdded === 0 && onCasesAddedCB();
+    }
+}
 
 const addCase = ($case, callback) => {
 
@@ -1195,7 +1202,7 @@ const addCase = ($case, callback) => {
     $case.country = country();
     $case.state = state();
     $case.city = city();
-    //   END
+    // END
 
     $case.showContactNos = bool();
     $case.showAddress = bool();
@@ -1205,39 +1212,29 @@ const addCase = ($case, callback) => {
     $case.referredOn = new Date($case.referredOn);
     $case.upVoters = [vikram, gurinder];
 
-    initiated++;
-    CaseModel.saveCase(Object.assign(new CaseModel(), $case)).then(
+    (new CaseModel($case)).save().then(
         saveRes => {
             added++;
-            if (initiated === added + notAdded) {
-                console.log('Cases: %d added , %d failed to add', added, notAdded);
-            }
+            onCasesAdded();
             callback instanceof Function && callback();
         },
         saveErr => {
             notAdded++;
-            if (initiated === added + notAdded) {
-                console.log('Cases: %d added , %d failed to add', added, notAdded);
-            }
+            onCasesAdded();
         })
         .catch(saveReason => {
             notAdded++;
-            if (initiated === added + notAdded) {
-                console.log('Cases: %d added , %d failed to add', added, notAdded);
-            }
+            onCasesAdded();
         });
 };
 
-(async () => {
+export default async function (callback) {
+    initiated = mockCasesData.length; added = 0; notAdded = 0;
+    onCasesAddedCB = callback;
     vikram = (await UserModel.findOne({ email: 'vikram1vicky@gmail.com' }).select('userId -_id').exec()).userId;
     gurinder = (await UserModel.findOne({ email: 'gurinder1god@gmail.com' }).select('userId -_id').exec()).userId;
-    mockCasesData.map(addCase);
-})();
 
-// CaseModel.insertMany(mockCasesData, (err, docs) => {
-//     if (err) {
-//         console.error('CaseModel.insertMany: Failed', err);
-//         return false;
-//     }
-//     console.log('%d Cases added successfully!!!', docs.length);
-// });
+    console.log('vikram = %o, gurinder = %o', vikram, gurinder);
+
+    mockCasesData.map(addCase);
+};

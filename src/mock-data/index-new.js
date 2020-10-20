@@ -13,9 +13,10 @@ const db = mongoose.connection;
 
 let colLen = 0;
 let colDropped = 0, colNotDropped = 0;
-let bgsAdded = false, ctsAdded = false, relsAdded = false, ursAdded = false;
+let bloodGroupsAdded = false, caseTypesAdded = false,
+    relationshipsAdded = false, userRolesAdded = false;
 
-function checkAllRemoved() {
+function checkColsDropped() {
     if (colLen === colDropped + colNotDropped) {
         if (colNotDropped === 0) {
             fillDB();
@@ -28,28 +29,28 @@ function checkAllRemoved() {
 function fillDB() {
     const colName = 'Increment';
 
-    bgsAdded = false;
-    ctsAdded = false;
-    relsAdded = false;
-    ursAdded = false;
+    bloodGroupsAdded = false;
+    caseTypesAdded = false;
+    relationshipsAdded = false;
+    userRolesAdded = false;
 
-    // Added meta data
+    // Add meta data
     db.createCollection(colName).then((res) => {
         console.log(`${colName} created successfully!!!`);
         require('./blood-groups.data').default(() => {
-            bgsAdded = true;
+            bloodGroupsAdded = true;
             onMetadataAdded();
         });
         require('./case-types.data').default(() => {
-            ctsAdded = true;
+            caseTypesAdded = true;
             onMetadataAdded();
         });
         require('./relationships.data').default(() => {
-            relsAdded = true;
+            relationshipsAdded = true;
             onMetadataAdded();
         });
         require('./user-roles.data').default(() => {
-            ursAdded = true;
+            userRolesAdded = true;
             onMetadataAdded();
         });
     }, (err) => {
@@ -58,11 +59,21 @@ function fillDB() {
 }
 
 function onMetadataAdded() {
-    if (!bgsAdded || !ctsAdded || !relsAdded || !ursAdded) {
+    if (!bloodGroupsAdded || !caseTypesAdded || !relationshipsAdded || !userRolesAdded) {
         return;
     }
+
     console.log('Metadata collections are filled...');
-    require('./users.data');
+    require('./users.data').default(onUserDataAdded);
+}
+
+function onUserDataAdded() {
+    console.log('Users collection is filled...');
+    const casesData = require('./cases.data');
+    console.log('casesData', casesData);
+    casesData.default(() => {
+        console.log('CASES collection is filled...');
+    });
 }
 
 db.on('open', () => {
@@ -77,18 +88,18 @@ db.on('open', () => {
         colDropped = 0;
         colNotDropped = 0;
 
-        !collections.length ? checkAllRemoved() : collections.forEach((coll) => {
+        !collections.length ? checkColsDropped() : collections.forEach((coll) => {
 
             db.dropCollection(coll.name, (err) => {
                 if (err) {
                     colNotDropped++;
                     console.error(err);
-                    checkAllRemoved();
+                    checkColsDropped();
                     return;
                 }
                 colDropped++;
                 console.log('%s collection dropped', coll.name);
-                checkAllRemoved();
+                checkColsDropped();
             });
         });
     });

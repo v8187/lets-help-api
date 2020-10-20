@@ -33,9 +33,16 @@ const mockUsersData = [{
 },
 ...new Array(87).join(',').split(',')];
 
-let initiated = 0, added = 0, notAdded = 0;
+let initiated, added, notAdded;
 
-let bloodGroups, userRoles;
+let bloodGroups, userRoles, onUsersAddedCB;
+
+function onUsersAdded(callback) {
+    if (initiated === added + notAdded) {
+        console.log('Users: %d added , %d failed to add', added, notAdded);
+        notAdded === 0 && onUsersAddedCB();
+    }
+}
 
 const addUser = (mockUser, callback) => {
     if (['vikram1vicky@gmail.com', 'gurinder1god@gmail.com'].indexOf(mockUser.email) !== -1) {
@@ -71,37 +78,34 @@ const addUser = (mockUser, callback) => {
     mockUser.showContributions = bool();
     mockUser.showBirthday = bool();
 
-    initiated++;
-    UserModel.saveUser(Object.assign(new UserModel(), mockUser)).then(
+    (new UserModel(mockUser)).save().then(
         saveRes => {
             added++;
-            if (initiated === added + notAdded) {
-                console.log('Users: %d added , %d failed to add', added, notAdded);
-            }
+            onUsersAdded();
             callback instanceof Function && callback();
         },
         saveErr => {
             notAdded++;
-            if (initiated === added + notAdded) {
-                console.log('Users: %d added , %d failed to add', added, notAdded);
-            }
+            onUsersAdded();
         })
         .catch(saveReason => {
             notAdded++;
-            if (initiated === added + notAdded) {
-                console.log('Users: %d added , %d failed to add', added, notAdded);
-            }
+            onUsersAdded();
         });
 };
 
-(async () => {
+export default async function (callback) {
+    initiated = 1 + mockUsersData.length; added = 0; notAdded = 0;
+    onUsersAddedCB = callback;
     bloodGroups = (await BloodGroupModel.find({}).select('bgId -_id').exec()).map(bg => bg.bgId);
     userRoles = (await UserRoleModel.find({}).select('urId -_id').exec()).map(ur => ur.urId);
+
     console.log('bloodGroups = %o, userRoles = %o', bloodGroups, userRoles);
+
     addUser(myProfile, () => {
         mockUsersData.map(addUser);
     });
-})();
+};
 
 // UserModel.insertMany(mockUsersData, (err, docs) => {
 //     if (err) {
