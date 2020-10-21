@@ -5,7 +5,6 @@ import { BloodGroupModel } from '../models/blood-group.model';
 import { UserRoleModel } from '../models/user-role.model';
 import { pName, gender, email, dob, recentDate, country, state, city, bool, phoneNo, addr } from './utils';
 
-// Add Mock Users data
 const common = {
     gender: 'm',
     userPin: '1234',
@@ -35,7 +34,7 @@ const mockUsersData = [{
 
 let initiated, added, notAdded;
 
-let bloodGroups, userRoles, onUsersAddedCB;
+let onUsersAddedCB, bloodGroups, userRoles;
 
 function onUsersAdded(callback) {
     if (initiated === added + notAdded) {
@@ -97,8 +96,8 @@ const addUser = (mockUser, callback) => {
 export default async function (callback) {
     initiated = 1 + mockUsersData.length; added = 0; notAdded = 0;
     onUsersAddedCB = callback;
-    bloodGroups = (await BloodGroupModel.find({}).select('bgId -_id').exec()).map(bg => bg.bgId);
-    userRoles = (await UserRoleModel.find({}).select('urId -_id').exec()).map(ur => ur.urId);
+    bloodGroups = (await BloodGroupModel.find().select('bgId -_id').exec()).map(bg => bg.bgId).sort();
+    userRoles = (await UserRoleModel.find().select('urId -_id').exec()).map(ur => ur.urId).sort();
 
     console.log('bloodGroups = %o, userRoles = %o', bloodGroups, userRoles);
 

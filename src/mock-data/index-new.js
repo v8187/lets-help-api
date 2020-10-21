@@ -68,12 +68,19 @@ function onMetadataAdded() {
 }
 
 function onUserDataAdded() {
-    console.log('Users collection is filled...');
-    const casesData = require('./cases.data');
-    console.log('casesData', casesData);
-    casesData.default(() => {
-        console.log('CASES collection is filled...');
-    });
+    console.log('User collection is filled...');
+    require('./cases.data').default(onCaseDataAdded);
+}
+
+function onCaseDataAdded() {
+    console.log('Case collection is filled...');
+
+    require('./transactions.data').default(onTransactionDataAdded);
+}
+
+function onTransactionDataAdded() {
+    console.log('Transaction collection is filled...');
+    db.close();
 }
 
 db.on('open', () => {

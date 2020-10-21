@@ -1,17 +1,26 @@
-import { bool, NYearDate } from './utils';
-import { UserModel } from '../models/user.model';
-import { CaseModel } from '../models/case.model';
-import { TransactionModel } from '../models/transaction.model';
 import { randomItem, randomNum } from '@v8187/rs-utils';
-import { transTypes, transModes } from '../configs/enum-constants';
 import { randomWords } from '@v8187/rs-mock';
-// Add Dump Transactions data
-const common = {};
 
-const dumpTransactionsData = new Array(1000).join(',').split(',');
+import { NYearDate } from './utils';
+const { UserModel } = require('../models/user.model');
+const { CaseModel } = require('../models/case.model');
+const { TransactionModel } = require('../models/transaction.model');
 
-let initiated = 0, added = 0, notAdded = 0, usersData, casesData,
-    vikram, gurinder;
+import { transTypes, transModes } from '../configs/enum-constants';
+
+
+const mockTransactionsData = new Array(1000).join(',').split(',');
+
+let initiated, added, notAdded;
+
+let onTransactionsAddedCB, usersData, casesData, vikram, gurinder;
+
+function onTransactionsAdded(callback) {
+    if (initiated === added + notAdded) {
+        console.log('Transactions: %d added , %d failed to add', added, notAdded);
+        notAdded === 0 && onTransactionsAddedCB();
+    }
+}
 
 const addTransaction = (trans) => {
 
@@ -34,36 +43,30 @@ const addTransaction = (trans) => {
         trans.forCaseId = randomItem(casesData).caseId;
     }
 
-    initiated++;
-    TransactionModel.saveTransaction(Object.assign(new TransactionModel(), trans)).then(
+    (new TransactionModel(trans)).save().then(
         saveRes => {
             added++;
-            if (initiated === added + notAdded) {
-                console.log('Transactions: %d added , %d failed to add', added, notAdded);
-            }
+            onTransactionsAdded();
         },
         saveErr => {
             notAdded++;
-            if (initiated === added + notAdded) {
-                console.log('Transactions: %d added , %d failed to add', added, notAdded);
-            }
+            onTransactionsAdded();
         })
         .catch(saveReason => {
             notAdded++;
-            if (initiated === added + notAdded) {
-                console.log('Transactions: %d added , %d failed to add', added, notAdded);
-            }
+            onTransactionsAdded();
         });
 };
 
-(async () => {
+export default async function (callback) {
+    initiated = mockTransactionsData.length; added = 0; notAdded = 0;
+    onTransactionsAddedCB = callback;
     usersData = (await UserModel.find().select('userId email -_id').exec());
-    // usersData = usersData.toArray();
-
     casesData = (await CaseModel.find().select('caseId -_id').exec());
-    // casesData = casesData.toArray();
-
     vikram = usersData.filter(user => user.email === 'vikram1vicky@gmail.com')[0].userId;
     gurinder = usersData.filter(user => user.email === 'gurinder1god@gmail.com')[0].userId;
-    dumpTransactionsData.map(addTransaction);
-})();
+
+    console.log('usersData = %o, casesData = %o, vikram = %o, gurinder = %o', usersData.length, casesData.length, vikram, gurinder);
+
+    mockTransactionsData.map(addTransaction);
+};

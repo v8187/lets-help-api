@@ -59,14 +59,14 @@ defineCommonVirtuals(UserSchema);
 UserSchema.virtual('roles', {
     ref: 'UserRole',
     localField: 'roleIds',
-    foreignField: 'urId',
+    foreignField: 'urId'
 });
 
 UserSchema.virtual('bloodGroup', {
     ref: 'BloodGroup',
     localField: 'bgId',
     foreignField: 'bgId',
-    justOne: true,
+    justOne: true
 });
 
 UserSchema.virtual('referredBy', {

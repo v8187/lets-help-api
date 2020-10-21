@@ -44,7 +44,7 @@ export class BloodGroupController extends BaseController {
                 }
             });
 
-            if (process.env.DB_MODE !== 'ON') {
+            if (process.env.DB_FILL_MODE !== 'ON') {
                 const user = getReqMetadata(req, 'user');
                 newBloodGroup.vAuthUser = user.userId;
             }

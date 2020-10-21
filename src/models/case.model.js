@@ -4,7 +4,7 @@ import {
     BaseSchema, commonShemaOptions, defineCommonVirtuals
 } from './BaseSchema';
 import { CASE_KEY_FIELDS, USER_KEY_FIELDS } from '../configs/query-fields';
-import { caseTypes, relationTypes, genders } from '../configs/enum-constants';
+import { genders } from '../configs/enum-constants';
 import { UserModel } from './user.model';
 
 const CaseSchema = new BaseSchema({
@@ -12,8 +12,8 @@ const CaseSchema = new BaseSchema({
     title: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
     name: { type: String, required: true, trim: true },
-    caseType: { type: String, default: caseTypes[0], enum: caseTypes },
-    contactRelation: { type: String, default: relationTypes[0], enum: relationTypes },
+    ctId: { type: Number, required: true },
+    relId: { type: Number, required: true },
     contactPerson: { type: String, trim: true },
     contactNo: { type: String, required: true, trim: true },
     alternateNo1: { type: String, trim: true },
@@ -47,6 +47,20 @@ const CaseSchema = new BaseSchema({
 defineCommonVirtuals(CaseSchema);
 
 // Case Schema's virtual fields
+CaseSchema.virtual('caseType', {
+    ref: 'CaseType',
+    localField: 'ctId',
+    foreignField: 'ctId',
+    justOne: true
+});
+
+CaseSchema.virtual('relationship', {
+    ref: 'Relationship',
+    localField: 'relId',
+    foreignField: 'relId',
+    justOne: true
+});
+
 CaseSchema.virtual('referredBy', {
     ref: 'User',
     localField: 'referredById',
@@ -73,7 +87,7 @@ CaseSchema.pre('save', async function (next) {
 
 CaseSchema.post('save', async function ($case, next) {
 
-    const populatedCase = await $case.
+    await $case.
         populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
@@ -120,8 +134,8 @@ CaseSchema.statics.listForAdmin = function () {
 //             ...lookupUserFields('referredById', 'referredBy'),
 //         ])
 //         .project({
-//             caseId: 1, title: 1, description: 1, name: 1, caseTypes: 1,
-//             contactRelation: 1, contactPerson: 1, gender: 1, age: 1,
+//             caseId: 1, title: 1, description: 1, name: 1, ctIds: 1,
+//             relId: 1, contactPerson: 1, gender: 1, age: 1,
 //             isApproved: 1, approvedOn: 1, referredOn: 1, city: 1, referredBy: 1,
 //             state: 1, country: 1, isClosed: 1, upVoters: 1, downVoters: 1,
 //             ...conditionalField('contactNo', 'showContactNos'),

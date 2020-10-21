@@ -44,7 +44,7 @@ export class UserRoleController extends BaseController {
                 }
             });
 
-            if (process.env.DB_MODE !== 'ON') {
+            if (process.env.DB_FILL_MODE !== 'ON') {
                 const user = getReqMetadata(req, 'user');
                 newUserRole.vAuthUser = user.userId;
             }
