@@ -209,7 +209,7 @@ UserSchema.statics.tempAll = function () {
         // .populate({
         //     path: 'address',
         //     model: AddressModel,
-        //     select: '-_id -__v',
+        //     select: '-_id -__v -status',
         //     populate: [{
         //         path: 'city',
         //         model: CityModel,
@@ -266,7 +266,7 @@ UserSchema.statics.changeUserPin = function (email, newUserPin) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
+        .select('-_id -__v -status').exec();
 };
 
 UserSchema.statics.editProfile = function (vAuthUser, userId, data) {

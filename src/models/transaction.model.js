@@ -167,13 +167,13 @@ TransactionSchema.statics.transDetails = function (transId) {
         .populate('spentBy', USER_KEY_FIELDS)
         .populate('forCase', CASE_KEY_FIELDS)
         .populate('fromUser', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
+        .select('-_id -__v -status').exec();
 };
 
 TransactionSchema.statics.byId = function (transId) {
     return this
         .findOne({ transId })
-        .select('-_id -__v')
+        .select('-_id -__v -status')
         .exec();
 };
 
@@ -187,25 +187,6 @@ TransactionSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-// TransactionSchema.statics.count = function () {
-//     return this.countDocuments();
-// };
-
-// TransactionSchema.statics.keyProps = function () {
-//     return this.find().select(CASE_KEY_FIELDS).sort('title').exec();
-// };
-
-// TransactionSchema.statics.transExists = function (transInfo) {
-//     return this
-//         .findOne({
-//             $and: [
-//                 { contactNo: transInfo.contactNo },
-//                 { title: transInfo.title }
-//             ]
-//         })
-//         .exec();
-// };
-
 TransactionSchema.statics.editTransaction = function (vAuthUser, transId, data) {
     return this.findOneAndUpdate(
         { transId },
@@ -217,7 +198,7 @@ TransactionSchema.statics.editTransaction = function (vAuthUser, transId, data) 
         .populate('spentBy', USER_KEY_FIELDS)
         .populate('forCase', CASE_KEY_FIELDS)
         .populate('fromUser', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
+        .select('-_id -__v -status').exec();
 };
 
 TransactionSchema.statics.saveTransaction = function ($trans) {

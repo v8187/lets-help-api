@@ -156,7 +156,7 @@ CaseSchema.statics.caseDetailsForAdmin = function (caseId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
+        .select('-_id -__v -status').exec();
 };
 
 CaseSchema.statics.byCaseId = function (caseId) {
@@ -165,7 +165,7 @@ CaseSchema.statics.byCaseId = function (caseId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
+        .select('-_id -__v -status').exec();
 };
 
 CaseSchema.statics.byId = function (caseId) {
@@ -211,7 +211,7 @@ CaseSchema.statics.editCase = function (vAuthUser, caseId, data) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
+        .select('-_id -__v -status').exec();
 };
 
 CaseSchema.statics.toggleReaction = function (caseId, data) {
@@ -227,31 +227,12 @@ CaseSchema.statics.toggleReaction = function (caseId, data) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -__v').exec();
+        .select('-_id -__v -status').exec();
 };
 
 CaseSchema.statics.saveCase = function ($case) {
     // console.log('saveCase', $case);
     return $case.save();
 };
-
-/**
- * Add Custom instance methods
- * =========================
- * Do not declare methods using ES6 arrow functions (=>)
- * rrow functions explicitly prevent binding this
- */
-// CaseSchema.methods.validateCasePin = function (pwd) {
-//     return compareSync(pwd, this.casePin);
-// };
-
-// CaseSchema.methods.tokenFields = function () {
-//     return {
-//         caseId: this.caseId,
-//         email: this.email,
-//         // groups: [...this.groups],
-//         roles: [...this.roles]
-//     };
-// };
 
 export const CaseModel = model('Case', CaseSchema);

@@ -217,7 +217,7 @@ CaseSchema.statics.byCaseId = function (caseId) {
         // .populate({
         //     path: 'addresses',
         //     model: AddressModel,
-        //     select: '-_id -__v',
+        //     select: '-_id -__v -status',
         //     populate: [{
         //         path: 'city',
         //         model: CityModel,
