@@ -2,9 +2,6 @@ import { CaseModel } from '../models/case.model';
 import { bool } from './utils';
 import { UserModel } from '../models/user.model';
 
-// Add Default Cases data
-const common = {};
-
 const actualCasesData = [{
     contactNo: '9988125734',
     referredOn: '05/02/2017',
@@ -1188,11 +1185,3 @@ const addCase = ($case, callback) => {
     gurinder = (await UserModel.findOne({ email: 'gurinder1god@gmail.com' }).select('userId -_id').exec()).userId;
     actualCasesData.map(addCase);
 })();
-
-// CaseModel.insertMany(mockCasesData, (err, docs) => {
-//     if (err) {
-//         console.error('CaseModel.insertMany: Failed', err);
-//         return false;
-//     }
-//     console.log('%d Cases added successfully!!!', docs.length);
-// });

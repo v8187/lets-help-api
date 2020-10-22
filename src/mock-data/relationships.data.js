@@ -1,8 +1,6 @@
 import { fillCollection } from './fetch.api';
 
 const actualRelationshipsData = [
-    // 'self', 'referrer', 'mother', 'father', 'husband', 'wife', 'brother',
-    // 'sister', 'son', 'daughter', 'uncle', 'aunt', 'cusion', 'friend', 'neighbours'
     { name: 'self', label: 'Self' },
     { name: 'Referrer', label: 'Referrer' },
     { name: 'mother', label: 'Mother' },

@@ -164,9 +164,6 @@ export class AuthController extends BaseController {
 
     changeUserPin(req, res) {
         invalidateToken(req, res, (nestedRes) => {
-            // return sendResponse(nestedRes, {
-            //     message: 'You are logged out successfully!!!'
-            // });
             handleModelRes(
                 UserModel.changeUserPin(req.body.email, req.body.newUserPin),
                 res, {
@@ -213,7 +210,6 @@ export class AuthController extends BaseController {
 
                 // If User already exists with given profile
                 if (user) {
-                    // console.log('user.isModified', user.isModified(), 'user.isNew', user.isNew);
                     return done(null, user);
                 }
                 let newUser = new UserModel();

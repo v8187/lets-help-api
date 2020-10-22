@@ -46,7 +46,6 @@ function onUsersAdded(callback) {
 const addUser = (mockUser, callback) => {
     if (['vikram1vicky@gmail.com', 'gurinder1god@gmail.com'].indexOf(mockUser.email) !== -1) {
         mockUser.roleIds = userRoles;
-        // mockUser.groups = userGroups;
     } else {
         if (!mockUser.email) {
             mockUser = {};
@@ -105,11 +104,3 @@ export default async function (callback) {
         mockUsersData.map(addUser);
     });
 };
-
-// UserModel.insertMany(mockUsersData, (err, docs) => {
-//     if (err) {
-//         console.error('UserModel.insertMany: Failed', err);
-//         return false;
-//     }
-//     console.log('%d Users added successfully!!!', docs.length);
-// });

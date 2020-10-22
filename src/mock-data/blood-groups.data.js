@@ -1,7 +1,6 @@
 import { fillCollection } from './fetch.api';
 
 const actualBloodGroupsData = [
-    // 'a+', 'a-', 'b+', 'b-', 'o+', 'o-', 'ab+', 'ab-'
     { name: 'a+', label: 'A +' },
     { name: 'a-', label: 'A -' },
     { name: 'b+', label: 'B +' },

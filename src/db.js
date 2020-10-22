@@ -7,13 +7,7 @@ const { DB_BUFFER_COMMANDS, DB_CONNECTION_TIMEOUT_MS, DB_KEEP_ALIVE,
 
 export const initDatabase = (cb) => {
     mongoose.connect(process.env.MONGODB_URI || DB_PATH || 'mongodb://localhost:27017/test', {
-        // bufferCommands: DB_BUFFER_COMMANDS === 'true',       // Turn off the bufferCommands to disable buffering
-        // connectTimeoutMS: parseInt(DB_CONNECTION_TIMEOUT_MS),
-        // socketTimeoutMS: parseInt(DB_SOCKET_TIMEOUT_MS),
-        // keepAlive: DB_KEEP_ALIVE === 'true',
-        // reconnectTries: parseInt(DB_RECONNECT_TRIES),
         useNewUrlParser: true,
-        // dbName: 'heroku_1rgknm91' || process.env.DB_NAME,
         useUnifiedTopology: true,
         useFindAndModify: false // Set to false to make findOneAndUpdate() and findOneAndRemove() use native findOneAndUpdate() rather than findAndModify()
     }).then(

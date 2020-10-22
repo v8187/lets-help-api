@@ -306,12 +306,12 @@ UserSchema.methods.validateUserPin = function (pwd) {
 };
 
 UserSchema.methods.tokenFields = function () {
-    console.log('this.roles = %o', this.roles);
+    console.log('this.roles = %o', this.roleIds);
     return {
         userId: this.userId,
         email: this.email,
         // groups: [...this.groups],
-        roles: this.roles ? [...this.roles] : []
+        roleIds: this.roleIds ? [...this.roleIds] : []
     };
 };
 

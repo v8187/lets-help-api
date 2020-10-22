@@ -15,18 +15,6 @@ const addTransErr = (res, err = 'Server error') => {
 
 export class TransactionController extends BaseController {
 
-    // transExists(req, res) {
-    //     handleModelRes(TransactionModel.transExists(req.params.userInfo), res);
-    // }
-
-    // count(req, res) {
-    //     handleModelRes(TransactionModel.count(), res);
-    // }
-
-    // ids(req, res) {
-    //     handleModelRes(TransactionModel.keyProps(), res);
-    // }
-
     findTransaction(req, res) {
         const user = getReqMetadata(req, 'user');
         const { body } = req;

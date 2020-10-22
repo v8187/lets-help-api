@@ -36,18 +36,14 @@ export class CaseController extends BaseController {
     }
 
     casesList(req, res) {
-        // const isAdmin = getReqMetadata(req, 'user').roles.indexOf('admin') !== -1;
-        handleModelRes(CaseModel.listForAdmin()/* isAdmin ? CaseModel.listForAdmin() : CaseModel.list() */, res, {
+
+        handleModelRes(CaseModel.listForAdmin(), res, {
             onSuccess: data => parseResponseData(req, data)
         });
     }
 
     caseDetails(req, res) {
-        // const isAdmin = getReqMetadata(req, 'user').roles.indexOf('admin') !== -1;
-
-        handleModelRes(CaseModel.caseDetailsForAdmin(req.params.caseId)/* isAdmin ?
-            CaseModel.caseDetailsForAdmin(req.params.caseId) :
-            CaseModel.caseDetails(req.params.caseId) */, res, {
+        handleModelRes(CaseModel.caseDetailsForAdmin(req.params.caseId), res, {
             onSuccess: data => parseResponseData(req, data, true)
         });
     }

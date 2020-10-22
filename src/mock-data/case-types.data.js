@@ -1,7 +1,6 @@
 import { fillCollection } from './fetch.api';
 
 const actualCaseTypesData = [
-    // 'education', 'ration', 'medical', 'legal', 'financial', 'commodity'
     { name: 'education', label: 'Education' },
     { name: 'ration', label: 'Ration' },
     { name: 'medical', label: 'Medical' },

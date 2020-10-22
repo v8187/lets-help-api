@@ -1,14 +1,9 @@
 const { UserModel } = require('./models/user.model');
 const { NotificationModel } = require('./models/notification.model');
 
-// require('dotenv').config();
-
 const firebaseAdmin = require('firebase-admin');
 
-// console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-
-// const refreshToken; // Get refresh token from OAuth2 flow
 
 const firebaseApp = firebaseAdmin.initializeApp({
     credential: firebaseAdmin.credential.cert(serviceAccount),

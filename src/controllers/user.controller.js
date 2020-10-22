@@ -29,20 +29,13 @@ export class UserController extends BaseController {
     }
 
     usersList(req, res) {
-        // console.log('getReqMetadata = %o', getReqMetadata(req, 'user'));
-        // const isAdmin = getReqMetadata(req, 'user').roles.indexOf('admin') !== -1;
-        handleModelRes(UserModel.listForAdmin()/* isAdmin ? UserModel.listForAdmin() : UserModel.list() */, res, {
+        handleModelRes(UserModel.listForAdmin(), res, {
             onSuccess: data => parseResponseData(req, data)
         });
     }
 
     userProfile(req, res) {
-        // const user = getReqMetadata(req, 'user'),
-        //     isAdmin = user.roles.indexOf('admin') !== -1;
-
-        handleModelRes(UserModel.userProfileForAdmin(req.params.userId)/* isAdmin ?
-            UserModel.userProfileForAdmin(req.params.userId) :
-            UserModel.userProfile(req.params.userId) */, res, {
+        handleModelRes(UserModel.userProfileForAdmin(req.params.userId), res, {
             onSuccess: data => parseResponseData(req, data, true)
         });
     }
@@ -224,6 +217,7 @@ const parseResponseData = (req, data, toObject = false) => {
         delete item.__v;
         delete item.userPin;
         delete item.roleIds;
+        delete item.bgId;
 
         return item;
     });
