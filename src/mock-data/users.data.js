@@ -1,9 +1,9 @@
 import { randomItem } from '@v8187/rs-utils';
 
-import { UserModel } from '../models/user.model';
-import { BloodGroupModel } from '../models/blood-group.model';
-import { UserRoleModel } from '../models/user-role.model';
 import { pName, gender, email, dob, recentDate, country, state, city, bool, phoneNo, addr } from './utils';
+const { UserModel } = require('../models/user.model');
+const { BloodGroupModel } = require('../models/blood-group.model');
+const { UserRoleModel } = require('../models/user-role.model');
 
 const common = {
     gender: 'm',

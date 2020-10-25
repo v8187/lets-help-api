@@ -9,6 +9,7 @@ import { getCaseTypeRouter } from './case-type.router';
 import { getRelationshipRouter } from './relationship.router';
 import { getNotificationRouter } from './notification.router';
 import { getBloodGroupRouter } from './blood-group.router';
+import { getPermissionRouter } from './permission.router';
 
 const router = Router();
 
@@ -29,6 +30,6 @@ export const getApiRouter = (passport) => {
     router.use('/relationship', getRelationshipRouter(passport));
     router.use('/bloodGroup', getBloodGroupRouter(passport));
     router.use('/notification', getNotificationRouter(passport));
-    // router.use('/message', getCaseRouter(passport));
+    router.use('/permission', getPermissionRouter(passport));
     return router;
 };

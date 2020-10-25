@@ -3,12 +3,13 @@ import { model } from 'mongoose';
 import {
     BaseSchema, commonShemaOptions, defineCommonVirtuals
 } from './BaseSchema';
-import { USER_KEY_FIELDS } from '../configs/query-fields';
+import { USER_KEY_FIELDS, FIELDS_PERMISSION_POPU } from '../configs/query-fields';
 
 const UserRoleSchema = new BaseSchema({
     urId: { type: Number },
     name: { type: String, required: true, trim: true, lowercase: true },
-    label: { type: String, trim: true }
+    permIds: [{ type: Number, required: true }],
+    // label: { type: String, trim: true }
 },
     {
         collection: 'UserRole',
@@ -20,21 +21,20 @@ const UserRoleSchema = new BaseSchema({
 
 defineCommonVirtuals(UserRoleSchema);
 
+UserRoleSchema.virtual('permissions', {
+    ref: 'Permission',
+    localField: 'permIds',
+    foreignField: 'permId'
+});
+
 // UserRole Schema's save pre hook
 UserRoleSchema.pre('save', async function (next) {
-    // let $userRole = this;
-
-    // $userRole.urId = $userRole._id;
-
     next();
 });
 
 UserRoleSchema.post('save', async function ($userRole, next) {
 
-    const populatedUserRole = await $userRole
-        // .populate('createdBy', USER_KEY_FIELDS)
-        // .populate('updatedBy', USER_KEY_FIELDS)
-        .execPopulate();
+    await $userRole.execPopulate();
 
     next();
 });
@@ -47,15 +47,14 @@ UserRoleSchema.post('save', async function ($userRole, next) {
  * Arrow functions explicitly prevent binding this
  */
 UserRoleSchema.statics.list = function () {
-    return this
-        .aggregate([{ $match: {} }])
-        .project({ urId: 1, name: 1, _id: 0 })
-        .sort('label')
-        .exec();
+    return this.find()
+        .populate('permissions', FIELDS_PERMISSION_POPU)
+        .select('urId permIds name -_id').exec();
 };
 
 UserRoleSchema.statics.tempAll = function () {
     return this.find()
+        .populate('permissions', FIELDS_PERMISSION_POPU)
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .select().exec();

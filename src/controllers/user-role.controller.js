@@ -19,7 +19,9 @@ export class UserRoleController extends BaseController {
     }
 
     userRolesList(req, res) {
-        handleModelRes(UserRoleModel.list(), res);
+        handleModelRes(UserRoleModel.list(), res, {
+            onSuccess: data => parseResponseData(req, data)
+        });
     }
 
     createUserRole(req, res, isRequest) {
@@ -91,3 +93,29 @@ export class UserRoleController extends BaseController {
         handleModelRes(UserRoleModel.tempAll(), res);
     }
 }
+
+
+const parseResponseData = (req, data, toObject = false) => {
+
+    !Array.isArray(data) && (data = [data]);
+
+    data = data.map(item => {
+        item.toObject && (item = item.toObject());
+
+        delete item.createdOn;
+        delete item.createdBy;
+        delete item.updatedOn;
+        delete item.createdBy;
+        delete item.createdById;
+        delete item.updatedById;
+        delete item._id;
+        delete item.__v;
+        delete item.permIds;
+
+        return item;
+    });
+
+    data = toObject && Array.isArray(data) ? data[0] : data;
+
+    return data;
+};

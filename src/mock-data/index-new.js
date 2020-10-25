@@ -14,7 +14,7 @@ const db = mongoose.connection;
 let colLen = 0;
 let colDropped = 0, colNotDropped = 0;
 let bloodGroupsAdded = false, caseTypesAdded = false,
-    relationshipsAdded = false, userRolesAdded = false;
+    relationshipsAdded = false, permissionsAdded = false, userRolesAdded = false;
 
 function checkColsDropped() {
     if (colLen === colDropped + colNotDropped) {
@@ -32,6 +32,7 @@ function fillDB() {
     bloodGroupsAdded = false;
     caseTypesAdded = false;
     relationshipsAdded = false;
+    permissionsAdded = false;
     userRolesAdded = false;
 
     // Add meta data
@@ -49,21 +50,30 @@ function fillDB() {
             relationshipsAdded = true;
             onMetadataAdded();
         });
-        require('./user-roles.data').default(() => {
-            userRolesAdded = true;
+        require('./permissions.data').default(() => {
+            permissionsAdded = true;
             onMetadataAdded();
         });
+        // require('./user-roles.data').default(() => {
+        //     userRolesAdded = true;
+        //     onMetadataAdded();
+        // });
     }, (err) => {
         console.log(`Cannot create ${colName} collection`);
     });
 }
 
-function onMetadataAdded() {
-    if (!bloodGroupsAdded || !caseTypesAdded || !relationshipsAdded || !userRolesAdded) {
+async function onMetadataAdded() {
+    if (!bloodGroupsAdded || !caseTypesAdded || !relationshipsAdded || !permissionsAdded /* || !userRolesAdded */) {
         return;
     }
-
+    const { PermissionModel } = require('../models/permission.model');
     console.log('Metadata collections are filled...');
+    require('./user-roles.data').default(onUserRoleDataAdded);
+}
+
+function onUserRoleDataAdded() {
+    console.log('User Role collection is filled...');
     require('./users.data').default(onUserDataAdded);
 }
 

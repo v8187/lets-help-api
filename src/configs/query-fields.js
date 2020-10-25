@@ -22,8 +22,10 @@ export const FIELDS_TRANSACTION_AD_SEARCH = 'transType,minAmount,maxAmount,fromD
 export const FIELDS_TRANSACTION_REQUIRED = 'transType,amount,forMonth,forYear,transDate,remarks';
 export const FIELDS_TRANSACTION_ADD_UPDATE = FIELDS_TRANSACTION_REQUIRED + ',forCaseId,spentById,fromUserId,transMode,bankDetails,upiDetails,ewalletDetails';
 
-export const FIELDS_USER_ROLE = 'name';
+export const FIELDS_USER_ROLE = 'name,permIds';
 export const FIELDS_USER_ROLE_POPU = 'name urId -_id';
+export const FIELDS_PERMISSION = 'name';
+export const FIELDS_PERMISSION_POPU = 'name permId -_id';
 export const FIELDS_CASE_TYPE = 'name';
 export const FIELDS_CASE_TYPE_POPU = 'name ctId -_id';
 export const FIELDS_RELATIONSHIP = 'name';

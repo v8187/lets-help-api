@@ -8,7 +8,7 @@ import { USER_KEY_FIELDS } from '../configs/query-fields';
 const RelationshipSchema = new BaseSchema({
     relId: { type: Number },
     name: { type: String, required: true, trim: true, lowercase: true },
-    label: { type: String, trim: true }
+    // label: { type: String, trim: true }
 },
     {
         collection: 'Relationship',
