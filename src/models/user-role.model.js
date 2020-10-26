@@ -48,7 +48,7 @@ UserRoleSchema.post('save', async function ($userRole, next) {
  */
 UserRoleSchema.statics.list = function () {
     return this.find()
-        .populate('permissions', FIELDS_PERMISSION_POPU)
+        // .populate('permissions', FIELDS_PERMISSION_POPU)
         .select('urId permIds name -_id').exec();
 };
 

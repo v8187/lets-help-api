@@ -6,7 +6,7 @@ export const newToken = (payload, callback) => {
     sign({
         userId: payload.userId,
         email: payload.email,
-        roles: payload.roles,
+        roles: payload.roleIds,
         // groups: payload.groups,
         iat: Math.floor(Date.now() / 1000)
     }, JWT_SECRET, {

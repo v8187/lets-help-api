@@ -115,7 +115,7 @@ CaseSchema.post('save', async function ($case, next) {
 //         .exec();
 // };
 
-CaseSchema.statics.listForAdmin = function () {
+CaseSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
         .project({
@@ -150,7 +150,7 @@ CaseSchema.statics.listForAdmin = function () {
 //         .exec();
 // };
 
-CaseSchema.statics.caseDetailsForAdmin = function (caseId) {
+CaseSchema.statics.caseDetails = function (caseId) {
     return this
         .findOne({ caseId })
         .populate('createdBy', USER_KEY_FIELDS)

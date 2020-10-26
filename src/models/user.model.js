@@ -133,7 +133,7 @@ UserSchema.post('save', async function ($user, next) {
 //         .exec();
 // };
 
-UserSchema.statics.listForAdmin = function () {
+UserSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
         .project({
@@ -163,7 +163,7 @@ UserSchema.statics.listForAdmin = function () {
 //         .exec();
 // };
 
-UserSchema.statics.userProfileForAdmin = function (userId) {
+UserSchema.statics.userProfile = function (userId) {
     return this
         // .aggregate([
         //     { $match: { userId } },

@@ -110,7 +110,7 @@ const parseResponseData = (req, data, toObject = false) => {
         delete item.updatedById;
         delete item._id;
         delete item.__v;
-        delete item.permIds;
+        // delete item.permIds;
 
         return item;
     });

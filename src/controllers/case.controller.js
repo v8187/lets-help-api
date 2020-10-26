@@ -36,14 +36,13 @@ export class CaseController extends BaseController {
     }
 
     casesList(req, res) {
-
-        handleModelRes(CaseModel.listForAdmin(), res, {
+        handleModelRes(CaseModel.list(), res, {
             onSuccess: data => parseResponseData(req, data)
         });
     }
 
     caseDetails(req, res) {
-        handleModelRes(CaseModel.caseDetailsForAdmin(req.params.caseId), res, {
+        handleModelRes(CaseModel.caseDetails(req.params.caseId), res, {
             onSuccess: data => parseResponseData(req, data, true)
         });
     }

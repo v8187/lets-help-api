@@ -29,13 +29,13 @@ export class UserController extends BaseController {
     }
 
     usersList(req, res) {
-        handleModelRes(UserModel.listForAdmin(), res, {
+        handleModelRes(UserModel.list(), res, {
             onSuccess: data => parseResponseData(req, data)
         });
     }
 
     userProfile(req, res) {
-        handleModelRes(UserModel.userProfileForAdmin(req.params.userId), res, {
+        handleModelRes(UserModel.userProfile(req.params.userId), res, {
             onSuccess: data => parseResponseData(req, data, true)
         });
     }
