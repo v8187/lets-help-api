@@ -1,8 +1,9 @@
 import { Router } from 'express';
 
 import { TransactionController } from '../controllers/transaction.controller';
-import { validateParams, validateToken, validateRoles } from '../middlewares/routes';
+import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
 import { FIELDS_TRANSACTION_REQUIRED } from '../configs/query-fields';
+import { CAN_ADD_TRANSACTION, CAN_EDIT_TRANSACTION } from '../configs/permissions';
 
 const {
     findTransaction, transStats, transactionsList, transDetails,
@@ -46,20 +47,22 @@ export const getTransactionRouter = (passport) => {
 
     router.put('/updateTransaction', [
         validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
+        (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_TRANSACTION),
         (req, res, next) => validateParams(req, res, next, 'transId'),
         (req, res) => editTransaction(req, res)
     ]);
 
     router.post('/createTransaction', [
         validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
+        (req, res, next) => validatePermissions(req, res, next, CAN_ADD_TRANSACTION),
         (req, res, next) => validateParams(req, res, next, FIELDS_TRANSACTION_REQUIRED),
         (req, res) => createTransaction(req, res)
     ]);
 
-    // Temporary Routes
-    router.get('/tempAll', (req, res) => transTempAll(req, res));
+    if (process.env.DB_FILL_MODE === 'ON') {
+        // Temporary Routes
+        router.get('/tempAll', (req, res) => transTempAll(req, res));
+    }
 
     return router;
 };

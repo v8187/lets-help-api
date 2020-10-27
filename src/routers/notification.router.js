@@ -1,10 +1,8 @@
 import { Router } from 'express';
 
 import { NotificationController } from '../controllers/notification.controller';
-import {
-    validateParams,
-    validateToken, validateRoles
-} from '../middlewares/routes';
+import { validateParams, validateToken } from '../middlewares/routes';
+import { } from '../configs/permissions';
 
 const {
     ids, notificationsList, readIt, readAll, removeIt,
@@ -54,13 +52,15 @@ export const getNotificationRouter = (passport) => {
 
     // router.post('/createNotification', [
     //     validateWithToken,
-    //     (req, res, next) => validateRoles(req, res, next, 'admin'),
+    //     (req, res, next) => validatePermissions(req, res, next, 'admin'),
     //     (req, res, next) => validateParams(req, res, next, 'title,name,contactNo,city'),
     //     (req, res) => createNotification(req, res)
     // ]);
 
-    // Temporary Routes
-    router.get('/tempAll', (req, res) => notificationTempAll(req, res));
+    if (process.env.DB_FILL_MODE === 'ON') {
+        // Temporary Routes
+        router.get('/tempAll', (req, res) => notificationTempAll(req, res));
+    }
 
     return router;
 };

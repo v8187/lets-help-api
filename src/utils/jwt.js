@@ -28,10 +28,10 @@ export const validate = (token, callback) => {
 };
 
 export const extract = (token) => {
-    console.log(decode(token, {
-        complete: true,
-        json: true
-    }));
+    // console.log(decode(token, {
+    //     complete: true,
+    //     json: true
+    // }));
     return decode(token, {
         complete: true,
         json: true

@@ -1,10 +1,8 @@
 import { Router } from 'express';
 
 import { CaseController } from '../controllers/case.controller';
-import {
-    validateParams,
-    validateToken, validateRoles
-} from '../middlewares/routes';
+import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
+import { CAN_ADD_CASE, CAN_EDIT_CASE, CAN_REQUEST_CASE } from '../configs/permissions';
 
 const {
     ids, casesList, caseDetails,
@@ -37,7 +35,6 @@ export const getCaseRouter = (passport) => {
 
     router.get('/list', [
         validateWithToken,
-        // (req, res, next) => validateRoles(req, res, next, 'admin'),
         (req, res) => casesList(req, res)
     ]);
 
@@ -49,19 +46,21 @@ export const getCaseRouter = (passport) => {
 
     router.put('/updateCase', [
         validateWithToken,
+        (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_CASE),
         (req, res, next) => validateParams(req, res, next, 'caseId'),
         (req, res) => editCase(req, res)
     ]);
 
     router.post('/createCase', [
         validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
+        (req, res, next) => validatePermissions(req, res, next, CAN_ADD_CASE),
         (req, res, next) => validateParams(req, res, next, 'title,name,contactNo,city'),
         (req, res) => createCase(req, res)
     ]);
 
     router.post('/requestCase', [
         validateWithToken,
+        (req, res, next) => validatePermissions(req, res, next, CAN_REQUEST_CASE),
         (req, res, next) => validateParams(req, res, next, 'title,name,contactNo,city'),
         (req, res) => createCase(req, res, true)
     ]);
@@ -72,15 +71,10 @@ export const getCaseRouter = (passport) => {
         (req, res) => toggleReaction(req, res)
     ]);
 
-    // router.get('/info/:caseId', [
-    //     validateWithToken,
-    //     (req, res, next) => validateRoles(req, res, next, 'admin'),
-    //     (req, res, next) => validateParams(req, res, next, 'caseId'),
-    //     (req, res) => byCaseId(req, res)
-    // ]);
-
-    // Temporary Routes
-    router.get('/tempAll', (req, res) => caseTempAll(req, res));
+    if (process.env.DB_FILL_MODE === 'ON') {
+        // Temporary Routes
+        router.get('/tempAll', (req, res) => caseTempAll(req, res));
+    }
 
     return router;
 };

@@ -52,6 +52,14 @@ UserRoleSchema.statics.list = function () {
         .select('urId permIds name -_id').exec();
 };
 
+UserRoleSchema.statics.byRoleIds = function (urIds) {
+    return this.find({
+        urId: { $in: urIds }
+    })
+        .populate('permissions', FIELDS_PERMISSION_POPU)
+        .select('urId permIds -_id').exec();
+};
+
 UserRoleSchema.statics.tempAll = function () {
     return this.find()
         .populate('permissions', FIELDS_PERMISSION_POPU)

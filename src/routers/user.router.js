@@ -1,10 +1,8 @@
 import { Router } from 'express';
 
 import { UserController } from '../controllers/user.controller';
-import {
-    validateParams,
-    validateToken, validateRoles
-} from '../middlewares/routes';
+import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
+import { CAN_ADD_MEMBER } from '../configs/permissions';
 
 const {
     ids, usersList, userProfile, byUserId, count,
@@ -37,7 +35,6 @@ export const getUserRouter = (passport) => {
 
     router.get('/list', [
         validateWithToken,
-        // (req, res, next) => validateRoles(req, res, next, 'admin'),
         (req, res) => usersList(req, res)
     ]);
 
@@ -64,25 +61,27 @@ export const getUserRouter = (passport) => {
 
     router.post('/createUser', [
         validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
+        (req, res, next) => validatePermissions(req, res, next, CAN_ADD_MEMBER),
         (req, res, next) => validateParams(req, res, next, 'email,name'),
         (req, res) => createProfile(req, res)
     ]);
 
-    router.get('/info/:userId', [
-        validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'userId'),
-        (req, res) => byUserId(req, res)
-    ]);
+    // router.get('/info/:userId', [
+    //     validateWithToken,
+    //     (req, res, next) => validatePermissions(req, res, next, 'admin'),
+    //     (req, res, next) => validateParams(req, res, next, 'userId'),
+    //     (req, res) => byUserId(req, res)
+    // ]);
 
     // router.delete('/profile', [
     //     validateWithToken,
     //     (req, res) => deleteProfile(req, res)
     // ]);
 
-    // Temporary Routes
-    router.get('/tempAll', (req, res) => userTempAll(req, res));
+    if (process.env.DB_FILL_MODE === 'ON') {
+        // Temporary Routes
+        router.get('/tempAll', (req, res) => userTempAll(req, res));
+    }
 
     return router;
 };

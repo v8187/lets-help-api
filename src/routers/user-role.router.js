@@ -1,10 +1,8 @@
 import { Router } from 'express';
 
 import { UserRoleController } from '../controllers/user-role.controller';
-import {
-    validateParams,
-    validateToken, validateRoles
-} from '../middlewares/routes';
+import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
+import { CAN_ADD_USER_ROLE, CAN_EDIT_USER_ROLE } from '../configs/permissions';
 
 const {
     ids, userRolesList, editUserRole, createUserRole,
@@ -31,20 +29,22 @@ export const getUserRoleRouter = (passport) => {
 
     router.put('/updateUserRole', [
         validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
+        (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_USER_ROLE),
         (req, res, next) => validateParams(req, res, next, 'name,urId'),
         (req, res) => editUserRole(req, res)
     ]);
 
     router.post('/createUserRole', [
         validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
+        (req, res, next) => validatePermissions(req, res, next, CAN_ADD_USER_ROLE),
         (req, res, next) => validateParams(req, res, next, 'name'),
         (req, res) => createUserRole(req, res)
     ]);
 
-    // Temporary Routes
-    router.get('/tempAll', (req, res) => userRoleTempAll(req, res));
+    if (process.env.DB_FILL_MODE === 'ON') {
+        // Temporary Routes
+        router.get('/tempAll', (req, res) => userRoleTempAll(req, res));
+    }
 
     return router;
 };

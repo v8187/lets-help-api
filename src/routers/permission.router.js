@@ -1,10 +1,8 @@
 import { Router } from 'express';
 
 import { PermissionController } from '../controllers/permission.controller';
-import {
-    validateParams,
-    validateToken, validateRoles
-} from '../middlewares/routes';
+import { validateParams, validateToken } from '../middlewares/routes';
+import { } from '../configs/permissions';
 
 const {
     ids, permissionsList, editPermission, createPermission,
@@ -29,22 +27,20 @@ export const getPermissionRouter = (passport) => {
         (req, res) => permissionsList(req, res)
     ]);
 
-    router.put('/updatePermission', [
-        validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'name,urId'),
-        (req, res) => editPermission(req, res)
-    ]);
+    if (process.env.DB_FILL_MODE === 'ON') {
+        router.put('/updatePermission', [
+            (req, res, next) => validateParams(req, res, next, 'name,urId'),
+            (req, res) => editPermission(req, res)
+        ]);
 
-    router.post('/createPermission', [
-        validateWithToken,
-        (req, res, next) => validateRoles(req, res, next, 'admin'),
-        (req, res, next) => validateParams(req, res, next, 'name'),
-        (req, res) => createPermission(req, res)
-    ]);
+        router.post('/createPermission', [
+            (req, res, next) => validateParams(req, res, next, 'name'),
+            (req, res) => createPermission(req, res)
+        ]);
 
-    // Temporary Routes
-    router.get('/tempAll', (req, res) => permissionTempAll(req, res));
+        // Temporary Routes
+        router.get('/tempAll', (req, res) => permissionTempAll(req, res));
+    }
 
     return router;
 };
