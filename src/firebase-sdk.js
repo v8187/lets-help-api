@@ -22,16 +22,16 @@ ref.once('value', function (snapshot) {
 
 export const sendNotification = (notification, roles) => {
     UserModel.getDeviceTokens(roles).then(resDeviceTokens => {
-        const adminTokens = [];
+        const deviceTokens = [];
         resDeviceTokens = resDeviceTokens.map(tokenInfo => {
-            adminTokens.push(tokenInfo.deviceToken);
+            deviceTokens.push(tokenInfo.deviceToken);
             return tokenInfo.toObject();
 
         });
-        console.log('adminDeviceTokens', adminTokens, resDeviceTokens);
+        console.log('deviceTokens', deviceTokens, resDeviceTokens);
         // Send a message to the device corresponding to the provided
         // registration token.
-        adminTokens.length && firebaseAdmin.messaging().sendMulticast({
+        deviceTokens.length && firebaseAdmin.messaging().sendMulticast({
             // data: {
             //   score: '850',
             //   time: '2:45'
@@ -41,7 +41,7 @@ export const sendNotification = (notification, roles) => {
             //   body: '$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.'
             // },
             ...notification,
-            tokens: adminTokens
+            tokens: deviceTokens
         })
             .then((response) => {
                 /**
@@ -73,7 +73,7 @@ export const sendNotification = (notification, roles) => {
                 console.log('Error sending message:', error);
             });
     }, error => {
-        console.log('adminDeviceTokens::error', error);
+        console.log('deviceTokens::error', error);
     }).catch(dbReason => console.log('Something went wrong fetching Device Tokens for Admins'))
 };
 

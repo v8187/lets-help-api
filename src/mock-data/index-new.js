@@ -26,18 +26,25 @@ function checkColsDropped() {
     }
 }
 
-function fillDB() {
-    const colName = 'Increment';
+const COL_INCREMENT = 'Increment';
+const COL_NOTIFICATION = 'Notification';
 
+function fillDB() {
     bloodGroupsAdded = false;
     caseTypesAdded = false;
     relationshipsAdded = false;
     permissionsAdded = false;
     userRolesAdded = false;
 
+    db.createCollection(COL_NOTIFICATION).then((res) => {
+        console.log(`${COL_NOTIFICATION} created successfully!!!`);
+    }, (err) => {
+        console.log(`Cannot create ${COL_NOTIFICATION} collection`);
+    });
+
     // Add meta data
-    db.createCollection(colName).then((res) => {
-        console.log(`${colName} created successfully!!!`);
+    db.createCollection(COL_INCREMENT).then((res) => {
+        console.log(`${COL_INCREMENT} created successfully!!!`);
         require('./blood-groups.data').default(() => {
             bloodGroupsAdded = true;
             onMetadataAdded();
@@ -59,7 +66,7 @@ function fillDB() {
         //     onMetadataAdded();
         // });
     }, (err) => {
-        console.log(`Cannot create ${colName} collection`);
+        console.log(`Cannot create ${COL_INCREMENT} collection`);
     });
 }
 
