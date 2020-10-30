@@ -72,7 +72,6 @@ export const getCaseRouter = (passport) => {
     ]);
 
     if (process.env.DB_FILL_MODE === 'ON') {
-        // Temporary Routes
         router.get('/tempAll', (req, res) => caseTempAll(req, res));
     }
 

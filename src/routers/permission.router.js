@@ -38,7 +38,6 @@ export const getPermissionRouter = (passport) => {
             (req, res) => createPermission(req, res)
         ]);
 
-        // Temporary Routes
         router.get('/tempAll', (req, res) => permissionTempAll(req, res));
     }
 

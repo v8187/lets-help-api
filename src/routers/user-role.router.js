@@ -42,7 +42,6 @@ export const getUserRoleRouter = (passport) => {
     ]);
 
     if (process.env.DB_FILL_MODE === 'ON') {
-        // Temporary Routes
         router.get('/tempAll', (req, res) => userRoleTempAll(req, res));
     }
 

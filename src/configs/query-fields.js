@@ -1,12 +1,9 @@
 export const USER_KEY_FIELDS = 'userId name email -_id';
 export const FIELDS_PUT_DEVICE_INFO = 'deviceToken,deviceOS';
-// own user profile
-export const FIELDS_GET_OWN_PROFILE = '-_id -userPin -deviceToken -deviceOS -__v -status';
-export const FIELDS_PUT_OWN_PROFILE = 'name,gender,dob,bgId,address,contactNo,alternateNo1,alternateNo2,city,state,country,showEmail,showContactNos,showBloodGroup,showAddress,showContributions,showBirthday';
+
 // user profile by Admin
-export const FIELDS_GET_USER_PROFILE = FIELDS_GET_OWN_PROFILE + ' -showEmail -showContactNos -showBloodGroup -showAddress -showContributions -showBirthday';
-export const FIELDS_PUT_USER_PROFILE = 'isVerified,roleIds,referredById,joinedOn,contactNo,alternateNo1,alternateNo2';
-export const FIELDS_POST_USER_PROFILE = 'name,gender,dob,bgId,address,contactNo,alternateNo1,alternateNo2,city,state,country,email,isVerified,roleIds,referredById,joinedOn';
+// export const FIELDS_GET_USER_PROFILE = FIELDS_GET_OWN_PROFILE + ' -showEmail -showContactNos -showBloodGroup -showAddress -showContributions -showBirthday';
+
 // user profile by all other users
 export const FIELDS_GET_PUBLIC_PROFILE = 'userId email roles contactNo alternateNo1 alternateNo2 name gender referredBy joinedOn -_id';
 // case details by all other users

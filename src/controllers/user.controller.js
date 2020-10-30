@@ -2,9 +2,14 @@ import { BaseController } from './BaseController';
 import { UserModel } from '../models/user.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import {
-    FIELDS_PUT_USER_PROFILE, FIELDS_PUT_OWN_PROFILE,
-    FIELDS_PUT_DEVICE_INFO, FIELDS_POST_USER_PROFILE
+    FIELDS_PUT_DEVICE_INFO
 } from '../configs/query-fields';
+
+const FIELDS_PERSONAL = 'name,gender,dob,bgId,address,contactNo,alternateNo1,alternateNo2,city,state,country';
+const FIELDS_ACCOUNT = 'isVerified,roleIds,referredById,joinedOn';
+const FIELDS_OTHER_USER_EDIT = FIELDS_ACCOUNT + ',contactNo,alternateNo1,alternateNo2';
+const FIELDS_MY_PROFILE_EDIT = FIELDS_PERSONAL + ',showEmail,showContactNos,showBloodGroup,showAddress,showContributions,showBirthday';
+const FIELDS_PROFILE_CREATE = FIELDS_PERSONAL + FIELDS_ACCOUNT + ',email';
 
 const createProfileErr = (res, err = 'Server error') => {
     return sendResponse(res, {
@@ -60,7 +65,7 @@ export class UserController extends BaseController {
             const { body } = req;
             let newUser = new UserModel();
 
-            FIELDS_POST_USER_PROFILE.split(',').map(field => {
+            FIELDS_PROFILE_CREATE.split(',').map(field => {
                 const data = body[field];
                 if (data !== undefined) {
                     newUser[field] = Array.isArray(data) ? data.length ? data : newUser[field] : data;
@@ -105,7 +110,7 @@ export class UserController extends BaseController {
         let tempData = {};
 
         if (isAdmin) {
-            FIELDS_PUT_USER_PROFILE.split(',').map(field => {
+            FIELDS_OTHER_USER_EDIT.split(',').map(field => {
                 if (body[field] !== undefined) {
                     tempData[field] = body[field];
                 }
@@ -113,7 +118,7 @@ export class UserController extends BaseController {
         }
 
         if (isMyProfile) {
-            FIELDS_PUT_OWN_PROFILE.split(',').map(field => {
+            FIELDS_MY_PROFILE_EDIT.split(',').map(field => {
                 if (body[field] !== undefined) {
                     tempData[field] = body[field];
                 }

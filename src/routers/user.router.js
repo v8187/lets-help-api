@@ -66,20 +66,12 @@ export const getUserRouter = (passport) => {
         (req, res) => createProfile(req, res)
     ]);
 
-    // router.get('/info/:userId', [
-    //     validateWithToken,
-    //     (req, res, next) => validatePermissions(req, res, next, 'admin'),
-    //     (req, res, next) => validateParams(req, res, next, 'userId'),
-    //     (req, res) => byUserId(req, res)
-    // ]);
-
     // router.delete('/profile', [
     //     validateWithToken,
     //     (req, res) => deleteProfile(req, res)
     // ]);
 
     if (process.env.DB_FILL_MODE === 'ON') {
-        // Temporary Routes
         router.get('/tempAll', (req, res) => userTempAll(req, res));
     }
 

@@ -3,10 +3,12 @@ import { compareSync } from 'bcryptjs';
 
 import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
 import {
-    USER_KEY_FIELDS, FIELDS_GET_OWN_PROFILE,
+    USER_KEY_FIELDS, 
     FIELDS_USER_ROLE_POPU, FIELDS_BLOOD_GROUP_POPU
 } from '../configs/query-fields';
 import { genders } from '../configs/enum-constants';
+
+const FIELDS_MY_PROFILE_GET = '-_id -userPin -deviceToken -deviceOS -__v -status';
 
 const UserSchema = new BaseSchema({
     // Account Fields
@@ -178,7 +180,7 @@ UserSchema.statics.userProfile = function (userId) {
         .populate('referredBy', USER_KEY_FIELDS)
         .populate('roles', FIELDS_USER_ROLE_POPU)
         .populate('bloodGroup', FIELDS_BLOOD_GROUP_POPU)
-        .select(FIELDS_GET_OWN_PROFILE)
+        .select(FIELDS_MY_PROFILE_GET)
         .exec();
 };
 
@@ -191,7 +193,7 @@ UserSchema.statics.byUserId = function (userId) {
         .populate('referredBy', USER_KEY_FIELDS)
         .populate('roles', FIELDS_USER_ROLE_POPU)
         .populate('bloodGroup', FIELDS_BLOOD_GROUP_POPU)
-        .select(FIELDS_GET_OWN_PROFILE)
+        .select(FIELDS_MY_PROFILE_GET)
         .exec();
 };
 
@@ -278,7 +280,7 @@ UserSchema.statics.editProfile = function (vAuthUser, userId, data) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
-        .select(FIELDS_GET_OWN_PROFILE).exec();
+        .select(FIELDS_MY_PROFILE_GET).exec();
 };
 
 UserSchema.statics.setDevice = function (userId, deviceInfo) {

@@ -50,15 +50,7 @@ export const getNotificationRouter = (passport) => {
         (req, res) => removeIt(req, res)
     ]);
 
-    // router.post('/createNotification', [
-    //     validateWithToken,
-    //     (req, res, next) => validatePermissions(req, res, next, 'admin'),
-    //     (req, res, next) => validateParams(req, res, next, 'title,name,contactNo,city'),
-    //     (req, res) => createNotification(req, res)
-    // ]);
-
     if (process.env.DB_FILL_MODE === 'ON') {
-        // Temporary Routes
         router.get('/tempAll', (req, res) => notificationTempAll(req, res));
     }
 

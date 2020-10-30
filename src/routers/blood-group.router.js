@@ -42,7 +42,6 @@ export const getBloodGroupRouter = (passport) => {
     ]);
 
     if (process.env.DB_FILL_MODE === 'ON') {
-        // Temporary Routes
         router.get('/tempAll', (req, res) => bloodGroupTempAll(req, res));
     }
     return router;
