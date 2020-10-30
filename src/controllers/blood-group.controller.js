@@ -2,7 +2,8 @@ import { BaseController } from './BaseController';
 import { BloodGroupModel } from '../models/blood-group.model';
 import { IncrementModel } from '../models/increment.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_BLOOD_GROUP } from '../configs/query-fields';
+
+const FIELDS_BLOOD_GROUP = 'name';
 
 const createBloodGroupErr = (res, err = 'Server error') => {
     return sendResponse(res, {

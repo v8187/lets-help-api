@@ -2,7 +2,8 @@ import { BaseController } from './BaseController';
 import { PermissionModel } from '../models/permission.model';
 import { IncrementModel } from '../models/increment.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_PERMISSION } from '../configs/query-fields';
+
+const FIELDS_PERMISSION = 'name';
 
 const createPermissionErr = (res, err = 'Server error') => {
     return sendResponse(res, {

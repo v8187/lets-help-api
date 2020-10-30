@@ -1,10 +1,8 @@
 import { BaseController } from './BaseController';
 import { UserModel } from '../models/user.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import {
-    FIELDS_PUT_DEVICE_INFO
-} from '../configs/query-fields';
 
+const FIELDS_PUT_DEVICE_INFO = 'deviceToken,deviceOS';
 const FIELDS_PERSONAL = 'name,gender,dob,bgId,address,contactNo,alternateNo1,alternateNo2,city,state,country';
 const FIELDS_ACCOUNT = 'isVerified,roleIds,referredById,joinedOn';
 const FIELDS_OTHER_USER_EDIT = FIELDS_ACCOUNT + ',contactNo,alternateNo1,alternateNo2';

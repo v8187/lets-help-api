@@ -11,6 +11,9 @@ import {
 } from './query-fields';
 import { caseCategories, frequencies, durations, genders } from '../configs/enum-constants';
 
+const CASE_ADMIN_QUERY_FIELDS = '-_id -__v -status';
+export const CASE_PUBLIC_QUERY_FIELDS = '-_id -__v -status -createdById -updatedById -createdOn -updatedOn';
+
 const CaseSchema = new BaseSchema({
     // Account Fields
     caseId: { type: String },
@@ -55,7 +58,7 @@ const CaseSchema = new BaseSchema({
     {
         collection: 'Case',
         ...commonShemaOptions((doc, ret, options) => {
-           
+
             return ret;
         })
     }

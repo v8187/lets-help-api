@@ -2,7 +2,8 @@ import { BaseController } from './BaseController';
 import { RelationshipModel } from '../models/relationship.model';
 import { IncrementModel } from '../models/increment.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_RELATIONSHIP } from '../configs/query-fields';
+
+const FIELDS_RELATIONSHIP = 'name';
 
 const createRelationshipErr = (res, err = 'Server error') => {
     return sendResponse(res, {

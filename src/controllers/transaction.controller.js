@@ -1,9 +1,12 @@
 import { BaseController } from './BaseController';
 import { TransactionModel } from '../models/transaction.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_TRANSACTION_ADD_UPDATE, FIELDS_TRANSACTION_AD_SEARCH } from '../configs/query-fields';
 import { sendNotification } from '../firebase-sdk';
 import { userRoles } from '../configs/enum-constants';
+
+const FIELDS_TRANSACTION_AD_SEARCH = 'transType,minAmount,maxAmount,fromDate,toDate,forCase,fromUser,transMode,spentBy';
+export const FIELDS_TRANSACTION_REQUIRED = 'transType,amount,forMonth,forYear,transDate,remarks';
+export const FIELDS_TRANSACTION_ADD_UPDATE = FIELDS_TRANSACTION_REQUIRED + ',forCaseId,spentById,fromUserId,transMode,bankDetails,upiDetails,ewalletDetails';
 
 const addTransErr = (res, err = 'Server error') => {
     return sendResponse(res, {

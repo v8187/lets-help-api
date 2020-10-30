@@ -1,8 +1,7 @@
 import { Router } from 'express';
 
-import { TransactionController } from '../controllers/transaction.controller';
+import { TransactionController, FIELDS_TRANSACTION_REQUIRED } from '../controllers/transaction.controller';
 import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
-import { FIELDS_TRANSACTION_REQUIRED } from '../configs/query-fields';
 import { CAN_ADD_TRANSACTION, CAN_EDIT_TRANSACTION } from '../configs/permissions';
 
 const {

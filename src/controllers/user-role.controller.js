@@ -2,7 +2,8 @@ import { BaseController } from './BaseController';
 import { UserRoleModel } from '../models/user-role.model';
 import { IncrementModel } from '../models/increment.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_USER_ROLE } from '../configs/query-fields';
+
+const FIELDS_USER_ROLE = 'name,permIds';
 
 const createUserRoleErr = (res, err = 'Server error') => {
     return sendResponse(res, {

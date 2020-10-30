@@ -3,7 +3,9 @@ import { model } from 'mongoose';
 import {
     BaseSchema, commonShemaOptions, defineCommonVirtuals
 } from './BaseSchema';
-import { USER_KEY_FIELDS, FIELDS_PERMISSION_POPU } from '../configs/query-fields';
+import { USER_KEY_FIELDS } from '../configs/query-fields';
+
+const FIELDS_PERMISSION_POPU = 'name permId -_id';
 
 const UserRoleSchema = new BaseSchema({
     urId: { type: Number },

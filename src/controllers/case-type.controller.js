@@ -2,7 +2,8 @@ import { BaseController } from './BaseController';
 import { CaseTypeModel } from '../models/case-type.model';
 import { IncrementModel } from '../models/increment.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_CASE_TYPE } from '../configs/query-fields';
+
+const FIELDS_CASE_TYPE = 'name';
 
 const createCaseTypeErr = (res, err = 'Server error') => {
     return sendResponse(res, {

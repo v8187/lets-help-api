@@ -7,6 +7,9 @@ import { CASE_KEY_FIELDS, USER_KEY_FIELDS } from '../configs/query-fields';
 import { genders } from '../configs/enum-constants';
 import { UserModel } from './user.model';
 
+const FIELDS_CASE_TYPE_POPU = 'name ctId -_id';
+const FIELDS_RELATIONSHIP_POPU = 'name relId -_id';
+
 const CaseSchema = new BaseSchema({
     caseId: { type: String, },
     title: { type: String, required: true, trim: true },

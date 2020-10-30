@@ -2,13 +2,12 @@ import { model } from 'mongoose';
 import { compareSync } from 'bcryptjs';
 
 import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
-import {
-    USER_KEY_FIELDS, 
-    FIELDS_USER_ROLE_POPU, FIELDS_BLOOD_GROUP_POPU
-} from '../configs/query-fields';
+import { USER_KEY_FIELDS } from '../configs/query-fields';
 import { genders } from '../configs/enum-constants';
 
 const FIELDS_MY_PROFILE_GET = '-_id -userPin -deviceToken -deviceOS -__v -status';
+const FIELDS_USER_ROLE_POPU = 'name urId -_id';
+const FIELDS_BLOOD_GROUP_POPU = 'name bgId -_id';
 
 const UserSchema = new BaseSchema({
     // Account Fields

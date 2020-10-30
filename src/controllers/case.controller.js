@@ -1,9 +1,12 @@
 import { BaseController } from './BaseController';
 import { CaseModel } from '../models/case.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
-import { FIELDS_CREATE_CASE_ADMIN, FIELDS_CREATE_CASE } from '../configs/query-fields';
 import { sendNotification } from '../firebase-sdk';
 import { userRoles } from '../configs/enum-constants';
+
+const FIELDS_CREATE_CASE = 'ctId,relId,referredOn,contactNo,title,name,contactPerson,description,gender,age,address,city,state,country,referredBy';
+const FIELDS_CREATE_CASE_ADMIN = FIELDS_CREATE_CASE + ',isApproved,approvedOn,isClosed,closedOn,closingReason,showContactNos,showAddress';
+
 
 const createCaseErr = (res, err = 'Server error') => {
     return sendResponse(res, {
