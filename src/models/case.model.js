@@ -110,14 +110,6 @@ CaseSchema.post('save', async function ($case, next) {
  * Do not declare methods using ES6 arrow functions (=>). 
  * Arrow functions explicitly prevent binding this
  */
-// CaseSchema.statics.list = function () {
-//     return this
-//         .aggregate([{ $match: {} }])
-//         .project({ caseId: 1, name: 1, title: 1, isApproved: 1, isClosed: 1, upVoters: 1, downVoters: 1, _id: 0 })
-//         .sort('title')
-//         .exec();
-// };
-
 CaseSchema.statics.list = function () {
     return this
         .aggregate([{ $match: {} }])
@@ -154,15 +146,6 @@ CaseSchema.statics.list = function () {
 // };
 
 CaseSchema.statics.caseDetails = function (caseId) {
-    return this
-        .findOne({ caseId })
-        .populate('createdBy', USER_KEY_FIELDS)
-        .populate('updatedBy', USER_KEY_FIELDS)
-        .populate('referredBy', USER_KEY_FIELDS)
-        .select('-_id -__v -status').exec();
-};
-
-CaseSchema.statics.byCaseId = function (caseId) {
     return this
         .findOne({ caseId })
         .populate('createdBy', USER_KEY_FIELDS)

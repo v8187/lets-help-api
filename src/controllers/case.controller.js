@@ -189,10 +189,6 @@ export class CaseController extends BaseController {
         });
     }
 
-    byCaseId(req, res) {
-        handleModelRes(CaseModel.byCaseId(req.params.caseId), res);
-    }
-
     tempAll(req, res) {
         handleModelRes(CaseModel.tempAll(), res);
     }
