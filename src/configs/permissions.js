@@ -4,6 +4,7 @@ export const CAN_ADD_CASE = 'add case',
     CAN_REQUEST_CASE = 'request case',
     CAN_SEARCH_CASE = 'search case',
     CAN_APPROVE_CASE = 'approve case',
+    CAN_CLOSE_CASE = 'close case',
     CAN_EDIT_CASE_CONTACT_VISIBILITY = 'edit case contact details visibility',
     // User
     CAN_ADD_MEMBER = 'add member',
