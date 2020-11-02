@@ -74,13 +74,13 @@ UserRoleSchema.statics.count = function () {
     return this.countDocuments();
 };
 
-UserRoleSchema.statics.userRoleExists = function ({ name }) {
+UserRoleSchema.statics.isExist = function ({ name }) {
     return this
         .findOne({ name })
         .exec();
 };
 
-UserRoleSchema.statics.editUserRole = function (vAuthUser, urId, data) {
+UserRoleSchema.statics.urEdit = function (vAuthUser, urId, data) {
     return this.findOneAndUpdate(
         { urId },
         { $set: { ...data, vAuthUser } },
@@ -89,11 +89,6 @@ UserRoleSchema.statics.editUserRole = function (vAuthUser, urId, data) {
         // .populate('createdBy', USER_KEY_FIELDS)
         // .populate('updatedBy', USER_KEY_FIELDS)
         .select('name urId -_id').exec();
-};
-
-UserRoleSchema.statics.saveUserRole = function ($userRole) {
-    // console.log('saveUserRole', $userRole);
-    return $userRole.save();
 };
 
 export const UserRoleModel = model('UserRole', UserRoleSchema);

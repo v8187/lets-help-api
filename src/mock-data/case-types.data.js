@@ -9,4 +9,4 @@ const actualCaseTypesData = [
     { name: 'commodity', label: 'Commodity' }
 ];
 
-export default (callback) => fillCollection(actualCaseTypesData, 'api/caseType/createCaseType', 'Case Type', callback);
+export default (callback) => fillCollection(actualCaseTypesData, 'api/caseType/add', 'Case Type', callback);

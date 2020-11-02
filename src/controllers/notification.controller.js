@@ -25,7 +25,7 @@ export class NotificationController extends BaseController {
     createNotification(req, res, isRequest) {
         const { name } = req.body;
 
-        NotificationModel.notificationExists(req.body).then($notification => {
+        NotificationModel.isExist(req.body).then($notification => {
             if (!!$notification) {
                 return sendResponse(res, {
                     error: 'Cannot create new Notification',
@@ -48,7 +48,7 @@ export class NotificationController extends BaseController {
             newNotification.vAuthUser = user.userId;
 
             handleModelRes(
-                NotificationModel.saveNotification(newNotification),
+                newNotification.save(),
                 res, {
                 success: 'Notification created successfully.',
                 error: 'Something went wrong while creating new Notification. Try again later.',

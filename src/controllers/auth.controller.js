@@ -96,15 +96,13 @@ const invalidateToken = (req, res, onDone, onError) => {
 }
 
 const createNewUser = (email, name, userPin, res) => {
-    let newUser = new UserModel(),
-        userData = {
-            email,
-            name,
-            userPin
-        };
+    let newUser = new UserModel({
+        email,
+        name,
+        userPin
+    });
 
-    UserModel
-        .saveUser(Object.assign(newUser, userData))
+    newUser.save()
         .then(savedUser => {
             // If Signup was successful, generate and bind new Token
             sendNewToken(res, savedUser.tokenFields(), 'Sign Up is successfully done!!!');
@@ -212,10 +210,9 @@ export class AuthController extends BaseController {
                 if (user) {
                     return done(null, user);
                 }
-                let newUser = new UserModel();
+                let newUser = new UserModel(userData);
 
-                UserModel
-                    .saveUser(Object.assign(newUser, userData))
+                newUser.save()
                     .then(savedUser => {
                         console.log('savedUser', savedUser);
                         return done(null, savedUser);

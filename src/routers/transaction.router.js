@@ -5,9 +5,9 @@ import { validateParams, validateToken, validatePermissions } from '../middlewar
 import { CAN_ADD_TRANSACTION, CAN_EDIT_TRANSACTION } from '../configs/permissions';
 
 const {
-    findTransaction, transStats, transactionsList, transDetails,
-    editTransaction, createTransaction,
-    tempAll: transTempAll
+    findTransaction, transStats, transList, transDetails,
+    transEdit, transAdd,
+    tempAll
 } = new TransactionController();
 
 const router = Router();
@@ -35,7 +35,7 @@ export const getTransactionRouter = (passport) => {
 
     router.get('/list', [
         validateWithToken,
-        (req, res) => transactionsList(req, res)
+        (req, res) => transList(req, res)
     ]);
 
     router.get('/transInfo/:transId', [
@@ -44,22 +44,22 @@ export const getTransactionRouter = (passport) => {
         (req, res) => transDetails(req, res)
     ]);
 
-    router.put('/updateTransaction', [
+    router.put('/update', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_TRANSACTION),
         (req, res, next) => validateParams(req, res, next, 'transId'),
-        (req, res) => editTransaction(req, res)
+        (req, res) => transEdit(req, res)
     ]);
 
-    router.post('/createTransaction', [
+    router.post('/add', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_ADD_TRANSACTION),
         (req, res, next) => validateParams(req, res, next, FIELDS_TRANSACTION_REQUIRED),
-        (req, res) => createTransaction(req, res)
+        (req, res) => transAdd(req, res)
     ]);
 
     if (process.env.DB_FILL_MODE === 'ON') {
-        router.get('/tempAll', (req, res) => transTempAll(req, res));
+        router.get('/tempAll', (req, res) => tempAll(req, res));
     }
 
     return router;

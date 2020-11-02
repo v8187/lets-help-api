@@ -290,11 +290,6 @@ UserSchema.statics.setDevice = function (userId, deviceInfo) {
     ).exec();
 };
 
-UserSchema.statics.saveUser = function (user) {
-    // console.log('saveUser', user);
-    return user.save();
-};
-
 /**
  * Add Custom instance methods
  * =========================

@@ -5,7 +5,7 @@ import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers'
 
 const FIELDS_CASE_TYPE = 'name';
 
-const createCaseTypeErr = (res, err = 'Server error') => {
+const ctAddErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
         message: 'Something went wrong while creating new Case Type. Try again later.',
@@ -15,18 +15,18 @@ const createCaseTypeErr = (res, err = 'Server error') => {
 
 export class CaseTypeController extends BaseController {
 
-    caseTypeExists(req, res) {
-        handleModelRes(CaseTypeModel.caseTypeExists(req.params.name), res);
+    isExist(req, res) {
+        handleModelRes(CaseTypeModel.isExist(req.params.name), res);
     }
 
-    caseTypesList(req, res) {
+    ctList(req, res) {
         handleModelRes(CaseTypeModel.list(), res);
     }
 
-    createCaseType(req, res, isRequest) {
+    ctAdd(req, res, isRequest) {
         const { name } = req.body;
 
-        CaseTypeModel.caseTypeExists(req.body).then(async $caseType => {
+        CaseTypeModel.isExist(req.body).then(async $caseType => {
             if (!!$caseType) {
                 return sendResponse(res, {
                     error: 'Cannot create new Case Type',
@@ -54,21 +54,21 @@ export class CaseTypeController extends BaseController {
             newCaseType.ctId = srNoRes.srNo;
 
             handleModelRes(
-                CaseTypeModel.saveCaseType(newCaseType),
+                newCaseType.save(),
                 res, {
                 success: 'Case Type created successfully.',
                 error: 'Something went wrong while creating new Case Type. Try again later.',
             });
         }, modelErr => {
             console.error(modelErr);
-            return createCaseTypeErr(res, modelErr.message);
+            return ctAddErr(res, modelErr.message);
         }).catch(modelReason => {
             console.log(modelReason);
-            return createCaseTypeErr(res, modelReason.message);
+            return ctAddErr(res, modelReason.message);
         });
     }
 
-    editCaseType(req, res) {
+    ctEdit(req, res) {
         const user = getReqMetadata(req, 'user');
         const { body } = req;
 
@@ -81,7 +81,7 @@ export class CaseTypeController extends BaseController {
         });
 
         handleModelRes(
-            CaseTypeModel.editCaseType(user.userId, body.ctId, tempData),
+            CaseTypeModel.ctEdit(user.userId, body.ctId, tempData),
             res, {
             success: 'Case Type updated successfully.',
             error: 'Something went wrong while updating the Case Type. Try again later.',

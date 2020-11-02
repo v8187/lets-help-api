@@ -18,4 +18,4 @@ const actualRelationshipsData = [
     { name: 'neighbours', label: 'Neighbours' }
 ];
 
-export default (callback) => fillCollection(actualRelationshipsData, 'api/relationship/createRelationship', 'Relationship', callback);
+export default (callback) => fillCollection(actualRelationshipsData, 'api/relationship/add', 'Relationship', callback);

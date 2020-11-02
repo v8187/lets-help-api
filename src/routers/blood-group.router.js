@@ -4,10 +4,7 @@ import { BloodGroupController } from '../controllers/blood-group.controller';
 import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
 import { CAN_ADD_BLOOD_GROUP, CAN_EDIT_BLOOD_GROUP } from '../configs/permissions';
 
-const {
-    ids, bloodGroupsList, editBloodGroup, createBloodGroup,
-    tempAll: bloodGroupTempAll
-} = new BloodGroupController();
+const { bgList, bgEdit, bgAdd, tempAll } = new BloodGroupController();
 
 const router = Router();
 
@@ -24,25 +21,25 @@ export const getBloodGroupRouter = (passport) => {
 
     router.get('/list', [
         validateWithToken,
-        (req, res) => bloodGroupsList(req, res)
+        (req, res) => bgList(req, res)
     ]);
 
-    router.put('/updateBloodGroup', [
+    router.put('/update', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_BLOOD_GROUP),
         (req, res, next) => validateParams(req, res, next, 'name,bgId'),
-        (req, res) => editBloodGroup(req, res)
+        (req, res) => bgEdit(req, res)
     ]);
 
-    router.post('/createBloodGroup', [
+    router.post('/add', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_ADD_BLOOD_GROUP),
         (req, res, next) => validateParams(req, res, next, 'name'),
-        (req, res) => createBloodGroup(req, res)
+        (req, res) => bgAdd(req, res)
     ]);
 
     if (process.env.DB_FILL_MODE === 'ON') {
-        router.get('/tempAll', (req, res) => bloodGroupTempAll(req, res));
+        router.get('/tempAll', (req, res) => tempAll(req, res));
     }
     return router;
 };

@@ -5,7 +5,7 @@ import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers'
 
 const FIELDS_PERMISSION = 'name';
 
-const createPermissionErr = (res, err = 'Server error') => {
+const permAddErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
         message: 'Something went wrong while creating new Permission. Try again later.',
@@ -15,11 +15,11 @@ const createPermissionErr = (res, err = 'Server error') => {
 
 export class PermissionController extends BaseController {
 
-    permissionsList(req, res) {
+    permList(req, res) {
         handleModelRes(PermissionModel.list(), res);
     }
 
-    createPermission(req, res, isRequest) {
+    permAdd(req, res, isRequest) {
         const { name } = req.body;
 
         (async () => {
@@ -48,26 +48,6 @@ export class PermissionController extends BaseController {
                 error: 'Something went wrong while creating new Permission. Try again later.',
             });
         })();
-    }
-
-    editPermission(req, res) {
-        const user = getReqMetadata(req, 'user');
-        const { body } = req;
-
-        let tempData = {};
-
-        (FIELDS_PERMISSION).split(',').map(field => {
-            if (body[field] !== undefined) {
-                tempData[field] = body[field];
-            }
-        });
-
-        handleModelRes(
-            PermissionModel.editPermission(user.userId, body.permId, tempData),
-            res, {
-            success: 'Permission updated successfully.',
-            error: 'Something went wrong while updating the Permission. Try again later.',
-        });
     }
 
     tempAll(req, res) {

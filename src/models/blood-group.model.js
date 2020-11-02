@@ -62,23 +62,19 @@ BloodGroupSchema.statics.count = function () {
     return this.countDocuments();
 };
 
-BloodGroupSchema.statics.bloodGroupExists = function ({ name }) {
+BloodGroupSchema.statics.isExist = function ({ name }) {
     return this
         .findOne({ name })
         .exec();
 };
 
-BloodGroupSchema.statics.editBloodGroup = function (vAuthUser, bgId, data) {
+BloodGroupSchema.statics.bgEdit = function (vAuthUser, bgId, data) {
     return this.findOneAndUpdate(
         { bgId },
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
         .select('name bgId -_id').exec();
-};
-
-BloodGroupSchema.statics.saveBloodGroup = function ($bloodGroup) {
-    return $bloodGroup.save();
 };
 
 export const BloodGroupModel = model('BloodGroup', BloodGroupSchema);

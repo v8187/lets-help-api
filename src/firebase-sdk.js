@@ -63,7 +63,7 @@ export const sendNotification = (notification, roles) => {
                             newNoti.title = notification.notification.title;
                             newNoti.body = notification.notification.body;
 
-                            NotificationModel.saveNotification(newNoti);
+                            newNoti.save();
                         }
                     });
                 }

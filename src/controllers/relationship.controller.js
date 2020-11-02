@@ -5,7 +5,7 @@ import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers'
 
 const FIELDS_RELATIONSHIP = 'name';
 
-const createRelationshipErr = (res, err = 'Server error') => {
+const relAddErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
         message: 'Something went wrong while creating new Relationship. Try again later.',
@@ -15,18 +15,18 @@ const createRelationshipErr = (res, err = 'Server error') => {
 
 export class RelationshipController extends BaseController {
 
-    relationshipExists(req, res) {
-        handleModelRes(RelationshipModel.relationshipExists(req.params.name), res);
+    isExist(req, res) {
+        handleModelRes(RelationshipModel.isExist(req.params.name), res);
     }
 
-    relationshipsList(req, res) {
+    relList(req, res) {
         handleModelRes(RelationshipModel.list(), res);
     }
 
-    createRelationship(req, res, isRequest) {
+    relAdd(req, res, isRequest) {
         const { name } = req.body;
 
-        RelationshipModel.relationshipExists(req.body).then(async $relationship => {
+        RelationshipModel.isExist(req.body).then(async $relationship => {
             if (!!$relationship) {
                 return sendResponse(res, {
                     error: 'Cannot create new Relationship',
@@ -54,21 +54,21 @@ export class RelationshipController extends BaseController {
             newRelationship.relId = srNoRes.srNo;
 
             handleModelRes(
-                RelationshipModel.saveRelationship(newRelationship),
+                newRelationship.save(),
                 res, {
                 success: 'Relationship created successfully.',
                 error: 'Something went wrong while creating new Relationship. Try again later.',
             });
         }, modelErr => {
             console.error(modelErr);
-            return createRelationshipErr(res, modelErr.message);
+            return relAddErr(res, modelErr.message);
         }).catch(modelReason => {
             console.log(modelReason);
-            return createRelationshipErr(res, modelReason.message);
+            return relAddErr(res, modelReason.message);
         });
     }
 
-    editRelationship(req, res) {
+    relEdit(req, res) {
         const user = getReqMetadata(req, 'user');
         const { body } = req;
 
@@ -81,7 +81,7 @@ export class RelationshipController extends BaseController {
         });
 
         handleModelRes(
-            RelationshipModel.editRelationship(user.userId, body.relationshipId, tempData),
+            RelationshipModel.relEdit(user.userId, body.relationshipId, tempData),
             res, {
             success: 'Relationship updated successfully.',
             error: 'Something went wrong while updating the Relationship. Try again later.',

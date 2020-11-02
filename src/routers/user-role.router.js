@@ -4,10 +4,7 @@ import { UserRoleController } from '../controllers/user-role.controller';
 import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
 import { CAN_ADD_USER_ROLE, CAN_EDIT_USER_ROLE } from '../configs/permissions';
 
-const {
-    ids, userRolesList, editUserRole, createUserRole,
-    tempAll: userRoleTempAll
-} = new UserRoleController();
+const { urList, urEdit, urAdd, tempAll } = new UserRoleController();
 
 const router = Router();
 
@@ -24,25 +21,25 @@ export const getUserRoleRouter = (passport) => {
 
     router.get('/list', [
         validateWithToken,
-        (req, res) => userRolesList(req, res)
+        (req, res) => urList(req, res)
     ]);
 
-    router.put('/updateUserRole', [
+    router.put('/update', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_USER_ROLE),
         (req, res, next) => validateParams(req, res, next, 'name,urId'),
-        (req, res) => editUserRole(req, res)
+        (req, res) => urEdit(req, res)
     ]);
 
-    router.post('/createUserRole', [
+    router.post('/add', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_ADD_USER_ROLE),
         (req, res, next) => validateParams(req, res, next, 'name'),
-        (req, res) => createUserRole(req, res)
+        (req, res) => urAdd(req, res)
     ]);
 
     if (process.env.DB_FILL_MODE === 'ON') {
-        router.get('/tempAll', (req, res) => userRoleTempAll(req, res));
+        router.get('/tempAll', (req, res) => tempAll(req, res));
     }
 
     return router;

@@ -25,5 +25,5 @@ export default async (callback) => {
         };
     });
    
-    fillCollection(userRolesTemp, 'api/userRole/createUserRole', 'User Role', callback);
+    fillCollection(userRolesTemp, 'api/userRole/add', 'User Role', callback);
 }

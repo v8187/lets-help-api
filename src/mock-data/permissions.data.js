@@ -10,4 +10,4 @@ for (let key in permissionsData) {
     });
 }
 
-export default (callback) => fillCollection(data, 'api/permission/createPermission', 'Permission', callback);
+export default (callback) => fillCollection(data, 'api/permission/add', 'Permission', callback);

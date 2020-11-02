@@ -96,8 +96,4 @@ NotificationSchema.statics.markDeleted = function (vAuthUser, notificationId) {
     ).exec();
 };
 
-NotificationSchema.statics.saveNotification = function ($notification) {
-    return $notification.save();
-};
-
 export const NotificationModel = model('Notification', NotificationSchema);

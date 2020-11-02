@@ -62,23 +62,19 @@ CaseTypeSchema.statics.count = function () {
     return this.countDocuments();
 };
 
-CaseTypeSchema.statics.caseTypeExists = function ({ name }) {
+CaseTypeSchema.statics.isExist = function ({ name }) {
     return this
         .findOne({ name })
         .exec();
 };
 
-CaseTypeSchema.statics.editCaseType = function (vAuthUser, ctId, data) {
+CaseTypeSchema.statics.ctEdit = function (vAuthUser, ctId, data) {
     return this.findOneAndUpdate(
         { ctId },
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
         .select('name ctId -_id').exec();
-};
-
-CaseTypeSchema.statics.saveCaseType = function ($caseType) {
-    return $caseType.save();
 };
 
 export const CaseTypeModel = model('CaseType', CaseTypeSchema);

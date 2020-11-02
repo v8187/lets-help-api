@@ -5,7 +5,7 @@ import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers'
 
 const FIELDS_USER_ROLE = 'name,permIds';
 
-const createUserRoleErr = (res, err = 'Server error') => {
+const urAddErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
         message: 'Something went wrong while creating new User Role. Try again later.',
@@ -15,20 +15,20 @@ const createUserRoleErr = (res, err = 'Server error') => {
 
 export class UserRoleController extends BaseController {
 
-    userRoleExists(req, res) {
-        handleModelRes(UserRoleModel.userRoleExists(req.params.name), res);
+    isExist(req, res) {
+        handleModelRes(UserRoleModel.isExist(req.params.name), res);
     }
 
-    userRolesList(req, res) {
+    urList(req, res) {
         handleModelRes(UserRoleModel.list(), res, {
             onSuccess: data => parseResponseData(req, data)
         });
     }
 
-    createUserRole(req, res, isRequest) {
+    urAdd(req, res, isRequest) {
         const { name } = req.body;
 
-        UserRoleModel.userRoleExists(req.body).then(async $userRole => {
+        UserRoleModel.isExist(req.body).then(async $userRole => {
             if (!!$userRole) {
                 return sendResponse(res, {
                     error: 'Cannot create new User Role',
@@ -56,21 +56,21 @@ export class UserRoleController extends BaseController {
             newUserRole.urId = srNoRes.srNo;
 
             handleModelRes(
-                UserRoleModel.saveUserRole(newUserRole),
+                newUserRole.save(),
                 res, {
                 success: 'User Role created successfully.',
                 error: 'Something went wrong while creating new User Role. Try again later.',
             });
         }, modelErr => {
             console.error(modelErr);
-            return createUserRoleErr(res, modelErr.message);
+            return urAddErr(res, modelErr.message);
         }).catch(modelReason => {
             console.log(modelReason);
-            return createUserRoleErr(res, modelReason.message);
+            return urAddErr(res, modelReason.message);
         });
     }
 
-    editUserRole(req, res) {
+    urEdit(req, res) {
         const user = getReqMetadata(req, 'user');
         const { body } = req;
 
@@ -83,7 +83,7 @@ export class UserRoleController extends BaseController {
         });
 
         handleModelRes(
-            UserRoleModel.editUserRole(user.userId, body.urId, tempData),
+            UserRoleModel.urEdit(user.userId, body.urId, tempData),
             res, {
             success: 'User Role updated successfully.',
             error: 'Something went wrong while updating the User Role. Try again later.',

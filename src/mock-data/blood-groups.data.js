@@ -11,4 +11,4 @@ const actualBloodGroupsData = [
     { name: 'ab-', label: 'AB -' }
 ];
 
-export default (callback) => fillCollection(actualBloodGroupsData, 'api/bloodGroup/createBloodGroup', 'Blood Group', callback);
+export default (callback) => fillCollection(actualBloodGroupsData, 'api/bloodGroup/add', 'Blood Group', callback);

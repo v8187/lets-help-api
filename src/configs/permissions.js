@@ -13,7 +13,6 @@ export const CAN_ADD_CASE = 'add case',
     CAN_VIEW_MEMBER_PROFILE = 'view member profile',
     CAN_EDIT_MEMBER_ROLES = 'edit member roles',
     CAN_VERIFY_MEMBER = 'can verify member',
-
     // Transaction
     CAN_ADD_TRANSACTION = 'add transaction',
     CAN_EDIT_TRANSACTION = 'edit transaction',

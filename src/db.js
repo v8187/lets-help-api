@@ -2,11 +2,10 @@ import mongoose from 'mongoose';
 
 mongoose.set('useCreateIndex', true);
 
-const { DB_BUFFER_COMMANDS, DB_CONNECTION_TIMEOUT_MS, DB_KEEP_ALIVE,
-    DB_SOCKET_TIMEOUT_MS, DB_PATH } = process.env;
+const { DB_PATH, DB_URI, MONGODB_URI } = process.env;
 
 export const initDatabase = (cb) => {
-    mongoose.connect(process.env.MONGODB_URI || DB_PATH || 'mongodb://localhost:27017/test', {
+    mongoose.connect(DB_URI || MONGODB_URI || DB_PATH || 'mongodb://localhost:27017/test', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false // Set to false to make findOneAndUpdate() and findOneAndRemove() use native findOneAndUpdate() rather than findAndModify()

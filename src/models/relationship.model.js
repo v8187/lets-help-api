@@ -62,23 +62,19 @@ RelationshipSchema.statics.count = function () {
     return this.countDocuments();
 };
 
-RelationshipSchema.statics.relationshipExists = function ({ name }) {
+RelationshipSchema.statics.isExist = function ({ name }) {
     return this
         .findOne({ name })
         .exec();
 };
 
-RelationshipSchema.statics.editRelationship = function (vAuthUser, relId, data) {
+RelationshipSchema.statics.relEdit = function (vAuthUser, relId, data) {
     return this.findOneAndUpdate(
         { relId },
         { $set: { ...data, vAuthUser } },
         { upsert: false, new: true }
     )
         .select('name relId -_id').exec();
-};
-
-RelationshipSchema.statics.saveRelationship = function ($relationship) {
-    return $relationship.save();
 };
 
 export const RelationshipModel = model('Relationship', RelationshipSchema);

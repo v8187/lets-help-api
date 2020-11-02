@@ -5,7 +5,7 @@ import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers'
 
 const FIELDS_BLOOD_GROUP = 'name';
 
-const createBloodGroupErr = (res, err = 'Server error') => {
+const bgAddErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
         message: 'Something went wrong while creating new Blood Group. Try again later.',
@@ -15,18 +15,18 @@ const createBloodGroupErr = (res, err = 'Server error') => {
 
 export class BloodGroupController extends BaseController {
 
-    bloodGroupExists(req, res) {
-        handleModelRes(BloodGroupModel.bloodGroupExists(req.params.name), res);
+    isExist(req, res) {
+        handleModelRes(BloodGroupModel.isExist(req.params.name), res);
     }
 
-    bloodGroupsList(req, res) {
+    bgList(req, res) {
         handleModelRes(BloodGroupModel.list(), res);
     }
 
-    createBloodGroup(req, res, isRequest) {
+    bgAdd(req, res, isRequest) {
         const { name } = req.body;
 
-        BloodGroupModel.bloodGroupExists(req.body).then(async $bloodGroup => {
+        BloodGroupModel.isExist(req.body).then(async $bloodGroup => {
             if (!!$bloodGroup) {
                 return sendResponse(res, {
                     error: 'Cannot create new Blood Group',
@@ -54,21 +54,21 @@ export class BloodGroupController extends BaseController {
             newBloodGroup.bgId = srNoRes.srNo;
 
             handleModelRes(
-                BloodGroupModel.saveBloodGroup(newBloodGroup),
+                newBloodGroup.save(),
                 res, {
                 success: 'Blood Group created successfully.',
                 error: 'Something went wrong while creating new Blood Group. Try again later.',
             });
         }, modelErr => {
             console.error(modelErr);
-            return createBloodGroupErr(res, modelErr.message);
+            return bgAddErr(res, modelErr.message);
         }).catch(modelReason => {
             console.log(modelReason);
-            return createBloodGroupErr(res, modelReason.message);
+            return bgAddErr(res, modelReason.message);
         });
     }
 
-    editBloodGroup(req, res) {
+    bgEdit(req, res) {
         const user = getReqMetadata(req, 'user');
         const { body } = req;
 
@@ -81,7 +81,7 @@ export class BloodGroupController extends BaseController {
         });
 
         handleModelRes(
-            BloodGroupModel.editBloodGroup(user.userId, body.bgId, tempData),
+            BloodGroupModel.bgEdit(user.userId, body.bgId, tempData),
             res, {
             success: 'BloodGroup updated successfully.',
             error: 'Something went wrong while updating the Blood Group. Try again later.',

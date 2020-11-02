@@ -53,7 +53,7 @@ export class TransactionController extends BaseController {
         });
     }
 
-    transactionsList(req, res) {
+    transList(req, res) {
         handleModelRes(TransactionModel.list(), res, {
             onSuccess: data => parseResponseData(req, data)
         });
@@ -65,7 +65,7 @@ export class TransactionController extends BaseController {
         });
     }
 
-    createTransaction(req, res) {
+    transAdd(req, res) {
         const user = getReqMetadata(req, 'user');
 
         const { body } = req;
@@ -81,7 +81,7 @@ export class TransactionController extends BaseController {
         newTrans.vAuthUser = user.userId;
 
         handleModelRes(
-            TransactionModel.saveTransaction(newTrans),
+            newTrans.save(),
             res, {
             success: 'Transaction added successfully.',
             error: 'Something went wrong while adding a new Transaction. Try again later.',
@@ -100,7 +100,7 @@ export class TransactionController extends BaseController {
         });
     }
 
-    editTransaction(req, res) {
+    transEdit(req, res) {
         const user = getReqMetadata(req, 'user');
         const { body } = req;
 
@@ -113,7 +113,7 @@ export class TransactionController extends BaseController {
         });
 
         handleModelRes(
-            TransactionModel.editTransaction(user.userId, body.transId, tempData),
+            TransactionModel.transEdit(user.userId, body.transId, tempData),
             res, {
             success: 'Transaction updated successfully.',
             error: 'Something went wrong while updating the Transaction. Try again later.',

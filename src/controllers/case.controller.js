@@ -26,8 +26,8 @@ const reactCaseErr = (res, err = 'Server error') => {
 
 export class CaseController extends BaseController {
 
-    caseExists(req, res) {
-        handleModelRes(CaseModel.caseExists(req.params.userInfo), res);
+    isExist(req, res) {
+        handleModelRes(CaseModel.isExist(req.params.userInfo), res);
     }
 
     count(req, res) {
@@ -53,7 +53,7 @@ export class CaseController extends BaseController {
     createCase(req, res, isRequest) {
         const { contactNo, title } = req.body;
 
-        CaseModel.caseExists(req.body).then($case => {
+        CaseModel.isExist(req.body).then($case => {
             if (!!$case) {
                 return sendResponse(res, {
                     error: 'Cannot create new Case',
@@ -77,7 +77,7 @@ export class CaseController extends BaseController {
             newCase.vAuthUser = user.userId;
 
             handleModelRes(
-                CaseModel.saveCase(newCase),
+                newCase.save(),
                 res, {
                 success: 'Case created successfully.',
                 error: 'Something went wrong while creating new Case. Try again later.',

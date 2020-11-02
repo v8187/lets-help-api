@@ -187,7 +187,7 @@ TransactionSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-TransactionSchema.statics.editTransaction = function (vAuthUser, transId, data) {
+TransactionSchema.statics.transEdit = function (vAuthUser, transId, data) {
     return this.findOneAndUpdate(
         { transId },
         { $set: { ...data, vAuthUser } },
@@ -199,11 +199,6 @@ TransactionSchema.statics.editTransaction = function (vAuthUser, transId, data) 
         .populate('forCase', CASE_KEY_FIELDS)
         .populate('fromUser', USER_KEY_FIELDS)
         .select('-_id -__v -status').exec();
-};
-
-TransactionSchema.statics.saveTransaction = function ($trans) {
-    // console.log('saveTransaction', $trans);
-    return $trans.save();
 };
 
 export const TransactionModel = model('Transaction', TransactionSchema);

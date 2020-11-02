@@ -73,7 +73,7 @@ export class UserController extends BaseController {
             newUser.vAuthUser = getReqMetadata(req, 'user').userId;
 
             handleModelRes(
-                UserModel.saveUser(newUser),
+                newUser.save(),
                 res, {
                 success: 'Profile created successfully.',
                 error: 'Something went wrong while creating new Profile. Try again later.',

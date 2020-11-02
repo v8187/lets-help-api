@@ -4,10 +4,7 @@ import { PermissionController } from '../controllers/permission.controller';
 import { validateParams, validateToken } from '../middlewares/routes';
 import { } from '../configs/permissions';
 
-const {
-    ids, permissionsList, editPermission, createPermission,
-    tempAll: permissionTempAll
-} = new PermissionController();
+const { permList, permAdd, tempAll } = new PermissionController();
 
 const router = Router();
 
@@ -24,21 +21,16 @@ export const getPermissionRouter = (passport) => {
 
     router.get('/list', [
         validateWithToken,
-        (req, res) => permissionsList(req, res)
+        (req, res) => permList(req, res)
     ]);
 
     if (process.env.DB_FILL_MODE === 'ON') {
-        router.put('/updatePermission', [
-            (req, res, next) => validateParams(req, res, next, 'name,urId'),
-            (req, res) => editPermission(req, res)
-        ]);
-
-        router.post('/createPermission', [
+        router.post('/add', [
             (req, res, next) => validateParams(req, res, next, 'name'),
-            (req, res) => createPermission(req, res)
+            (req, res) => permAdd(req, res)
         ]);
 
-        router.get('/tempAll', (req, res) => permissionTempAll(req, res));
+        router.get('/tempAll', (req, res) => tempAll(req, res));
     }
 
     return router;

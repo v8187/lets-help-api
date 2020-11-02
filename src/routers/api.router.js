@@ -1,15 +1,14 @@
 import { Router } from 'express';
 
-// import { enumValuesRouter } from './enum-values.router';
-import { getUserRouter } from './user.router';
+import { getBloodGroupRouter } from './blood-group.router';
+import { getCaseTypeRouter } from './case-type.router';
 import { getCaseRouter } from './case.router';
+import { getNotificationRouter } from './notification.router';
+import { getPermissionRouter } from './permission.router';
+import { getRelationshipRouter } from './relationship.router';
 import { getTransactionRouter } from './transaction.router';
 import { getUserRoleRouter } from './user-role.router';
-import { getCaseTypeRouter } from './case-type.router';
-import { getRelationshipRouter } from './relationship.router';
-import { getNotificationRouter } from './notification.router';
-import { getBloodGroupRouter } from './blood-group.router';
-import { getPermissionRouter } from './permission.router';
+import { getUserRouter } from './user.router';
 
 const router = Router();
 
@@ -21,15 +20,14 @@ router.use((req, res, next) => {
 });
 
 export const getApiRouter = (passport) => {
-    // router.use('/enumValues', enumValuesRouter);
-    router.use('/user', getUserRouter(passport));
-    router.use('/case', getCaseRouter(passport));
-    router.use('/transaction', getTransactionRouter(passport));
-    router.use('/userRole', getUserRoleRouter(passport));
-    router.use('/caseType', getCaseTypeRouter(passport));
-    router.use('/relationship', getRelationshipRouter(passport));
     router.use('/bloodGroup', getBloodGroupRouter(passport));
+    router.use('/caseType', getCaseTypeRouter(passport));
+    router.use('/case', getCaseRouter(passport));
     router.use('/notification', getNotificationRouter(passport));
     router.use('/permission', getPermissionRouter(passport));
+    router.use('/relationship', getRelationshipRouter(passport));
+    router.use('/transaction', getTransactionRouter(passport));
+    router.use('/userRole', getUserRoleRouter(passport));
+    router.use('/user', getUserRouter(passport));
     return router;
 };

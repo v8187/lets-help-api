@@ -4,10 +4,7 @@ import { RelationshipController } from '../controllers/relationship.controller';
 import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
 import { CAN_ADD_RELATIONSHIP, CAN_EDIT_RELATIONSHIP } from '../configs/permissions';
 
-const {
-    ids, relationshipsList, editRelationship, createRelationship,
-    tempAll: relationshipTempAll
-} = new RelationshipController();
+const { relList, relEdit, relAdd, tempAll } = new RelationshipController();
 
 const router = Router();
 
@@ -24,25 +21,25 @@ export const getRelationshipRouter = (passport) => {
 
     router.get('/list', [
         validateWithToken,
-        (req, res) => relationshipsList(req, res)
+        (req, res) => relList(req, res)
     ]);
 
-    router.put('/updateRelationship', [
+    router.put('/update', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_RELATIONSHIP),
         (req, res, next) => validateParams(req, res, next, 'name,relationshipId'),
-        (req, res) => editRelationship(req, res)
+        (req, res) => relEdit(req, res)
     ]);
 
-    router.post('/createRelationship', [
+    router.post('/add', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_ADD_RELATIONSHIP),
         (req, res, next) => validateParams(req, res, next, 'name'),
-        (req, res) => createRelationship(req, res)
+        (req, res) => relAdd(req, res)
     ]);
 
     if (process.env.DB_FILL_MODE === 'ON') {
-        router.get('/tempAll', (req, res) => relationshipTempAll(req, res));
+        router.get('/tempAll', (req, res) => tempAll(req, res));
     }
 
     return router;

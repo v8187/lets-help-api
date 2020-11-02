@@ -177,7 +177,7 @@ CaseSchema.statics.keyProps = function () {
     return this.find().select(CASE_KEY_FIELDS).sort('title').exec();
 };
 
-CaseSchema.statics.caseExists = function (caseInfo) {
+CaseSchema.statics.isExist = function (caseInfo) {
     return this
         .findOne({
             $and: [
@@ -214,11 +214,6 @@ CaseSchema.statics.toggleReaction = function (caseId, data) {
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
         .select('-_id -__v -status').exec();
-};
-
-CaseSchema.statics.saveCase = function ($case) {
-    // console.log('saveCase', $case);
-    return $case.save();
 };
 
 export const CaseModel = model('Case', CaseSchema);
