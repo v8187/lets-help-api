@@ -1,11 +1,5 @@
-// Case
-export const CAN_ADD_CASE = 'add case',
-    CAN_EDIT_CASE = 'edit case',
-    CAN_REQUEST_CASE = 'request case',
-    CAN_SEARCH_CASE = 'search case',
-    CAN_APPROVE_CASE = 'approve case',
-    CAN_CLOSE_CASE = 'close case',
-    CAN_EDIT_CASE_CONTACT_VISIBILITY = 'edit case contact details visibility',
+
+export const
     // User
     CAN_ADD_MEMBER = 'add member',
     CAN_EDIT_MEMBER = 'edit member',
@@ -14,6 +8,14 @@ export const CAN_ADD_CASE = 'add case',
     CAN_VIEW_MEMBER_PROFILE = 'view member profile',
     CAN_EDIT_MEMBER_ROLES = 'edit member roles',
     CAN_VERIFY_MEMBER = 'can verify member',
+    // Case
+    CAN_ADD_CASE = 'add case',
+    CAN_EDIT_CASE = 'edit case',
+    CAN_REQUEST_CASE = 'request case',
+    CAN_SEARCH_CASE = 'search case',
+    CAN_APPROVE_CASE = 'approve case',
+    CAN_CLOSE_CASE = 'close case',
+    CAN_EDIT_CASE_CONTACT_VISIBILITY = 'edit case contact details visibility',
     // Transaction
     CAN_ADD_TRANSACTION = 'add transaction',
     CAN_EDIT_TRANSACTION = 'edit transaction',
