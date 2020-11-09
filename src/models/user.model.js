@@ -34,7 +34,7 @@ const UserSchema = new BaseSchema({
 
     // Misc Fields
     referredById: { type: String, trim: true },
-    joinedOn: Date,
+    joinedOn: { type: Date, default: new Date() },
 
     // Privacy fields
     showEmail: { type: Boolean, },
@@ -270,7 +270,7 @@ UserSchema.statics.changeUserPin = function (email, newUserPin) {
         .select('-_id -__v -status').exec();
 };
 
-UserSchema.statics.editProfile = function (vAuthUser, userId, data) {
+UserSchema.statics.editUser = function (vAuthUser, userId, data) {
     return this.findOneAndUpdate(
         { userId },
         { $set: { ...data, vAuthUser } },

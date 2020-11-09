@@ -3,13 +3,14 @@ import { UserModel } from '../models/user.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 
 const FIELDS_PUT_DEVICE_INFO = 'deviceToken,deviceOS';
-const FIELDS_PERSONAL = 'name,gender,dob,bgId,address,contactNo,alternateNo1,alternateNo2,city,state,country';
-const FIELDS_ACCOUNT = 'isVerified,roleIds,referredById,joinedOn';
-const FIELDS_OTHER_USER_EDIT = FIELDS_ACCOUNT + ',contactNo,alternateNo1,alternateNo2';
+const FIELDS_PERSONAL = 'name,gender,dob,referredById,bgId,address,contactNo,alternateNo1,alternateNo2,city,state,country';
+// const FIELDS_ACCOUNT = 'isVerified,roleIds,joinedOn';
+const FIELDS_ACCOUNT = ',joinedOn,email';
+const FIELDS_OTHER_USER_EDIT = 'contactNo,alternateNo1,alternateNo2' + FIELDS_ACCOUNT;
 const FIELDS_MY_PROFILE_EDIT = FIELDS_PERSONAL + ',showEmail,showContactNos,showBloodGroup,showAddress,showContributions,showBirthday';
-const FIELDS_PROFILE_CREATE = FIELDS_PERSONAL + FIELDS_ACCOUNT + ',email';
+export const FIELDS_USER = FIELDS_PERSONAL + FIELDS_ACCOUNT;
 
-const createProfileErr = (res, err = 'Server error') => {
+const addUserErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
         message: 'Something went wrong while creating new Profile. Try again later.',
@@ -18,6 +19,67 @@ const createProfileErr = (res, err = 'Server error') => {
 };
 
 export class UserController extends BaseController {
+
+    addUser(req, res) {
+        const { email } = req.body;
+
+        UserModel.hasAccount(req.body.email).then(user => {
+            if (user) {
+                return sendResponse(res, {
+                    error: 'Cannot create new Profile',
+                    message: `User already exist with "${email}".`,
+                    type: 'CONFLICT'
+                });
+            }
+            const { body } = req;
+            let newUser = new UserModel();
+
+            FIELDS_USER.split(',').map(field => {
+                const data = body[field];
+                if (data !== undefined) {
+                    newUser[field] = Array.isArray(data) ? data.length ? data : newUser[field] : data;
+                }
+            });
+
+            newUser.vAuthUser = getReqMetadata(req, 'user').userId;
+
+            handleModelRes(
+                newUser.save(),
+                res, {
+                success: 'Profile created successfully.',
+                error: 'Something went wrong while creating new Profile. Try again later.',
+                onSuccess: data => parseResponseData(req, data, true)
+            });
+        }, modelErr => {
+            console.error(modelErr);
+            return addUserErr(res, modelErr.message);
+        }).catch(modelReason => {
+            console.log(modelReason);
+            return addUserErr(res, modelReason.message);
+        });
+    }
+
+    editUser(req, res) {
+        const user = getReqMetadata(req, 'user');
+
+        const { body } = req;
+
+        let tempData = {};
+
+        FIELDS_USER.split(',').map(field => {
+            if (body[field] !== undefined) {
+                tempData[field] = body[field];
+            }
+        });
+
+        handleModelRes(
+            UserModel.editUser(user.userId, body.userId, tempData),
+            res, {
+            success: 'User updated successfully.',
+            error: 'Something went wrong while updating the User. Try again later.',
+            onSuccess: data => parseResponseData(req, data, true)
+        });
+    }
 
     hasAccount(req, res) {
         handleModelRes(UserModel.hasAccount(req.params.userInfo), res);
@@ -49,46 +111,7 @@ export class UserController extends BaseController {
         });
     }
 
-    createProfile(req, res) {
-        const { email } = req.body;
-
-        UserModel.hasAccount(req.body.email).then(user => {
-            if (user) {
-                return sendResponse(res, {
-                    error: 'Cannot create new Profile',
-                    message: `User already exist with "${email}".`,
-                    type: 'CONFLICT'
-                });
-            }
-            const { body } = req;
-            let newUser = new UserModel();
-
-            FIELDS_PROFILE_CREATE.split(',').map(field => {
-                const data = body[field];
-                if (data !== undefined) {
-                    newUser[field] = Array.isArray(data) ? data.length ? data : newUser[field] : data;
-                }
-            });
-
-            newUser.vAuthUser = getReqMetadata(req, 'user').userId;
-
-            handleModelRes(
-                newUser.save(),
-                res, {
-                success: 'Profile created successfully.',
-                error: 'Something went wrong while creating new Profile. Try again later.',
-                onSuccess: data => parseResponseData(req, data, true)
-            });
-        }, modelErr => {
-            console.error(modelErr);
-            return createProfileErr(res, modelErr.message);
-        }).catch(modelReason => {
-            console.log(modelReason);
-            return createProfileErr(res, modelReason.message);
-        });
-    }
-
-    editProfile(req, res) {
+    editUserOld(req, res) {
         const user = getReqMetadata(req, 'user'),
             isAdmin = user.roles.indexOf('admin') !== -1,
             isMyProfile = user.userId === req.body.userId;
@@ -124,7 +147,7 @@ export class UserController extends BaseController {
         }
 
         handleModelRes(
-            UserModel.editProfile(user.userId, body.userId, tempData),
+            UserModel.editUser(user.userId, body.userId, tempData),
             res, {
             success: 'Profile updated successfully.',
             error: 'Something went wrong while updating the Profile. Try again later.',

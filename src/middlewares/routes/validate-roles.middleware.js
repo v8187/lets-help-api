@@ -1,11 +1,11 @@
 import { UserRoleModel } from '../../models/user-role.model';
-import { sendResponse, getToken, extract } from '../../utils';
+import { sendResponse, getToken, extract, setReqMetadata } from '../../utils';
 
 /**
  * This Route middleware verifies the request 
  * is made by user with Authorized Roles
  */
-export const validatePermissions = async (req, res, next, permissionName) => {
+export const validatePermissions = async (req, res, next, permissionNames) => {
     if (process.env.DB_FILL_MODE === 'ON') {
         return next();
     }
@@ -15,11 +15,12 @@ export const validatePermissions = async (req, res, next, permissionName) => {
     const userPermsRes = await UserRoleModel.byRoleIds(payload.roles);
 
     const hasPermission = userPermsRes.some((value) => {
-        return value.toObject().permissions.some(per => per.name === permissionName)
+        return value.toObject().permissions.some(per => permissionNames.indexOf(per.name) !== -1)
     });
 
-    console.log('userPermsRes = %o, uniquePerms = %o', userPermsRes, hasPermission);
+    // console.log('userPermsRes = %o, uniquePerms = %o', userPermsRes, hasPermission);
     if (hasPermission) {
+        setReqMetadata(req, 'permissions', permissionNames);
         return next();
     }
 

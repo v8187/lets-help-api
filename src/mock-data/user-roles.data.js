@@ -3,11 +3,11 @@ import { fillCollection } from './fetch.api';
 const { PermissionModel } = require('../models/permission.model');
 
 const data = [
-    { name: 'default', label: 'Default' },
+    { name: 'member', label: 'Member' },
     { name: 'admin', label: 'admin' },
     { name: 'super-admin', label: 'Super Admin' },
-    { name: 'volunteer', label: 'Volunteer' },
-    { name: 'refferers', label: 'Refferer' }
+    { name: 'moderator', label: 'Moderator' },
+    { name: 'guest', label: 'Guest' }
 ];
 
 export default async (callback) => {
@@ -16,7 +16,7 @@ export default async (callback) => {
     // permissions = permissions.map(perm => perm.permId);
     const userRolesTemp = data.map(ur => {
         let permIds = (ur.name.indexOf('admin') !== -1 ? permissions :
-            permissions.filter(perm => !(/add|edit|map/.test(perm.name))))
+            permissions.filter(perm => !(/add|edit|map|hidden|close|approve|verify/.test(perm.name))))
             .map(perm => perm.permId);
 
         return {

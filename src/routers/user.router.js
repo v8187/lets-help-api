@@ -1,15 +1,15 @@
 import { Router } from 'express';
 
-import { UserController } from '../controllers/user.controller';
+import { FIELDS_USER, UserController } from '../controllers/user.controller';
 import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
 import {
     CAN_ADD_MEMBER, CAN_EDIT_MEMBER, CAN_EDIT_MEMBER_ROLES,
-    CAN_REFER_MEMBER, CAN_VERIFY_MEMBER, CAN_VIEW_MEMBER_PROFILE
+    CAN_VERIFY_MEMBER, CAN_VIEW_MEMBER_HIDDEN_DETAILS, CAN_VIEW_MEMBER_PROFILE
 } from '../configs/permissions';
 
 const {
-    ids, usersList, userProfile, count,
-    myProfile, editProfile, createProfile, editDevice,
+    addUser, editUser, ids, usersList, userProfile, count,
+    myProfile, editDevice,
     tempAll: userTempAll
 } = new UserController();
 
@@ -30,30 +30,19 @@ export const getUserRouter = (passport) => {
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_ADD_MEMBER),
         (req, res, next) => validateParams(req, res, next, 'email,name'),
-        (req, res) => createProfile(req, res)
+        (req, res) => addUser(req, res)
     ]);
 
     router.put('/update', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_MEMBER),
-        (req, res) => editProfile(req, res)
-    ]);
-
-    router.post('/refer', [
-        validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, CAN_REFER_MEMBER),
-        (req, res) => editProfile(req, res)
-    ]);
-
-    router.put('/refer', [
-        validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, CAN_REFER_MEMBER),
-        (req, res) => editProfile(req, res)
+        (req, res, next) => validateParams(req, res, next, FIELDS_USER, true),
+        (req, res) => editUser(req, res)
     ]);
 
     router.get('/profile/:userId', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, CAN_VIEW_MEMBER_PROFILE),
+        (req, res, next) => validatePermissions(req, res, next, [CAN_VIEW_MEMBER_PROFILE, CAN_VIEW_MEMBER_HIDDEN_DETAILS]),
         (req, res, next) => validateParams(req, res, next, 'userId'),
         (req, res) => userProfile(req, res)
     ]);
@@ -74,7 +63,7 @@ export const getUserRouter = (passport) => {
 
     router.get('/myProfile', [
         validateWithToken,
-        (req, res) => userProfile(req, res)
+        (req, res) => myProfile(req, res)
     ]);
 
     router.put('/myProfile', [

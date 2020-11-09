@@ -3,9 +3,9 @@ export const
     // User
     CAN_ADD_MEMBER = 'add member',
     CAN_EDIT_MEMBER = 'edit member',
-    CAN_REFER_MEMBER = 'refer member',
     CAN_SEARCH_MEMBER = 'search member',
     CAN_VIEW_MEMBER_PROFILE = 'view member profile',
+    CAN_VIEW_MEMBER_HIDDEN_DETAILS = 'view member\' hidden details',
     CAN_EDIT_MEMBER_ROLES = 'edit member roles',
     CAN_VERIFY_MEMBER = 'can verify member',
     // Case
