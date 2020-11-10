@@ -27,15 +27,15 @@ export const getNotificationRouter = (passport) => {
         (req, res) => notificationsList(req, res)
     ]);
 
-    // router.get('/notificationInfo/:notificationId', [
+    // router.get('/notificationInfo/:notiId', [
     //     validateWithToken,
-    //     (req, res, next) => validateParams(req, res, next, 'notificationId'),
+    //     (req, res, next) => validateParams(req, res, next, 'notiId'),
     //     (req, res) => notificationDetails(req, res)
     // ]);
 
     router.put('/read', [
         validateWithToken,
-        (req, res, next) => validateParams(req, res, next, 'notificationId'),
+        (req, res, next) => validateParams(req, res, next, 'notiId'),
         (req, res) => readIt(req, res)
     ]);
 
@@ -46,7 +46,7 @@ export const getNotificationRouter = (passport) => {
 
     router.delete('/remove', [
         validateWithToken,
-        (req, res, next) => validateParams(req, res, next, 'notificationId'),
+        (req, res, next) => validateParams(req, res, next, 'notiId'),
         (req, res) => removeIt(req, res)
     ]);
 

@@ -1,8 +1,7 @@
 import { Router } from 'express';
 
 import { PermissionController } from '../controllers/permission.controller';
-import { validateParams, validateToken } from '../middlewares/routes';
-import { } from '../configs/permissions';
+import { validateToken } from '../middlewares/routes';
 
 const { permList, permAdd, tempAll } = new PermissionController();
 
@@ -26,7 +25,6 @@ export const getPermissionRouter = (passport) => {
 
     if (process.env.DB_FILL_MODE === 'ON') {
         router.post('/add', [
-            (req, res, next) => validateParams(req, res, next, 'name'),
             (req, res) => permAdd(req, res)
         ]);
 

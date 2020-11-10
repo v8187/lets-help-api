@@ -5,10 +5,10 @@ import {
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
-const NOTI_QUERY_FIELDS = 'notificationId userId title body image data sentOn isRead readOn isDeleted -_id';
+const NOTI_QUERY_FIELDS = 'notiId userId title body image data sentOn isRead readOn isDeleted -_id';
 
 const NotificationSchema = new BaseSchema({
-    notificationId: { type: String, },
+    notiId: { type: String, },
     userId: { type: String, required: true },
     title: { type: String, required: true, trim: true },
     body: { type: String, required: true, trim: true },
@@ -34,7 +34,7 @@ defineCommonVirtuals(NotificationSchema);
 NotificationSchema.pre('save', async function (next) {
     let $notification = this;
 
-    $notification.notificationId = $notification._id;
+    $notification.notiId = $notification._id;
 
     next();
 });
@@ -72,9 +72,9 @@ NotificationSchema.statics.count = function () {
     return this.countDocuments();
 };
 
-NotificationSchema.statics.markRead = function (vAuthUser, notificationId) {
+NotificationSchema.statics.markRead = function (vAuthUser, notiId) {
     return this.updateOne(
-        { notificationId, userId: vAuthUser },
+        { notiId, userId: vAuthUser },
         { $set: { isRead: true, readOn: new Date(), vAuthUser } },
         { upsert: false, new: true }
     ).exec();
@@ -88,9 +88,9 @@ NotificationSchema.statics.markAllRead = function (vAuthUser) {
     ).exec();
 };
 
-NotificationSchema.statics.markDeleted = function (vAuthUser, notificationId) {
+NotificationSchema.statics.markDeleted = function (vAuthUser, notiId) {
     return this.updateOne(
-        { notificationId, userId: vAuthUser },
+        { notiId, userId: vAuthUser },
         { $set: { isDeleted: true, deletedOn: new Date(), vAuthUser } },
         { upsert: false, new: true }
     ).exec();

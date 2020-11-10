@@ -27,7 +27,7 @@ export const getRelationshipRouter = (passport) => {
     router.put('/update', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_RELATIONSHIP),
-        (req, res, next) => validateParams(req, res, next, 'name,relationshipId'),
+        (req, res, next) => validateParams(req, res, next, 'name,relId'),
         (req, res) => relEdit(req, res)
     ]);
 

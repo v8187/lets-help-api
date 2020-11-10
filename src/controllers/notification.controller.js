@@ -70,7 +70,7 @@ export class NotificationController extends BaseController {
         const { body } = req;
 
         handleModelRes(
-            NotificationModel.markRead(user.userId, body.notificationId),
+            NotificationModel.markRead(user.userId, body.notiId),
             res, {
             success: 'Notification marked as Read successfully.',
             error: 'Something went wrong while updating the Notification. Try again later.'
@@ -93,7 +93,7 @@ export class NotificationController extends BaseController {
         const { body } = req;
 
         handleModelRes(
-            NotificationModel.markDeleted(user.userId, body.notificationId),
+            NotificationModel.markDeleted(user.userId, body.notiId),
             res, {
             success: 'Notification removed successfully.',
             error: 'Something went wrong while removing the Notification. Try again later.'

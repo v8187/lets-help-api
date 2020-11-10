@@ -36,7 +36,7 @@ export const getUserRouter = (passport) => {
     router.put('/update', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_MEMBER),
-        (req, res, next) => validateParams(req, res, next, FIELDS_USER, true),
+        (req, res, next) => validateParams(req, res, next, FIELDS_USER),
         (req, res) => editUser(req, res)
     ]);
 

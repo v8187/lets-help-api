@@ -81,7 +81,7 @@ export class RelationshipController extends BaseController {
         });
 
         handleModelRes(
-            RelationshipModel.relEdit(user.userId, body.relationshipId, tempData),
+            RelationshipModel.relEdit(user.userId, body.relId, tempData),
             res, {
             success: 'Relationship updated successfully.',
             error: 'Something went wrong while updating the Relationship. Try again later.',
