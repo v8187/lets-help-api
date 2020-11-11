@@ -19,7 +19,7 @@ const addTransErr = (res, err = 'Server error') => {
 export class TransactionController extends BaseController {
 
     findTransaction(req, res) {
-        const user = getReqMetadata(req, 'user');
+        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};
@@ -66,7 +66,7 @@ export class TransactionController extends BaseController {
     }
 
     transAdd(req, res) {
-        const user = getReqMetadata(req, 'user');
+        const { user } = getReqMetadata(req);
 
         const { body } = req;
         let newTrans = new TransactionModel();
@@ -101,7 +101,7 @@ export class TransactionController extends BaseController {
     }
 
     transEdit(req, res) {
-        const user = getReqMetadata(req, 'user');
+        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};
@@ -127,7 +127,7 @@ export class TransactionController extends BaseController {
 }
 
 const parseResponseData = (req, data, toObject = false) => {
-    const user = getReqMetadata(req, 'user'),
+    const { user } = getReqMetadata(req),
         isAdmin = user.roles.indexOf('admin') !== -1;
 
     !Array.isArray(data) && (data = [data]);

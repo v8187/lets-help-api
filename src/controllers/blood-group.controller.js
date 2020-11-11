@@ -46,7 +46,7 @@ export class BloodGroupController extends BaseController {
             });
 
             if (process.env.DB_FILL_MODE !== 'ON') {
-                const user = getReqMetadata(req, 'user');
+                const { user } = getReqMetadata(req);
                 newBloodGroup.vAuthUser = user.userId;
             }
 
@@ -69,7 +69,7 @@ export class BloodGroupController extends BaseController {
     }
 
     bgEdit(req, res) {
-        const user = getReqMetadata(req, 'user');
+        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};

@@ -61,7 +61,7 @@ export class CaseController extends BaseController {
                     type: 'CONFLICT'
                 });
             }
-            const user = getReqMetadata(req, 'user'),
+            const { user } = getReqMetadata(req),
                 isAdmin = user.roles.indexOf('admin') !== -1;
 
             const { body } = req;
@@ -104,7 +104,7 @@ export class CaseController extends BaseController {
     }
 
     editCase(req, res) {
-        const user = getReqMetadata(req, 'user'),
+        const { user } = getReqMetadata(req),
             isAdmin = user.roles.indexOf('admin') !== -1;
         const { body } = req;
 
@@ -144,7 +144,7 @@ export class CaseController extends BaseController {
                     type: 'BAD_REQUEST'
                 });
             }
-            const userId = getReqMetadata(req, 'user').userId;
+            const userId = getReqMetadata(req).user.userId;
             let tempData = {};
 
             if (reactionType === 'UP') {
@@ -195,7 +195,7 @@ export class CaseController extends BaseController {
 }
 
 const parseResponseData = (req, data, toObject = false) => {
-    const user = getReqMetadata(req, 'user'),
+    const { user } = getReqMetadata(req),
         isAdmin = user.roles.indexOf('admin') !== -1;
 
     !Array.isArray(data) && (data = [data]);

@@ -1,6 +1,7 @@
 import { BaseController } from './BaseController';
 import { UserModel } from '../models/user.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
+import { CAN_VIEW_MEMBER_HIDDEN_DETAILS } from '../configs/permissions';
 
 const FIELDS_PUT_DEVICE_INFO = 'deviceToken,deviceOS';
 const FIELDS_PERSONAL = 'name,gender,dob,referredById,bgId,address,contactNo,alternateNo1,alternateNo2,city,state,country';
@@ -8,7 +9,7 @@ const FIELDS_PERSONAL = 'name,gender,dob,referredById,bgId,address,contactNo,alt
 const FIELDS_ACCOUNT = ',joinedOn,email';
 const FIELDS_OTHER_USER_EDIT = 'contactNo,alternateNo1,alternateNo2' + FIELDS_ACCOUNT;
 const FIELDS_MY_PROFILE_EDIT = FIELDS_PERSONAL + ',showEmail,showContactNos,showBloodGroup,showAddress,showContributions,showBirthday';
-export const FIELDS_USER = FIELDS_PERSONAL + FIELDS_ACCOUNT;
+const FIELDS_USER = FIELDS_PERSONAL + FIELDS_ACCOUNT;
 
 const addUserErr = (res, err = 'Server error') => {
     return sendResponse(res, {
@@ -41,7 +42,7 @@ export class UserController extends BaseController {
                 }
             });
 
-            newUser.vAuthUser = getReqMetadata(req, 'user').userId;
+            newUser.vAuthUser = getReqMetadata(req).user.userId;
 
             handleModelRes(
                 newUser.save(),
@@ -60,9 +61,31 @@ export class UserController extends BaseController {
     }
 
     editUser(req, res) {
-        const user = getReqMetadata(req, 'user');
-
         const { body } = req;
+
+        const userId = body.userId;
+
+        delete body.userId;
+
+        if (!userId) {
+            return sendResponse(res, {
+                error: 'Parameters missing/invalid',
+                message: `${'userId'} is missing.`,
+                type: 'BAD_REQUEST'
+            });
+        }
+
+        const keys = Object.keys(body);
+
+        if (!keys.length || !keys.some(paramName => FIELDS_USER.indexOf(paramName) !== -1)) {
+            return sendResponse(res, {
+                error: 'Parameters missing/invalid',
+                message: `Valid data is missing. Please provide at least one valid field to edit.`,
+                type: 'BAD_REQUEST'
+            });
+        }
+
+        const { user } = getReqMetadata(req);
 
         let tempData = {};
 
@@ -73,9 +96,10 @@ export class UserController extends BaseController {
         });
 
         handleModelRes(
-            UserModel.editUser(user.userId, body.userId, tempData),
+            UserModel.editUser(user.userId, userId, tempData),
             res, {
             success: 'User updated successfully.',
+            ifNull: 'User does not exist with given userId.',
             error: 'Something went wrong while updating the User. Try again later.',
             onSuccess: data => parseResponseData(req, data, true)
         });
@@ -106,13 +130,13 @@ export class UserController extends BaseController {
     }
 
     myProfile(req, res) {
-        handleModelRes(UserModel.byUserId(getReqMetadata(req, 'user').userId), res, {
+        handleModelRes(UserModel.byUserId(getReqMetadata(req).user.userId), res, {
             onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
     editUserOld(req, res) {
-        const user = getReqMetadata(req, 'user'),
+        const { user } = getReqMetadata(req),
             isAdmin = user.roles.indexOf('admin') !== -1,
             isMyProfile = user.userId === req.body.userId;
         /**
@@ -156,7 +180,7 @@ export class UserController extends BaseController {
     }
 
     editDevice(req, res) {
-        const user = getReqMetadata(req, 'user');
+        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};
@@ -192,8 +216,8 @@ export class UserController extends BaseController {
 }
 
 const parseResponseData = (req, data, toObject = false) => {
-    const user = getReqMetadata(req, 'user'),
-        isAdmin = user.roles.indexOf('admin') !== -1;
+    const { user, permissions } = getReqMetadata(req),
+        canViewPI = permissions.indexOf(CAN_VIEW_MEMBER_HIDDEN_DETAILS) !== -1;
 
     !Array.isArray(data) && (data = [data]);
 
@@ -201,7 +225,7 @@ const parseResponseData = (req, data, toObject = false) => {
         item.toObject && (item = item.toObject());
         const isOwnProfile = user.userId === item.userId;
 
-        if (!isAdmin && !isOwnProfile) {
+        if (!canViewPI && !isOwnProfile) {
             if (!item.showContactNos) {
                 delete item.contactNo;
                 delete item.alternateNo1;

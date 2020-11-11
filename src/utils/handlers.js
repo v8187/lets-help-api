@@ -51,10 +51,14 @@ export const handleModelRes = (promise, res, options = {}) => {
     promise.then(
         dbRes => {
             console.log('res.req.url = %o', res.req.url);
-            sendResponse(res, {
+            dbRes === null ? sendResponse(res, {
+                error: 'Invalid values',
+                message: options.ifNull || '',
+                type: 'BAD_REQUEST'
+            }) : sendResponse(res, {
                 data: options.onSuccess ? options.onSuccess(dbRes) : dbRes, //arrayToObject(res, dbRes),
                 message: options.success || ''
-            })
+            });
         }, dbErr => {
             console.log(dbErr);
             if (/invalid/i.test(dbErr.message) || /must be array/i.test(dbErr.message)) {
@@ -62,7 +66,7 @@ export const handleModelRes = (promise, res, options = {}) => {
                     error: 'Invalid values',
                     message: dbErr.message || options.error,
                     type: 'BAD_REQUEST'
-                })
+                });
             }
             return sendResponse(res, {
                 error: dbErr,
@@ -85,6 +89,6 @@ export const setReqMetadata = (req, key, value) => {
     req[process.env.APP_NAME][key] = value;
 };
 
-export const getReqMetadata = (req, key) => {
-    return req[process.env.APP_NAME][key];
+export const getReqMetadata = (req) => {
+    return req[process.env.APP_NAME];
 };

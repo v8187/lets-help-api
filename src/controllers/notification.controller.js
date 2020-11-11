@@ -15,7 +15,7 @@ const createNotificationErr = (res, err = 'Server error') => {
 export class NotificationController extends BaseController {
 
     notificationsList(req, res) {
-        const user = getReqMetadata(req, 'user');
+        const { user } = getReqMetadata(req);
 
         handleModelRes(NotificationModel.list(user.userId), res, {
             // onSuccess: data => parseResponseData(req, data)
@@ -33,7 +33,7 @@ export class NotificationController extends BaseController {
                     type: 'CONFLICT'
                 });
             }
-            const user = getReqMetadata(req, 'user');
+            const { user } = getReqMetadata(req);
 
             const { body } = req;
             let newNotification = new NotificationModel();
@@ -66,7 +66,7 @@ export class NotificationController extends BaseController {
     }
 
     readIt(req, res) {
-        const user = getReqMetadata(req, 'user');
+        const { user } = getReqMetadata(req);
         const { body } = req;
 
         handleModelRes(
@@ -78,7 +78,7 @@ export class NotificationController extends BaseController {
     }
 
     readAll(req, res) {
-        const user = getReqMetadata(req, 'user');
+        const { user } = getReqMetadata(req);
 
         handleModelRes(
             NotificationModel.markAllRead(user.userId),
@@ -89,7 +89,7 @@ export class NotificationController extends BaseController {
     }
 
     removeIt(req, res) {
-        const user = getReqMetadata(req, 'user');
+        const { user } = getReqMetadata(req);
         const { body } = req;
 
         handleModelRes(

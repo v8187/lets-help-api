@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { FIELDS_USER, UserController } from '../controllers/user.controller';
+import { UserController } from '../controllers/user.controller';
 import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
 import {
     CAN_ADD_MEMBER, CAN_EDIT_MEMBER, CAN_EDIT_MEMBER_ROLES,
@@ -28,15 +28,14 @@ export const getUserRouter = (passport) => {
 
     router.post('/add', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, CAN_ADD_MEMBER),
+        (req, res, next) => validatePermissions(req, res, next, [CAN_ADD_MEMBER, CAN_VIEW_MEMBER_HIDDEN_DETAILS]),
         (req, res, next) => validateParams(req, res, next, 'email,name'),
         (req, res) => addUser(req, res)
     ]);
 
     router.put('/update', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_MEMBER),
-        (req, res, next) => validateParams(req, res, next, FIELDS_USER),
+        (req, res, next) => validatePermissions(req, res, next, [CAN_EDIT_MEMBER, CAN_VIEW_MEMBER_HIDDEN_DETAILS]),
         (req, res) => editUser(req, res)
     ]);
 
