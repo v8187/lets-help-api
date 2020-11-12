@@ -8,7 +8,8 @@ import {
 } from '../configs/permissions';
 
 const {
-    addUser, editUser, ids, usersList, userProfile, count,
+    addUser, editUser, ids, usersList, userProfile, mapRoles, markVerified,
+    editMyProfile, count,
     myProfile, editDevice,
     tempAll: userTempAll
 } = new UserController();
@@ -46,18 +47,24 @@ export const getUserRouter = (passport) => {
         (req, res) => userProfile(req, res)
     ]);
 
+    router.get('/list', [
+        validateWithToken,
+        (req, res, next) => validatePermissions(req, res, next, CAN_VIEW_MEMBER_HIDDEN_DETAILS),
+        (req, res) => usersList(req, res)
+    ]);
+
     router.put('/roles', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_MEMBER_ROLES),
+        (req, res, next) => validatePermissions(req, res, next, [CAN_EDIT_MEMBER_ROLES, CAN_VIEW_MEMBER_HIDDEN_DETAILS]),
         (req, res, next) => validateParams(req, res, next, 'userId,roles'),
-        (req, res) => userProfile(req, res)
+        (req, res) => mapRoles(req, res)
     ]);
 
     router.put('/verify', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, CAN_VERIFY_MEMBER),
+        (req, res, next) => validatePermissions(req, res, next, [CAN_VERIFY_MEMBER, CAN_VIEW_MEMBER_HIDDEN_DETAILS]),
         (req, res, next) => validateParams(req, res, next, 'userId'),
-        (req, res) => userProfile(req, res)
+        (req, res) => markVerified(req, res)
     ]);
 
     router.get('/myProfile', [
@@ -67,7 +74,7 @@ export const getUserRouter = (passport) => {
 
     router.put('/myProfile', [
         validateWithToken,
-        (req, res) => userProfile(req, res)
+        (req, res) => editMyProfile(req, res)
     ]);
 
     router.get('/count', [
@@ -78,11 +85,6 @@ export const getUserRouter = (passport) => {
     router.get('/ids', [
         validateWithToken,
         (req, res) => ids(req, res)
-    ]);
-
-    router.get('/list', [
-        validateWithToken,
-        (req, res) => usersList(req, res)
     ]);
 
     router.put('/device', [

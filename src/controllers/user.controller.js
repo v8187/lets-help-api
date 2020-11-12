@@ -2,6 +2,7 @@ import { BaseController } from './BaseController';
 import { UserModel } from '../models/user.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import { CAN_VIEW_MEMBER_HIDDEN_DETAILS } from '../configs/permissions';
+import { UserRoleModel } from '../models/user-role.model';
 
 const FIELDS_PUT_DEVICE_INFO = 'deviceToken,deviceOS';
 const FIELDS_PERSONAL = 'name,gender,dob,referredById,bgId,address,contactNo,alternateNo1,alternateNo2,city,state,country';
@@ -18,6 +19,12 @@ const addUserErr = (res, err = 'Server error') => {
         type: 'INTERNAL_SERVER_ERROR'
     });
 };
+
+const mapRolesError = (res) => sendResponse(res, {
+    error: 'Parameters missing/invalid',
+    message: `Invalid Roles, it should be Array of integers`,
+    type: 'BAD_REQUEST'
+});
 
 export class UserController extends BaseController {
 
@@ -105,6 +112,89 @@ export class UserController extends BaseController {
         });
     }
 
+    userProfile(req, res) {
+        handleModelRes(UserModel.userProfile(req.params.userId), res, {
+            ifNull: 'User does not exist with given userId.',
+            onSuccess: data => parseResponseData(req, data, true)
+        });
+    }
+
+    usersList(req, res) {
+        handleModelRes(UserModel.list(), res, {
+            onSuccess: data => parseResponseData(req, data)
+        });
+    }
+
+    mapRoles(req, res) {
+        let roleIds;
+
+        try {
+            roleIds = JSON.parse(req.body.roles);
+            if (!Array.isArray(roleIds) || !UserRoleModel.areValidIds(roleIds)) {
+                return mapRolesError(res);
+            }
+        } catch (err) {
+            return mapRolesError(res);
+        }
+
+        const { user } = getReqMetadata(req);
+
+        handleModelRes(
+            UserModel.editUser(user.userId, req.body.userId, { roleIds }),
+            res, {
+            success: 'Roles mapped to User successfully.',
+            ifNull: 'User does not exist with given userId.',
+            error: 'Something went wrong while updating the User. Try again later.',
+            onSuccess: data => parseResponseData(req, data, true)
+        });
+    }
+
+    markVerified(req, res) {
+
+        const { user } = getReqMetadata(req);
+
+        handleModelRes(
+            UserModel.editUser(user.userId, req.body.userId, { isVerified: true }),
+            res, {
+            success: 'User is marked Verified successfully.',
+            ifNull: 'User does not exist with given userId.',
+            error: 'Something went wrong while updating the User. Try again later.',
+            onSuccess: data => parseResponseData(req, data, true)
+        });
+    }
+
+    editMyProfile(req, res) {
+        const { body } = req;
+
+        const keys = Object.keys(body);
+
+        if (!keys.length || !keys.some(paramName => FIELDS_USER.indexOf(paramName) !== -1)) {
+            return sendResponse(res, {
+                error: 'Parameters missing/invalid',
+                message: `Valid data is missing. Please provide at least one valid field to edit.`,
+                type: 'BAD_REQUEST'
+            });
+        }
+
+        const { user } = getReqMetadata(req);
+
+        let tempData = {};
+
+        FIELDS_USER.split(',').map(field => {
+            if (body[field] !== undefined) {
+                tempData[field] = body[field];
+            }
+        });
+
+        handleModelRes(
+            UserModel.editUser(user.userId, user.userId, tempData),
+            res, {
+            success: 'Profile updated successfully.',
+            error: 'Something went wrong while updating the Profile. Try again later.',
+            onSuccess: data => parseResponseData(req, data, true)
+        });
+    }
+
     hasAccount(req, res) {
         handleModelRes(UserModel.hasAccount(req.params.userInfo), res);
     }
@@ -115,18 +205,6 @@ export class UserController extends BaseController {
 
     ids(req, res) {
         handleModelRes(UserModel.keyProps(), res);
-    }
-
-    usersList(req, res) {
-        handleModelRes(UserModel.list(), res, {
-            onSuccess: data => parseResponseData(req, data)
-        });
-    }
-
-    userProfile(req, res) {
-        handleModelRes(UserModel.userProfile(req.params.userId), res, {
-            onSuccess: data => parseResponseData(req, data, true)
-        });
     }
 
     myProfile(req, res) {
@@ -217,7 +295,7 @@ export class UserController extends BaseController {
 
 const parseResponseData = (req, data, toObject = false) => {
     const { user, permissions } = getReqMetadata(req),
-        canViewPI = permissions.indexOf(CAN_VIEW_MEMBER_HIDDEN_DETAILS) !== -1;
+        canViewPI = !!permissions && permissions.indexOf(CAN_VIEW_MEMBER_HIDDEN_DETAILS) !== -1;
 
     !Array.isArray(data) && (data = [data]);
 

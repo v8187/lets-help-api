@@ -80,6 +80,13 @@ UserRoleSchema.statics.isExist = function ({ name }) {
         .exec();
 };
 
+UserRoleSchema.statics.areValidIds = async function (urIds) {
+    const ids = await this.where({ urId: { $in: urIds } })
+        .countDocuments().exec();
+
+    return ids.length === urIds.length;
+};
+
 UserRoleSchema.statics.urEdit = function (vAuthUser, urId, data) {
     return this.findOneAndUpdate(
         { urId },

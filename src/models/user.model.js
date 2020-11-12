@@ -13,7 +13,7 @@ const UserSchema = new BaseSchema({
     // Account Fields
     userId: { type: String, trim: true },
     userPin: { type: String, require: true, trim: true },
-    isVerified: { type: Boolean, },
+    isVerified: { type: Boolean },
     roleIds: [{ type: Number, required: true }],
 
     // Personal Fields
@@ -279,6 +279,8 @@ UserSchema.statics.editUser = function (vAuthUser, userId, data) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
+        .populate('roles', FIELDS_USER_ROLE_POPU)
+        .populate('bloodGroup', FIELDS_BLOOD_GROUP_POPU)
         .select(FIELDS_MY_PROFILE_GET).exec();
 };
 
