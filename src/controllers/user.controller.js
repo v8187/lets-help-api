@@ -20,6 +20,40 @@ const addUserErr = (res, err = 'Server error') => {
     });
 };
 
+const edit = (req, res, userId) => {
+    const { body } = req;
+
+    const keys = Object.keys(body);
+    const fields = FIELDS_USER.split(',');
+
+    if (!keys.length || !keys.some(paramName => fields.indexOf(paramName) !== -1)) {
+        return sendResponse(res, {
+            error: 'Parameters missing/invalid',
+            message: `Valid data is missing. Please provide at least one valid parameter to edit.`,
+            type: 'BAD_REQUEST'
+        });
+    }
+
+    const { user } = getReqMetadata(req);
+
+    let tempData = {};
+
+    fields.map(field => {
+        if (body[field] !== undefined) {
+            tempData[field] = body[field];
+        }
+    });
+
+    handleModelRes(
+        UserModel.editUser(user.userId, userId || user.userId, tempData),
+        res, {
+        success: 'User updated successfully.',
+        ifNull: 'User does not exist with given userId.',
+        error: 'Something went wrong while updating the User. Try again later.',
+        onSuccess: data => parseResponseData(req, data, true)
+    });
+};
+
 const mapRolesError = (res) => sendResponse(res, {
     error: 'Parameters missing/invalid',
     message: `Invalid Roles, it should be Array of integers`,
@@ -82,34 +116,7 @@ export class UserController extends BaseController {
             });
         }
 
-        const keys = Object.keys(body);
-
-        if (!keys.length || !keys.some(paramName => FIELDS_USER.indexOf(paramName) !== -1)) {
-            return sendResponse(res, {
-                error: 'Parameters missing/invalid',
-                message: `Valid data is missing. Please provide at least one valid field to edit.`,
-                type: 'BAD_REQUEST'
-            });
-        }
-
-        const { user } = getReqMetadata(req);
-
-        let tempData = {};
-
-        FIELDS_USER.split(',').map(field => {
-            if (body[field] !== undefined) {
-                tempData[field] = body[field];
-            }
-        });
-
-        handleModelRes(
-            UserModel.editUser(user.userId, userId, tempData),
-            res, {
-            success: 'User updated successfully.',
-            ifNull: 'User does not exist with given userId.',
-            error: 'Something went wrong while updating the User. Try again later.',
-            onSuccess: data => parseResponseData(req, data, true)
-        });
+        edit(req, res, userId);
     }
 
     userProfile(req, res) {
@@ -164,35 +171,7 @@ export class UserController extends BaseController {
     }
 
     editMyProfile(req, res) {
-        const { body } = req;
-
-        const keys = Object.keys(body);
-
-        if (!keys.length || !keys.some(paramName => FIELDS_USER.indexOf(paramName) !== -1)) {
-            return sendResponse(res, {
-                error: 'Parameters missing/invalid',
-                message: `Valid data is missing. Please provide at least one valid field to edit.`,
-                type: 'BAD_REQUEST'
-            });
-        }
-
-        const { user } = getReqMetadata(req);
-
-        let tempData = {};
-
-        FIELDS_USER.split(',').map(field => {
-            if (body[field] !== undefined) {
-                tempData[field] = body[field];
-            }
-        });
-
-        handleModelRes(
-            UserModel.editUser(user.userId, user.userId, tempData),
-            res, {
-            success: 'Profile updated successfully.',
-            error: 'Something went wrong while updating the Profile. Try again later.',
-            onSuccess: data => parseResponseData(req, data, true)
-        });
+        edit(req, res);
     }
 
     hasAccount(req, res) {

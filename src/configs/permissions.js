@@ -5,7 +5,7 @@ export const
     CAN_EDIT_MEMBER = 'edit member',
     CAN_SEARCH_MEMBER = 'search member',
     CAN_VIEW_MEMBER_PROFILE = 'view member profile',
-    CAN_VIEW_MEMBER_HIDDEN_DETAILS = 'view member\' hidden details',
+    CAN_VIEW_MEMBER_HIDDEN_DETAILS = 'view member\'s hidden details',
     CAN_EDIT_MEMBER_ROLES = 'edit member roles',
     CAN_VERIFY_MEMBER = 'can verify member',
     // Case
