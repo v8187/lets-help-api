@@ -1,4 +1,3 @@
-
 export const
     // User
     CAN_ADD_MEMBER = 'add member',
@@ -13,6 +12,7 @@ export const
     CAN_EDIT_CASE = 'edit case',
     CAN_REQUEST_CASE = 'request case',
     CAN_SEARCH_CASE = 'search case',
+    CAN_VIEW_CASE_HIDDEN_DETAILS = 'view case\'s hidden details',
     CAN_APPROVE_CASE = 'approve case',
     CAN_CLOSE_CASE = 'close case',
     CAN_EDIT_CASE_CONTACT_VISIBILITY = 'edit case contact details visibility',

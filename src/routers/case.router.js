@@ -23,6 +23,13 @@ export const getCaseRouter = (passport) => {
 
     const validateWithToken = (req, res, next) => validateToken(req, res, next, passport);
 
+    router.post('/add', [
+        validateWithToken,
+        (req, res, next) => validatePermissions(req, res, next, CAN_ADD_CASE),
+        (req, res, next) => validateParams(req, res, next, 'title,name,contactNo,city'),
+        (req, res) => createCase(req, res)
+    ]);
+
     router.get('/count', [
         validateWithToken,
         (req, res) => count(req, res)
@@ -49,13 +56,6 @@ export const getCaseRouter = (passport) => {
         (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_CASE),
         (req, res, next) => validateParams(req, res, next, 'caseId'),
         (req, res) => editCase(req, res)
-    ]);
-
-    router.post('/add', [
-        validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, CAN_ADD_CASE),
-        (req, res, next) => validateParams(req, res, next, 'title,name,contactNo,city'),
-        (req, res) => createCase(req, res)
     ]);
 
     router.post('/request', [

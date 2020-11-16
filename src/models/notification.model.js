@@ -8,7 +8,7 @@ import { USER_KEY_FIELDS } from '../configs/query-fields';
 const NOTI_QUERY_FIELDS = 'notiId userId title body image data sentOn isRead readOn isDeleted -_id';
 
 const NotificationSchema = new BaseSchema({
-    notiId: { type: String, },
+    notiId: { type: String },
     userId: { type: String, required: true },
     title: { type: String, required: true, trim: true },
     body: { type: String, required: true, trim: true },

@@ -11,12 +11,12 @@ const FIELDS_CASE_TYPE_POPU = 'name ctId -_id';
 const FIELDS_RELATIONSHIP_POPU = 'name relId -_id';
 
 const CaseSchema = new BaseSchema({
-    caseId: { type: String, },
+    caseId: { type: String },
     title: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
     name: { type: String, required: true, trim: true },
-    ctId: { type: Number, required: true },
-    relId: { type: Number, required: true },
+    ctId: { type: Number },
+    relId: { type: Number },
     contactPerson: { type: String, trim: true },
     contactNo: { type: String, required: true, trim: true },
     alternateNo1: { type: String, trim: true },
@@ -34,8 +34,8 @@ const CaseSchema = new BaseSchema({
     isClosed: { type: Boolean, default: false, enum: [true, false] },
     closedOn: { type: Date, default: null },
     closingReason: { type: String, default: null },
-    showContactNos: { type: Boolean, },
-    showAddress: { type: Boolean, },
+    showContactNos: { type: Boolean },
+    showAddress: { type: Boolean },
     upVoters: { type: [String], default: [] },
     downVoters: { type: [String], default: [] }
 },
@@ -192,7 +192,7 @@ CaseSchema.statics.editCase = function (vAuthUser, caseId, data) {
     return this.findOneAndUpdate(
         { caseId },
         { $set: { ...data, vAuthUser } },
-        { upsert: false, new: true, }
+        { upsert: false, new: true }
     )
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)

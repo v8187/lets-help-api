@@ -37,12 +37,12 @@ const UserSchema = new BaseSchema({
     joinedOn: { type: Date, default: new Date() },
 
     // Privacy fields
-    showEmail: { type: Boolean, },
-    showContactNos: { type: Boolean, },
-    showBloodGroup: { type: Boolean, },
-    showAddress: { type: Boolean, },
-    showContributions: { type: Boolean, },
-    showBirthday: { type: Boolean, },
+    showEmail: { type: Boolean },
+    showContactNos: { type: Boolean },
+    showBloodGroup: { type: Boolean },
+    showAddress: { type: Boolean },
+    showContributions: { type: Boolean },
+    showBirthday: { type: Boolean },
     deviceToken: { type: String },
     deviceOS: { type: String }
 },
@@ -274,7 +274,7 @@ UserSchema.statics.editUser = function (vAuthUser, userId, data) {
     return this.findOneAndUpdate(
         { userId },
         { $set: { ...data, vAuthUser } },
-        { upsert: false, new: true, }
+        { upsert: false, new: true }
     )
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
@@ -288,7 +288,7 @@ UserSchema.statics.setDevice = function (userId, deviceInfo) {
     return this.updateOne(
         { userId },
         { $set: { ...deviceInfo, vAuthUser: userId } },
-        { upsert: false, new: true, }
+        { upsert: false, new: true }
     ).exec();
 };
 

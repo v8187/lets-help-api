@@ -191,7 +191,7 @@ TransactionSchema.statics.transEdit = function (vAuthUser, transId, data) {
     return this.findOneAndUpdate(
         { transId },
         { $set: { ...data, vAuthUser } },
-        { upsert: false, new: true, }
+        { upsert: false, new: true }
     )
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)

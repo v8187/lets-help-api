@@ -26,30 +26,6 @@ const reactCaseErr = (res, err = 'Server error') => {
 
 export class CaseController extends BaseController {
 
-    isExist(req, res) {
-        handleModelRes(CaseModel.isExist(req.params.userInfo), res);
-    }
-
-    count(req, res) {
-        handleModelRes(CaseModel.count(), res);
-    }
-
-    ids(req, res) {
-        handleModelRes(CaseModel.keyProps(), res);
-    }
-
-    casesList(req, res) {
-        handleModelRes(CaseModel.list(), res, {
-            onSuccess: data => parseResponseData(req, data)
-        });
-    }
-
-    caseDetails(req, res) {
-        handleModelRes(CaseModel.caseDetails(req.params.caseId), res, {
-            onSuccess: data => parseResponseData(req, data, true)
-        });
-    }
-
     createCase(req, res, isRequest) {
         const { contactNo, title } = req.body;
 
@@ -100,6 +76,30 @@ export class CaseController extends BaseController {
         }).catch(modelReason => {
             console.log(modelReason);
             return createCaseErr(res, modelReason.message);
+        });
+    }
+
+    isExist(req, res) {
+        handleModelRes(CaseModel.isExist(req.params.userInfo), res);
+    }
+
+    count(req, res) {
+        handleModelRes(CaseModel.count(), res);
+    }
+
+    ids(req, res) {
+        handleModelRes(CaseModel.keyProps(), res);
+    }
+
+    casesList(req, res) {
+        handleModelRes(CaseModel.list(), res, {
+            onSuccess: data => parseResponseData(req, data)
+        });
+    }
+
+    caseDetails(req, res) {
+        handleModelRes(CaseModel.caseDetails(req.params.caseId), res, {
+            onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
