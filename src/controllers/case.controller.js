@@ -3,6 +3,7 @@ import { CaseModel } from '../models/case.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import { sendNotification } from '../firebase-sdk';
 import { userRoles } from '../configs/enum-constants';
+import { CAN_VIEW_CASE_HIDDEN_DETAILS } from '../configs/permissions';
 
 const FIELDS_CREATE_CASE = 'ctId,relId,referredOn,contactNo,title,name,contactPerson,description,gender,age,address,city,state,country,referredBy';
 const FIELDS_CREATE_CASE_ADMIN = FIELDS_CREATE_CASE + ',isApproved,approvedOn,isClosed,closedOn,closingReason,showContactNos,showAddress';
@@ -195,15 +196,15 @@ export class CaseController extends BaseController {
 }
 
 const parseResponseData = (req, data, toObject = false) => {
-    const { user } = getReqMetadata(req),
-        isAdmin = user.roles.indexOf('admin') !== -1;
+    const { user, permissions } = getReqMetadata(req),
+        canViewPI = !!permissions && permissions.indexOf(CAN_VIEW_CASE_HIDDEN_DETAILS) !== -1;
 
     !Array.isArray(data) && (data = [data]);
 
     data = data.map(item => {
         item.toObject && (item = item.toObject());
 
-        if (!isAdmin) {
+        if (!canViewPI) {
             if (!item.showContactNos) {
                 delete item.contactNo;
                 delete item.alternateNo1;
