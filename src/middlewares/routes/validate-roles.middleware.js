@@ -15,7 +15,7 @@ export const validatePermissions = async (req, res, next, permissionNames) => {
     const userPermsRes = await UserRoleModel.byRoleIds(payload.roles);
 
     const hasPermission = userPermsRes.some((value) => {
-        return value.toObject().permissions.some(per => permissionNames.indexOf(per.name) !== -1)
+        return value.toObject().permissions.some(per => permissionNames.indexOf(per.name) !== -1);
     });
 
     // console.log('userPermsRes = %o, uniquePerms = %o', userPermsRes, hasPermission);

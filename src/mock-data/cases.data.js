@@ -1189,7 +1189,7 @@ const addCase = ($case, callback) => {
 
     // For Mock Data
     // START
-    $case = {};
+    $case = new CaseModel();
     $case.contactNo = phoneNo();
     $case.referredOn = $case.approvedOn = recentDate();
     $case.description = randomWords(10, 60);
@@ -1211,8 +1211,8 @@ const addCase = ($case, callback) => {
     $case.approvedOn = new Date($case.approvedOn);
     $case.referredOn = new Date($case.referredOn);
     $case.upVoters = [vikram, gurinder];
-
-    (new CaseModel($case)).save().then(
+    
+    $case.save().then(
         saveRes => {
             added++;
             onCasesAdded();

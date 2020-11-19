@@ -31,7 +31,7 @@ export class CaseController extends BaseController {
         const { contactNo, title } = req.body;
 
         CaseModel.isExist(req.body).then($case => {
-            if (!!$case) {
+            if ($case) {
                 return sendResponse(res, {
                     error: 'Cannot create new Case',
                     message: `Case already exist with Contact No ${contactNo} and Title "${title}".`,
@@ -228,6 +228,8 @@ const parseResponseData = (req, data, toObject = false) => {
         delete item.createdById;
         delete item.updatedById;
         delete item.referredById;
+        delete item.ctId;
+        delete item.relId;
         delete item._id;
         delete item.__v;
 

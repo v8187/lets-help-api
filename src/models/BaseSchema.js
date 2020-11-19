@@ -11,17 +11,9 @@ mongoose.plugin(hashUserPinPlugin);
 mongoose.plugin(recordAuthorPlugin);
 
 const COMMON_DEF = {
-    createdById: {
-        type: String
-    },
-    updatedById: {
-        type: String
-    },
-    status: {
-        type: Number,
-        enum: [0, 1],
-        default: 1
-    }
+    createdById: String,
+    updatedById: String,
+    status: { type: Number, enum: [0, 1], default: 1 }
 };
 
 export class BaseSchema extends Schema {

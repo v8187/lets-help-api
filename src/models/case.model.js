@@ -77,9 +77,6 @@ CaseSchema.pre('save', async function (next) {
 
     $case.caseId = $case._id;
 
-    // $case.createdById = $case.updatedById = $case.vAuthUser;
-    // delete $case.vAuthUser;
-
     if (!$case.referredById) {
         const defaultReferrer = await UserModel.findOne({ email: 'gurinder1god@gmail.com' }).select('userId').exec();
         $case.referredById = defaultReferrer ? defaultReferrer.userId : '';
@@ -94,6 +91,8 @@ CaseSchema.post('save', async function ($case, next) {
         populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
+        .populate('caseType', FIELDS_CASE_TYPE_POPU)
+        .populate('relationship', FIELDS_RELATIONSHIP_POPU)
         .execPopulate();
 
     next();
@@ -151,6 +150,8 @@ CaseSchema.statics.caseDetails = function (caseId) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
+        .populate('caseType', FIELDS_CASE_TYPE_POPU)
+        .populate('relationship', FIELDS_RELATIONSHIP_POPU)
         .select('-_id -__v -status').exec();
 };
 
@@ -166,6 +167,8 @@ CaseSchema.statics.tempAll = function () {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
+        .populate('caseType', FIELDS_CASE_TYPE_POPU)
+        .populate('relationship', FIELDS_RELATIONSHIP_POPU)
         .select().exec();
 };
 
@@ -197,6 +200,8 @@ CaseSchema.statics.editCase = function (vAuthUser, caseId, data) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
+        .populate('caseType', FIELDS_CASE_TYPE_POPU)
+        .populate('relationship', FIELDS_RELATIONSHIP_POPU)
         .select('-_id -__v -status').exec();
 };
 
@@ -213,6 +218,8 @@ CaseSchema.statics.toggleReaction = function (caseId, data) {
         .populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('referredBy', USER_KEY_FIELDS)
+        .populate('caseType', FIELDS_CASE_TYPE_POPU)
+        .populate('relationship', FIELDS_RELATIONSHIP_POPU)
         .select('-_id -__v -status').exec();
 };
 

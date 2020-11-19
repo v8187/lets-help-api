@@ -44,15 +44,15 @@ function onUsersAdded(callback) {
 }
 
 const addUser = (mockUser, callback) => {
+    mockUser = new UserModel(mockUser || {});
+
     if (['vikram1vicky@gmail.com', 'gurinder1god@gmail.com'].indexOf(mockUser.email) !== -1) {
         mockUser.roleIds = userRoles;
     } else {
-        if (!mockUser.email) {
-            mockUser = {};
-        }
         mockUser.roleIds = [randomItem(userRoles)];
     }
     if (['vikram1vicky@gmail.com', 'gurinder1god@gmail.com', 'vik5sep@gmail.com'].indexOf(mockUser.email) === -1) {
+        mockUser.userPin = '1234';
         mockUser.name = pName();
         mockUser.gender = gender();
         mockUser.email = email(mockUser.name);
@@ -76,7 +76,7 @@ const addUser = (mockUser, callback) => {
     mockUser.showContributions = bool();
     mockUser.showBirthday = bool();
 
-    (new UserModel(mockUser)).save().then(
+    mockUser.save().then(
         saveRes => {
             added++;
             onUsersAdded();

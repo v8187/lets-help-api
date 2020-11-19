@@ -25,7 +25,7 @@ function onTransactionsAdded(callback) {
 const addTransaction = (trans) => {
 
     const ranDate = NYearDate(3);
-    trans = {};
+    trans = new TransactionModel();
 
     trans.vAuthUser = randomItem([vikram, gurinder]);
     trans.transType = randomItem(transTypes);
@@ -43,7 +43,7 @@ const addTransaction = (trans) => {
         trans.forCaseId = randomItem(casesData).caseId;
     }
 
-    (new TransactionModel(trans)).save().then(
+    trans.save().then(
         saveRes => {
             added++;
             onTransactionsAdded();
