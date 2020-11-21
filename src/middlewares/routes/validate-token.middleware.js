@@ -3,6 +3,7 @@ import { readFile } from 'fs';
 import { sendResponse, setReqMetadata } from '../../utils/handlers';
 import { APP_ROOT } from '../../configs/app';
 import { getToken, extract } from '../../utils';
+import { UserRoleModel } from '../../models/user-role.model';
 
 const unauthorizedRes = (res, msg) => {
     return sendResponse(res, {
@@ -58,7 +59,7 @@ export const validateToken = (req, res, next, passport) => {
         // Check if token is nin invalid tokens list
         const invalidTokensFile = `${APP_ROOT}${process.env.INVALID_TOKENS_FILE}`;
 
-        readFile(invalidTokensFile, 'utf8', (err, fileContent) => {
+        readFile(invalidTokensFile, 'utf8', async (err, fileContent) => {
             if (err) {
                 if (err.message.indexOf('no such file or directory') !== -1) {
                     // Set userId to req temporarly
@@ -74,8 +75,19 @@ export const validateToken = (req, res, next, passport) => {
                 return unauthorizedRes(res, 'Authorization token is not valid.');
             }
 
+            let { payload } = extract(token);
+
+            const userPermsRes = await UserRoleModel.byRoleIds(payload.roles);
+            const permissionNames = [];
+
+            userPermsRes.map(grpPer => {
+                grpPer.toObject().permissions.map(per => {
+                    permissionNames.indexOf(per.name) === -1 && permissionNames.push(per.name);
+                });
+            });
+
             // Set userId to req temporarly
-            setReqMetadata(req, 'user', extract(getToken(req)).payload);
+            setReqMetadata(req, 'user', { ...payload, permissionNames });
             return next();
         });
     })(req, res, next);

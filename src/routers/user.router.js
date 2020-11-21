@@ -49,7 +49,7 @@ export const getUserRouter = (passport) => {
 
     router.get('/list', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, CAN_VIEW_MEMBER_HIDDEN_DETAILS),
+        // (req, res, next) => validatePermissions(req, res, next, CAN_VIEW_MEMBER_HIDDEN_DETAILS),
         (req, res) => usersList(req, res)
     ]);
 
