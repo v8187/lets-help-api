@@ -34,8 +34,7 @@ export class PermissionController extends BaseController {
             });
 
             if (process.env.DB_FILL_MODE !== 'ON') {
-                const { user } = getReqMetadata(req);
-                newPermission.vAuthUser = user.userId;
+                newPermission.vAuthUser = getReqMetadata(req).userId;
             }
 
             const srNoRes = await IncrementModel.getSrNo(88);

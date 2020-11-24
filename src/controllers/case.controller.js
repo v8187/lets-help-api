@@ -38,8 +38,8 @@ export class CaseController extends BaseController {
                     type: 'CONFLICT'
                 });
             }
-            const { user } = getReqMetadata(req),
-                isAdmin = user.roles.indexOf('admin') !== -1;
+            const { roles, userId } = getReqMetadata(req),
+                isAdmin = roles.indexOf('admin') !== -1;
 
             const { body } = req;
             let newCase = new CaseModel();
@@ -51,7 +51,7 @@ export class CaseController extends BaseController {
                 }
             });
 
-            newCase.vAuthUser = user.userId;
+            newCase.vAuthUser = userId;
 
             handleModelRes(
                 newCase.save(),
@@ -105,8 +105,8 @@ export class CaseController extends BaseController {
     }
 
     editCase(req, res) {
-        const { user } = getReqMetadata(req),
-            isAdmin = user.roles.indexOf('admin') !== -1;
+        const { roles, userId } = getReqMetadata(req),
+            isAdmin = roles.indexOf('admin') !== -1;
         const { body } = req;
 
         let tempData = {};
@@ -118,7 +118,7 @@ export class CaseController extends BaseController {
         });
 
         handleModelRes(
-            CaseModel.editCase(user.userId, body.caseId, tempData),
+            CaseModel.editCase(userId, body.caseId, tempData),
             res, {
             success: 'Case updated successfully.',
             error: 'Something went wrong while updating the Case. Try again later.',
@@ -145,7 +145,7 @@ export class CaseController extends BaseController {
                     type: 'BAD_REQUEST'
                 });
             }
-            const userId = getReqMetadata(req).user.userId;
+            const { userId } = getReqMetadata(req);
             let tempData = {};
 
             if (reactionType === 'UP') {
@@ -196,8 +196,8 @@ export class CaseController extends BaseController {
 }
 
 const parseResponseData = (req, data, toObject = false) => {
-    const { user, permissions } = getReqMetadata(req),
-        canViewPI = !!permissions && permissions.indexOf(CAN_VIEW_CASE_HIDDEN_DETAILS) !== -1;
+    const { permissionNames } = getReqMetadata(req),
+        canViewPI = !!permissionNames && permissionNames.indexOf(CAN_VIEW_CASE_HIDDEN_DETAILS) !== -1;
 
     !Array.isArray(data) && (data = [data]);
 

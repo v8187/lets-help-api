@@ -20,7 +20,7 @@ const addUserErr = (res, err = 'Server error') => {
     });
 };
 
-const edit = (req, res, userId) => {
+const edit = (req, res, id) => {
     const { body } = req;
 
     const keys = Object.keys(body);
@@ -34,7 +34,7 @@ const edit = (req, res, userId) => {
         });
     }
 
-    const { user } = getReqMetadata(req);
+    const { userId } = getReqMetadata(req);
 
     let tempData = {};
 
@@ -45,7 +45,7 @@ const edit = (req, res, userId) => {
     });
 
     handleModelRes(
-        UserModel.editUser(user.userId, userId || user.userId, tempData),
+        UserModel.editUser(userId, id || userId, tempData),
         res, {
         success: 'User updated successfully.',
         ifNull: 'User does not exist with given userId.',
@@ -83,7 +83,7 @@ export class UserController extends BaseController {
                 }
             });
 
-            newUser.vAuthUser = getReqMetadata(req).user.userId;
+            newUser.vAuthUser = getReqMetadata(req).userId;
 
             handleModelRes(
                 newUser.save(),
@@ -144,10 +144,8 @@ export class UserController extends BaseController {
             return mapRolesError(res);
         }
 
-        const { user } = getReqMetadata(req);
-
         handleModelRes(
-            UserModel.editUser(user.userId, req.body.userId, { roleIds }),
+            UserModel.editUser(getReqMetadata(req).userId, req.body.userId, { roleIds }),
             res, {
             success: 'Roles mapped to User successfully.',
             ifNull: 'User does not exist with given userId.',
@@ -157,11 +155,8 @@ export class UserController extends BaseController {
     }
 
     markVerified(req, res) {
-
-        const { user } = getReqMetadata(req);
-
         handleModelRes(
-            UserModel.editUser(user.userId, req.body.userId, { isVerified: true }),
+            UserModel.editUser(getReqMetadata(req).userId, req.body.userId, { isVerified: true }),
             res, {
             success: 'User is marked Verified successfully.',
             ifNull: 'User does not exist with given userId.',
@@ -187,57 +182,56 @@ export class UserController extends BaseController {
     }
 
     myProfile(req, res) {
-        handleModelRes(UserModel.byUserId(getReqMetadata(req).user.userId), res, {
+        handleModelRes(UserModel.byUserId(getReqMetadata(req).userId), res, {
             onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
-    editUserOld(req, res) {
-        const { user } = getReqMetadata(req),
-            isAdmin = user.roles.indexOf('admin') !== -1,
-            isMyProfile = user.userId === req.body.userId;
-        /**
-         * If non-admin user try to update someone else's profile
-         */
-        if (!isAdmin && !isMyProfile) {
-            return sendResponse(res, {
-                error: 'Not Allowed',
-                message: `You are not allowed to update someone else's profile.`,
-                type: 'FORBIDDEN'
-            });
-        }
+    // editUserOld(req, res) {
+    //     const { user } = getReqMetadata(req),
+    //         isAdmin = user.roles.indexOf('admin') !== -1,
+    //         isMyProfile = user.userId === req.body.userId;
+    //     /**
+    //      * If non-admin user try to update someone else's profile
+    //      */
+    //     if (!isAdmin && !isMyProfile) {
+    //         return sendResponse(res, {
+    //             error: 'Not Allowed',
+    //             message: `You are not allowed to update someone else's profile.`,
+    //             type: 'FORBIDDEN'
+    //         });
+    //     }
 
-        const { body } = req;
+    //     const { body } = req;
 
-        let tempData = {};
+    //     let tempData = {};
 
-        if (isAdmin) {
-            FIELDS_OTHER_USER_EDIT.split(',').map(field => {
-                if (body[field] !== undefined) {
-                    tempData[field] = body[field];
-                }
-            });
-        }
+    //     if (isAdmin) {
+    //         FIELDS_OTHER_USER_EDIT.split(',').map(field => {
+    //             if (body[field] !== undefined) {
+    //                 tempData[field] = body[field];
+    //             }
+    //         });
+    //     }
 
-        if (isMyProfile) {
-            FIELDS_MY_PROFILE_EDIT.split(',').map(field => {
-                if (body[field] !== undefined) {
-                    tempData[field] = body[field];
-                }
-            });
-        }
+    //     if (isMyProfile) {
+    //         FIELDS_MY_PROFILE_EDIT.split(',').map(field => {
+    //             if (body[field] !== undefined) {
+    //                 tempData[field] = body[field];
+    //             }
+    //         });
+    //     }
 
-        handleModelRes(
-            UserModel.editUser(user.userId, body.userId, tempData),
-            res, {
-            success: 'Profile updated successfully.',
-            error: 'Something went wrong while updating the Profile. Try again later.',
-            onSuccess: data => parseResponseData(req, data, true)
-        });
-    }
+    //     handleModelRes(
+    //         UserModel.editUser(user.userId, body.userId, tempData),
+    //         res, {
+    //         success: 'Profile updated successfully.',
+    //         error: 'Something went wrong while updating the Profile. Try again later.',
+    //         onSuccess: data => parseResponseData(req, data, true)
+    //     });
+    // }
 
     editDevice(req, res) {
-        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};
@@ -249,7 +243,7 @@ export class UserController extends BaseController {
         });
 
         handleModelRes(
-            UserModel.setDevice(user.userId, tempData),
+            UserModel.setDevice(getReqMetadata(req).userId, tempData),
             res, {
             success: 'Device updated successfully.',
             error: 'Something went wrong while updating the User device. Try again later.',
@@ -273,14 +267,14 @@ export class UserController extends BaseController {
 }
 
 const parseResponseData = (req, data, toObject = false) => {
-    const { user, permissions } = getReqMetadata(req),
-        canViewPI = !!permissions && permissions.indexOf(CAN_VIEW_MEMBER_HIDDEN_DETAILS) !== -1;
+    const { userId, permissionNames } = getReqMetadata(req),
+        canViewPI = !!permissionNames && permissionNames.indexOf(CAN_VIEW_MEMBER_HIDDEN_DETAILS) !== -1;
 
     !Array.isArray(data) && (data = [data]);
 
     data = data.map(item => {
         item.toObject && (item = item.toObject());
-        const isOwnProfile = user.userId === item.userId;
+        const isOwnProfile = userId === item.userId;
 
         if (!canViewPI && !isOwnProfile) {
             if (!item.showContactNos) {

@@ -19,7 +19,6 @@ const addTransErr = (res, err = 'Server error') => {
 export class TransactionController extends BaseController {
 
     findTransaction(req, res) {
-        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};
@@ -66,9 +65,8 @@ export class TransactionController extends BaseController {
     }
 
     transAdd(req, res) {
-        const { user } = getReqMetadata(req);
-
         const { body } = req;
+
         let newTrans = new TransactionModel();
 
         FIELDS_TRANSACTION_ADD_UPDATE.split(',').map(field => {
@@ -78,7 +76,7 @@ export class TransactionController extends BaseController {
             }
         });
 
-        newTrans.vAuthUser = user.userId;
+        newTrans.vAuthUser = getReqMetadata(req).userId;
 
         handleModelRes(
             newTrans.save(),
@@ -101,7 +99,6 @@ export class TransactionController extends BaseController {
     }
 
     transEdit(req, res) {
-        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};
@@ -113,7 +110,7 @@ export class TransactionController extends BaseController {
         });
 
         handleModelRes(
-            TransactionModel.transEdit(user.userId, body.transId, tempData),
+            TransactionModel.transEdit(getReqMetadata(req).userId, body.transId, tempData),
             res, {
             success: 'Transaction updated successfully.',
             error: 'Something went wrong while updating the Transaction. Try again later.',
@@ -127,8 +124,8 @@ export class TransactionController extends BaseController {
 }
 
 const parseResponseData = (req, data, toObject = false) => {
-    const { user } = getReqMetadata(req),
-        isAdmin = user.roles.indexOf('admin') !== -1;
+    const { roles } = getReqMetadata(req),
+        isAdmin = roles.indexOf('admin') !== -1;
 
     !Array.isArray(data) && (data = [data]);
 

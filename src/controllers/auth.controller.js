@@ -173,7 +173,10 @@ export class AuthController extends BaseController {
     }
 
     login(req, res, next, passport) {
-        newToken({ ...getReqMetadata(req).user }, (err, token) => {
+        let userInfo = getReqMetadata(req);
+        delete userInfo.permissionNames;
+
+        newToken(userInfo, (err, token) => {
             if (err) {
                 return sendResponse(res, {
                     error: err.message,

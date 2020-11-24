@@ -46,8 +46,7 @@ export class RelationshipController extends BaseController {
             });
 
             if (process.env.DB_FILL_MODE !== 'ON') {
-                const { user } = getReqMetadata(req);
-                newRelationship.vAuthUser = user.userId;
+                newRelationship.vAuthUser = getReqMetadata(req).userId;
             }
 
             const srNoRes = await IncrementModel.getSrNo(88);
@@ -69,7 +68,6 @@ export class RelationshipController extends BaseController {
     }
 
     relEdit(req, res) {
-        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};
@@ -81,7 +79,7 @@ export class RelationshipController extends BaseController {
         });
 
         handleModelRes(
-            RelationshipModel.relEdit(user.userId, body.relId, tempData),
+            RelationshipModel.relEdit(getReqMetadata(req).userId, body.relId, tempData),
             res, {
             success: 'Relationship updated successfully.',
             error: 'Something went wrong while updating the Relationship. Try again later.',

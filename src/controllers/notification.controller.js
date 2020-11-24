@@ -15,9 +15,7 @@ const createNotificationErr = (res, err = 'Server error') => {
 export class NotificationController extends BaseController {
 
     notificationsList(req, res) {
-        const { user } = getReqMetadata(req);
-
-        handleModelRes(NotificationModel.list(user.userId), res, {
+        handleModelRes(NotificationModel.list(getReqMetadata(req).userId), res, {
             // onSuccess: data => parseResponseData(req, data)
         });
     }
@@ -33,7 +31,6 @@ export class NotificationController extends BaseController {
                     type: 'CONFLICT'
                 });
             }
-            const { user } = getReqMetadata(req);
 
             const { body } = req;
             let newNotification = new NotificationModel();
@@ -45,7 +42,7 @@ export class NotificationController extends BaseController {
                 }
             });
 
-            newNotification.vAuthUser = user.userId;
+            newNotification.vAuthUser = getReqMetadata(req).userId;
 
             handleModelRes(
                 newNotification.save(),
@@ -66,11 +63,10 @@ export class NotificationController extends BaseController {
     }
 
     readIt(req, res) {
-        const { user } = getReqMetadata(req);
         const { body } = req;
 
         handleModelRes(
-            NotificationModel.markRead(user.userId, body.notiId),
+            NotificationModel.markRead(getReqMetadata(req).userId, body.notiId),
             res, {
             success: 'Notification marked as Read successfully.',
             error: 'Something went wrong while updating the Notification. Try again later.'
@@ -78,10 +74,8 @@ export class NotificationController extends BaseController {
     }
 
     readAll(req, res) {
-        const { user } = getReqMetadata(req);
-
         handleModelRes(
-            NotificationModel.markAllRead(user.userId),
+            NotificationModel.markAllRead(getReqMetadata(req).userId),
             res, {
             success: 'All Notifications marked as Read successfully.',
             error: 'Something went wrong while updating the Notification. Try again later.'
@@ -89,11 +83,10 @@ export class NotificationController extends BaseController {
     }
 
     removeIt(req, res) {
-        const { user } = getReqMetadata(req);
         const { body } = req;
 
         handleModelRes(
-            NotificationModel.markDeleted(user.userId, body.notiId),
+            NotificationModel.markDeleted(getReqMetadata(req).userId, body.notiId),
             res, {
             success: 'Notification removed successfully.',
             error: 'Something went wrong while removing the Notification. Try again later.'

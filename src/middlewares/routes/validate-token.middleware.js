@@ -63,7 +63,7 @@ export const validateToken = (req, res, next, passport) => {
             if (err) {
                 if (err.message.indexOf('no such file or directory') !== -1) {
                     // Set userId to req temporarly
-                    setReqMetadata(req, 'user', extract(getToken(req)).payload);
+                    setReqMetadata(req, extract(getToken(req)).payload);
                     return next();
                 } else {
                     return errorRes(res, err.message);
@@ -87,7 +87,7 @@ export const validateToken = (req, res, next, passport) => {
             });
 
             // Set userId to req temporarly
-            setReqMetadata(req, 'user', { ...payload, permissionNames });
+            setReqMetadata(req, { ...payload, permissionNames });
             return next();
         });
     })(req, res, next);

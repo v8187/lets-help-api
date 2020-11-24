@@ -48,8 +48,7 @@ export class UserRoleController extends BaseController {
             });
 
             if (process.env.DB_FILL_MODE !== 'ON') {
-                const { user } = getReqMetadata(req);
-                newUserRole.vAuthUser = user.userId;
+                newUserRole.vAuthUser = getReqMetadata(req).userId;
             }
 
             const srNoRes = await IncrementModel.getSrNo(88);
@@ -71,7 +70,6 @@ export class UserRoleController extends BaseController {
     }
 
     urEdit(req, res) {
-        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};
@@ -83,7 +81,7 @@ export class UserRoleController extends BaseController {
         });
 
         handleModelRes(
-            UserRoleModel.urEdit(user.userId, body.urId, tempData),
+            UserRoleModel.urEdit(getReqMetadata(req).userId, body.urId, tempData),
             res, {
             success: 'User Role updated successfully.',
             error: 'Something went wrong while updating the User Role. Try again later.',

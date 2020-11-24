@@ -46,8 +46,7 @@ export class CaseTypeController extends BaseController {
             });
 
             if (process.env.DB_FILL_MODE !== 'ON') {
-                const { user } = getReqMetadata(req);
-                newCaseType.vAuthUser = user.userId;
+                newCaseType.vAuthUser = getReqMetadata(req).userId;
             }
 
             const srNoRes = await IncrementModel.getSrNo(88);
@@ -69,7 +68,6 @@ export class CaseTypeController extends BaseController {
     }
 
     ctEdit(req, res) {
-        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};
@@ -81,7 +79,7 @@ export class CaseTypeController extends BaseController {
         });
 
         handleModelRes(
-            CaseTypeModel.ctEdit(user.userId, body.ctId, tempData),
+            CaseTypeModel.ctEdit(getReqMetadata(req).userId, body.ctId, tempData),
             res, {
             success: 'Case Type updated successfully.',
             error: 'Something went wrong while updating the Case Type. Try again later.',

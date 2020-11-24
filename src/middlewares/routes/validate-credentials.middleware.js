@@ -40,7 +40,7 @@ export const validateCredentials = (req, res, next, passport) => {
             }
         }
         if (user) {
-            setReqMetadata(req, 'user', user);
+            setReqMetadata(req, user);
             // req[process.env.APP_NAME] = req[process.env.APP_NAME] || {};
             // req[process.env.APP_NAME].user = user;
         }

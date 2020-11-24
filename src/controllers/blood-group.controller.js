@@ -46,8 +46,7 @@ export class BloodGroupController extends BaseController {
             });
 
             if (process.env.DB_FILL_MODE !== 'ON') {
-                const { user } = getReqMetadata(req);
-                newBloodGroup.vAuthUser = user.userId;
+                newBloodGroup.vAuthUser = getReqMetadata(req).userId;
             }
 
             const srNoRes = await IncrementModel.getSrNo(88);
@@ -69,7 +68,6 @@ export class BloodGroupController extends BaseController {
     }
 
     bgEdit(req, res) {
-        const { user } = getReqMetadata(req);
         const { body } = req;
 
         let tempData = {};
@@ -81,7 +79,7 @@ export class BloodGroupController extends BaseController {
         });
 
         handleModelRes(
-            BloodGroupModel.bgEdit(user.userId, body.bgId, tempData),
+            BloodGroupModel.bgEdit(getReqMetadata(req).userId, body.bgId, tempData),
             res, {
             success: 'BloodGroup updated successfully.',
             error: 'Something went wrong while updating the Blood Group. Try again later.',

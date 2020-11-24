@@ -84,9 +84,9 @@ export const handleModelRes = (promise, res, options = {}) => {
     });
 };
 
-export const setReqMetadata = (req, key, value) => {
+export const setReqMetadata = (req, data) => {
     req[process.env.APP_NAME] = req[process.env.APP_NAME] || {};
-    req[process.env.APP_NAME][key] = value;
+    req[process.env.APP_NAME] = { ...data };
 };
 
 export const getReqMetadata = (req) => {

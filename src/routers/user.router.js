@@ -4,7 +4,7 @@ import { UserController } from '../controllers/user.controller';
 import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
 import {
     CAN_ADD_MEMBER, CAN_EDIT_MEMBER, CAN_EDIT_MEMBER_ROLES,
-    CAN_VERIFY_MEMBER, CAN_VIEW_MEMBER_HIDDEN_DETAILS, CAN_VIEW_MEMBER_PROFILE
+    CAN_VERIFY_MEMBER, CAN_VIEW_MEMBER_PROFILE
 } from '../configs/permissions';
 
 const {
@@ -29,40 +29,39 @@ export const getUserRouter = (passport) => {
 
     router.post('/add', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, [CAN_ADD_MEMBER, CAN_VIEW_MEMBER_HIDDEN_DETAILS]),
+        (req, res, next) => validatePermissions(req, res, next, CAN_ADD_MEMBER),
         (req, res, next) => validateParams(req, res, next, 'email,name'),
         (req, res) => addUser(req, res)
     ]);
 
     router.put('/update', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, [CAN_EDIT_MEMBER, CAN_VIEW_MEMBER_HIDDEN_DETAILS]),
+        (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_MEMBER),
         (req, res) => editUser(req, res)
     ]);
 
     router.get('/profile/:userId', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, [CAN_VIEW_MEMBER_PROFILE, CAN_VIEW_MEMBER_HIDDEN_DETAILS]),
+        (req, res, next) => validatePermissions(req, res, next, CAN_VIEW_MEMBER_PROFILE),
         (req, res, next) => validateParams(req, res, next, 'userId'),
         (req, res) => userProfile(req, res)
     ]);
 
     router.get('/list', [
         validateWithToken,
-        // (req, res, next) => validatePermissions(req, res, next, CAN_VIEW_MEMBER_HIDDEN_DETAILS),
         (req, res) => usersList(req, res)
     ]);
 
     router.put('/roles', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, [CAN_EDIT_MEMBER_ROLES, CAN_VIEW_MEMBER_HIDDEN_DETAILS]),
+        (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_MEMBER_ROLES),
         (req, res, next) => validateParams(req, res, next, 'userId,roles'),
         (req, res) => mapRoles(req, res)
     ]);
 
     router.put('/verify', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, [CAN_VERIFY_MEMBER, CAN_VIEW_MEMBER_HIDDEN_DETAILS]),
+        (req, res, next) => validatePermissions(req, res, next, CAN_VERIFY_MEMBER),
         (req, res, next) => validateParams(req, res, next, 'userId'),
         (req, res) => markVerified(req, res)
     ]);
