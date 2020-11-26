@@ -304,11 +304,9 @@ UserSchema.methods.validateUserPin = function (pwd) {
 };
 
 UserSchema.methods.tokenFields = function () {
-    console.log('this.roles = %o', this.roleIds);
     return {
         userId: this.userId,
         email: this.email,
-        // groups: [...this.groups],
         roleIds: this.roleIds ? [...this.roleIds] : []
     };
 };

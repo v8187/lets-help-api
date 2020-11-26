@@ -8,8 +8,8 @@ const FIELDS_PUT_DEVICE_INFO = 'deviceToken,deviceOS';
 const FIELDS_PERSONAL = 'name,gender,dob,referredById,bgId,address,contactNo,alternateNo1,alternateNo2,city,state,country';
 // const FIELDS_ACCOUNT = 'isVerified,roleIds,joinedOn';
 const FIELDS_ACCOUNT = ',joinedOn,email';
-const FIELDS_OTHER_USER_EDIT = 'contactNo,alternateNo1,alternateNo2' + FIELDS_ACCOUNT;
-const FIELDS_MY_PROFILE_EDIT = FIELDS_PERSONAL + ',showEmail,showContactNos,showBloodGroup,showAddress,showContributions,showBirthday';
+// const FIELDS_OTHER_USER_EDIT = 'contactNo,alternateNo1,alternateNo2' + FIELDS_ACCOUNT;
+// const FIELDS_MY_PROFILE_EDIT = FIELDS_PERSONAL + ',showEmail,showContactNos,showBloodGroup,showAddress,showContributions,showBirthday';
 const FIELDS_USER = FIELDS_PERSONAL + FIELDS_ACCOUNT;
 
 const addUserErr = (res, err = 'Server error') => {

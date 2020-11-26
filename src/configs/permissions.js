@@ -9,7 +9,6 @@ export const
     CAN_VERIFY_MEMBER = 'can verify member',
     // Case
     CAN_ADD_CASE = 'add case',
-    CAN_EDIT_CASE = 'edit case',
     CAN_REQUEST_CASE = 'request case',
     CAN_SEARCH_CASE = 'search case',
     CAN_VIEW_CASE_HIDDEN_DETAILS = 'view case\'s hidden details',

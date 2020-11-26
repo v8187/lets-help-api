@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { CaseController } from '../controllers/case.controller';
 import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
-import { CAN_ADD_CASE, CAN_EDIT_CASE, CAN_REQUEST_CASE, CAN_VIEW_CASE_HIDDEN_DETAILS } from '../configs/permissions';
+import { CAN_ADD_CASE, CAN_REQUEST_CASE } from '../configs/permissions';
 
 const {
     ids, casesList, caseDetails,
@@ -30,6 +30,13 @@ export const getCaseRouter = (passport) => {
         (req, res) => createCase(req, res)
     ]);
 
+    router.put('/update', [
+        validateWithToken,
+        (req, res, next) => validatePermissions(req, res, next, CAN_ADD_CASE),
+        (req, res, next) => validateParams(req, res, next, 'caseId'),
+        (req, res) => editCase(req, res)
+    ]);
+
     router.post('/request', [
         validateWithToken,
         (req, res, next) => validatePermissions(req, res, next, CAN_REQUEST_CASE),
@@ -37,9 +44,9 @@ export const getCaseRouter = (passport) => {
         (req, res) => createCase(req, res, true)
     ]);
 
-    router.put('/update', [
+    router.put('/request', [
         validateWithToken,
-        (req, res, next) => validatePermissions(req, res, next, CAN_EDIT_CASE),
+        (req, res, next) => validatePermissions(req, res, next, CAN_REQUEST_CASE),
         (req, res, next) => validateParams(req, res, next, 'caseId'),
         (req, res) => editCase(req, res)
     ]);

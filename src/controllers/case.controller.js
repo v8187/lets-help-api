@@ -3,11 +3,10 @@ import { CaseModel } from '../models/case.model';
 import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
 import { sendNotification } from '../firebase-sdk';
 import { userRoles } from '../configs/enum-constants';
-import { CAN_VIEW_CASE_HIDDEN_DETAILS } from '../configs/permissions';
+import { CAN_ADD_CASE, CAN_VIEW_CASE_HIDDEN_DETAILS } from '../configs/permissions';
 
-const FIELDS_CREATE_CASE = 'ctId,relId,referredOn,contactNo,title,name,contactPerson,description,gender,age,address,city,state,country,referredBy';
-const FIELDS_CREATE_CASE_ADMIN = FIELDS_CREATE_CASE + ',isApproved,approvedOn,isClosed,closedOn,closingReason,showContactNos,showAddress';
-
+const FIELDS_REQUEST_CASE = 'ctId,relId,referredOn,contactNo,title,name,contactPerson,description,gender,age,address,city,state,country,referredBy';
+const FIELDS_ADD_CASE = FIELDS_REQUEST_CASE + ',isApproved,approvedOn,isClosed,closedOn,closingReason,showContactNos,showAddress';
 
 const createCaseErr = (res, err = 'Server error') => {
     return sendResponse(res, {
@@ -38,13 +37,13 @@ export class CaseController extends BaseController {
                     type: 'CONFLICT'
                 });
             }
-            const { roles, userId } = getReqMetadata(req),
-                isAdmin = roles.indexOf('admin') !== -1;
+            const { permissionNames, userId } = getReqMetadata(req),
+                canAdd = permissionNames.indexOf(CAN_ADD_CASE) !== -1;
 
             const { body } = req;
             let newCase = new CaseModel();
 
-            (isAdmin ? FIELDS_CREATE_CASE_ADMIN : FIELDS_CREATE_CASE).split(',').map(field => {
+            (canAdd ? FIELDS_ADD_CASE : FIELDS_REQUEST_CASE).split(',').map(field => {
                 const data = body[field];
                 if (data !== undefined) {
                     newCase[field] = Array.isArray(data) ? data.length ? data : newCase[field] : data;
@@ -59,7 +58,6 @@ export class CaseController extends BaseController {
                 success: 'Case created successfully.',
                 error: 'Something went wrong while creating new Case. Try again later.',
                 onSuccess: data => {
-                    parseResponseData(req, data, true);
                     sendNotification({
                         data: {
                             caseId: data.caseId
@@ -69,6 +67,7 @@ export class CaseController extends BaseController {
                             body: isRequest ? 'Someone requested a new case.' : 'New case added. Click for details.'
                         }
                     }, isRequest ? ['admin'] : [...userRoles]);
+                    return parseResponseData(req, data, true);
                 }
             });
         }, modelErr => {
@@ -105,13 +104,25 @@ export class CaseController extends BaseController {
     }
 
     editCase(req, res) {
-        const { roles, userId } = getReqMetadata(req),
-            isAdmin = roles.indexOf('admin') !== -1;
+        const { permissionNames, userId } = getReqMetadata(req),
+            canEdit = permissionNames.indexOf(CAN_ADD_CASE) !== -1;
+
         const { body } = req;
+
+        const keys = Object.keys(body);
+        const fields = (canEdit ? FIELDS_ADD_CASE : FIELDS_REQUEST_CASE).split(',');
+
+        if (!keys.length || !keys.some(paramName => fields.indexOf(paramName) !== -1)) {
+            return sendResponse(res, {
+                error: 'Parameters missing/invalid',
+                message: `Valid data is missing. Please provide at least one valid parameter to edit.`,
+                type: 'BAD_REQUEST'
+            });
+        }
 
         let tempData = {};
 
-        (isAdmin ? FIELDS_CREATE_CASE_ADMIN : FIELDS_CREATE_CASE).split(',').map(field => {
+        fields.map(field => {
             if (body[field] !== undefined) {
                 tempData[field] = body[field];
             }
