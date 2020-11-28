@@ -124,20 +124,10 @@ export class TransactionController extends BaseController {
 }
 
 const parseResponseData = (req, data, toObject = false) => {
-    const { roles } = getReqMetadata(req),
-        isAdmin = roles.indexOf('admin') !== -1;
-
     !Array.isArray(data) && (data = [data]);
 
     data = data.map(item => {
         item.toObject && (item = item.toObject());
-
-        if (!isAdmin) {
-            delete item.createdOn;
-            delete item.createdBy;
-            delete item.updatedOn;
-            delete item.createdBy;
-        }
 
         delete item.createdById;
         delete item.updatedById;

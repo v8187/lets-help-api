@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { TransactionController, FIELDS_TRANSACTION_REQUIRED } from '../controllers/transaction.controller';
 import { validateParams, validateToken, validatePermissions } from '../middlewares/routes';
-import { CAN_ADD_TRANSACTION, CAN_EDIT_TRANSACTION } from '../configs/permissions';
+import { CAN_ADD_TRANSACTION, CAN_EDIT_TRANSACTION, CAN_SEARCH_TRANSACTION, CAN_VIEW_TRANSACTION_DETAILS } from '../configs/permissions';
 
 const {
     findTransaction, transStats, transList, transDetails,
@@ -25,21 +25,25 @@ export const getTransactionRouter = (passport) => {
 
     router.post('/find', [
         validateWithToken,
+        (req, res, next) => validatePermissions(req, res, next, CAN_SEARCH_TRANSACTION),
         (req, res) => findTransaction(req, res)
     ]);
 
     router.get('/stats', [
         validateWithToken,
+        (req, res, next) => validatePermissions(req, res, next, CAN_SEARCH_TRANSACTION),
         (req, res) => transStats(req, res)
     ]);
 
     router.get('/list', [
         validateWithToken,
+        (req, res, next) => validatePermissions(req, res, next, CAN_SEARCH_TRANSACTION),
         (req, res) => transList(req, res)
     ]);
 
     router.get('/transInfo/:transId', [
         validateWithToken,
+        (req, res, next) => validatePermissions(req, res, next, CAN_VIEW_TRANSACTION_DETAILS),
         (req, res, next) => validateParams(req, res, next, 'transId'),
         (req, res) => transDetails(req, res)
     ]);
