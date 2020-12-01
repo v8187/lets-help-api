@@ -4,6 +4,7 @@ import { compareSync } from 'bcryptjs';
 import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 import { genders } from '../configs/enum-constants';
+import { UserRoleModel } from './user-role.model';
 
 const FIELDS_MY_PROFILE_GET = '-_id -userPin -deviceToken -deviceOS -__v -status';
 const FIELDS_USER_ROLE_POPU = 'name urId -_id';
@@ -303,11 +304,15 @@ UserSchema.methods.validateUserPin = function (pwd) {
     return compareSync(pwd, this.userPin);
 };
 
-UserSchema.methods.tokenFields = function () {
+UserSchema.methods.tokenFields = async function () {
+    const roleIds = this.roleIds.toBSON();
+    const permissions = await UserRoleModel.rolePermissions(roleIds);
+
     return {
         userId: this.userId,
         email: this.email,
-        roleIds: this.roleIds ? [...this.roleIds] : []
+        roleIds: [...roleIds],
+        permissions
     };
 };
 

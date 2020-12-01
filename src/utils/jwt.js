@@ -7,15 +7,15 @@ export const newToken = (payload, callback) => {
         userId: payload.userId,
         email: payload.email,
         roles: payload.roleIds,
-        // groups: payload.groups,
+        permissions: payload.permissions,
         iat: Math.floor(Date.now() / 1000)
     }, JWT_SECRET, {
-            algorithm: JWT_ALGORITHM,
-            expiresIn: JWT_EXPIRE_IN
-        }, (errSign, encoded) => {
-            console.log('newToken', errSign, encoded);
-            callback && callback(errSign, encoded);
-        });
+        algorithm: JWT_ALGORITHM,
+        expiresIn: JWT_EXPIRE_IN
+    }, (errSign, encoded) => {
+        console.log('newToken', errSign, encoded);
+        callback && callback(errSign, encoded);
+    });
 };
 
 export const validate = (token, callback) => {
@@ -28,10 +28,6 @@ export const validate = (token, callback) => {
 };
 
 export const extract = (token) => {
-    // console.log(decode(token, {
-    //     complete: true,
-    //     json: true
-    // }));
     return decode(token, {
         complete: true,
         json: true

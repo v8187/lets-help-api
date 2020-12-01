@@ -77,14 +77,7 @@ export const validateToken = (req, res, next, passport) => {
 
             let { payload } = extract(token);
 
-            const userPermsRes = await UserRoleModel.byRoleIds(payload.roles);
-            const permissionNames = [];
-
-            userPermsRes.map(grpPer => {
-                grpPer.toObject().permissions.map(per => {
-                    permissionNames.indexOf(per.name) === -1 && permissionNames.push(per.name);
-                });
-            });
+            const permissionNames = await UserRoleModel.rolePermissions(payload.roles);
 
             // Set userId to req temporarly
             setReqMetadata(req, { ...payload, permissionNames });

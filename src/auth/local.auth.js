@@ -11,7 +11,7 @@ const fnVerifyLogin = (
     process.nextTick(() => {
         UserModel
             .hasAccount(email)
-            .then(user => {
+            .then(async (user) => {
                 console.log('local.auth: fnVerifyLogin:hasAccount', !!user);
                 user && console.log('user.isModified', user.isModified(), 'user.isNew', user.isNew);
                 // If User not found
@@ -25,7 +25,7 @@ const fnVerifyLogin = (
                         message: `Invalid userPin`
                     });
                 }
-                let parsedUser = user.tokenFields();
+                let parsedUser = await user.tokenFields();
                 return done(null, parsedUser);
             }, modelErr => {
                 console.error(modelErr);

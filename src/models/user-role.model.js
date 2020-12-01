@@ -62,6 +62,19 @@ UserRoleSchema.statics.byRoleIds = function (urIds) {
         .select('urId permIds -_id').exec();
 };
 
+UserRoleSchema.statics.rolePermissions = async function ($urIds) {
+    const userPermsRes = await UserRoleModel.byRoleIds($urIds);
+    const permissionNames = [];
+
+    userPermsRes.map($grpPer => {
+        $grpPer.toObject().permissions.map($per => {
+            permissionNames.indexOf($per.name) === -1 && permissionNames.push($per.name);
+        });
+    });
+
+    return permissionNames;
+};
+
 UserRoleSchema.statics.tempAll = function () {
     return this.find()
         .populate('permissions', FIELDS_PERMISSION_POPU)
