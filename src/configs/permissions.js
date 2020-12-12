@@ -27,9 +27,9 @@ export const
     CAN_ADD_CASE_TYPE = 'add case type',
     CAN_EDIT_CASE_TYPE = 'edit case type',
     // Relationship
-    CAN_ADD_RELATIONSHIP = 'add Relationship',
-    CAN_EDIT_RELATIONSHIP = 'edit Relationship',
+    CAN_ADD_RELATIONSHIP = 'add relationship',
+    CAN_EDIT_RELATIONSHIP = 'edit relationship',
     // User Role
-    CAN_ADD_USER_ROLE = 'add User Role',
-    CAN_EDIT_USER_ROLE = 'edit User Role',
+    CAN_ADD_USER_ROLE = 'add user role',
+    CAN_EDIT_USER_ROLE = 'edit user role',
     CAN_MAP_PERMISSIONS_TO_ROLES = 'map permissions to roles';
