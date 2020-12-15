@@ -36,9 +36,8 @@ export class NotificationController extends BaseController {
             let newNotification = new NotificationModel();
 
             (FIELDS_RELATIONSHIP).split(',').map(field => {
-                const data = body[field];
-                if (data !== undefined) {
-                    newNotification[field] = data;
+                if (body[field] !== undefined) {
+                    newNotification[field] = body[field];
                 }
             });
 

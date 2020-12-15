@@ -27,9 +27,8 @@ export class PermissionController extends BaseController {
             let newPermission = new PermissionModel();
 
             (FIELDS_PERMISSION).split(',').map(field => {
-                const data = body[field];
-                if (data !== undefined) {
-                    newPermission[field] = data;
+                if (body[field] !== undefined) {
+                    newPermission[field] = body[field];
                 }
             });
 

@@ -7,7 +7,7 @@ import { USER_KEY_FIELDS } from '../configs/query-fields';
 
 const BloodGroupSchema = new BaseSchema({
     bgId: { type: Number },
-    name: { type: String, required: true, trim: true, lowercase: true },
+    name: { type: String, required: true, trim: true, lowercase: true, unique: true },
     // label: { type: String, trim: true }
 },
     {

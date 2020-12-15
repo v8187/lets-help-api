@@ -41,9 +41,8 @@ export class UserRoleController extends BaseController {
             let newUserRole = new UserRoleModel();
 
             (FIELDS_USER_ROLE).split(',').map(field => {
-                const data = body[field];
-                if (data !== undefined) {
-                    newUserRole[field] = data;
+                if (body[field] !== undefined) {
+                    newUserRole[field] = body[field];
                 }
             });
 

@@ -39,9 +39,8 @@ export class CaseTypeController extends BaseController {
             let newCaseType = new CaseTypeModel();
 
             (FIELDS_CASE_TYPE).split(',').map(field => {
-                const data = body[field];
-                if (data !== undefined) {
-                    newCaseType[field] = data;
+                if (body[field] !== undefined) {
+                    newCaseType[field] = body[field];
                 }
             });
 

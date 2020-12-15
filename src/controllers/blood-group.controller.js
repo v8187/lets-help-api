@@ -39,9 +39,8 @@ export class BloodGroupController extends BaseController {
             let newBloodGroup = new BloodGroupModel();
 
             (FIELDS_BLOOD_GROUP).split(',').map(field => {
-                const data = body[field];
-                if (data !== undefined) {
-                    newBloodGroup[field] = data;
+                if (body[field] !== undefined) {
+                    newBloodGroup[field] = body[field];
                 }
             });
 

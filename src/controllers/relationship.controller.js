@@ -39,9 +39,8 @@ export class RelationshipController extends BaseController {
             let newRelationship = new RelationshipModel();
 
             (FIELDS_RELATIONSHIP).split(',').map(field => {
-                const data = body[field];
-                if (data !== undefined) {
-                    newRelationship[field] = data;
+                if (body[field] !== undefined) {
+                    newRelationship[field] = body[field];
                 }
             });
 
