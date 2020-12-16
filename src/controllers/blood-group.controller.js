@@ -23,47 +23,48 @@ export class BloodGroupController extends BaseController {
         handleModelRes(BloodGroupModel.list(), res);
     }
 
-    bgAdd(req, res, isRequest) {
-        const { name } = req.body;
+    async bgAdd(req, res, isRequest) {
+        // const { name } = req.body;
 
-        BloodGroupModel.isExist(req.body).then(async $bloodGroup => {
-            if (!!$bloodGroup) {
-                return sendResponse(res, {
-                    error: 'Cannot create new Blood Group',
-                    message: `Blood Group already exist with Name "${name}".`,
-                    type: 'CONFLICT'
-                });
+        // BloodGroupModel.isExist(req.body).then(async $bloodGroup => {
+        //     if (!!$bloodGroup) {
+        //         return sendResponse(res, {
+        //             error: 'Cannot create new Blood Group',
+        //             message: `Blood Group already exist with Name "${name}".`,
+        //             type: 'CONFLICT'
+        //         });
+        //     }
+
+        const { body } = req;
+        let newBloodGroup = new BloodGroupModel();
+
+        (FIELDS_BLOOD_GROUP).split(',').map(field => {
+            if (body[field] !== undefined) {
+                newBloodGroup[field] = body[field];
             }
-
-            const { body } = req;
-            let newBloodGroup = new BloodGroupModel();
-
-            (FIELDS_BLOOD_GROUP).split(',').map(field => {
-                if (body[field] !== undefined) {
-                    newBloodGroup[field] = body[field];
-                }
-            });
-
-            if (process.env.DB_FILL_MODE !== 'ON') {
-                newBloodGroup.vAuthUser = getReqMetadata(req).userId;
-            }
-
-            const srNoRes = await IncrementModel.getSrNo(88);
-            newBloodGroup.bgId = srNoRes.srNo;
-
-            handleModelRes(
-                newBloodGroup.save(),
-                res, {
-                success: 'Blood Group created successfully.',
-                error: 'Something went wrong while creating new Blood Group. Try again later.',
-            });
-        }, modelErr => {
-            console.error(modelErr);
-            return bgAddErr(res, modelErr.message);
-        }).catch(modelReason => {
-            console.log(modelReason);
-            return bgAddErr(res, modelReason.message);
         });
+
+        if (process.env.DB_FILL_MODE !== 'ON') {
+            newBloodGroup.vAuthUser = getReqMetadata(req).userId;
+        }
+
+        const srNoRes = await IncrementModel.getSrNo(88);
+        newBloodGroup.bgId = srNoRes.srNo;
+
+        handleModelRes(
+            newBloodGroup.save(),
+            res, {
+            success: 'Blood Group created successfully.',
+            error: 'Something went wrong while creating new Blood Group. Try again later.',
+            name: 'Blood Group'
+        });
+        // }, modelErr => {
+        //     console.error(modelErr);
+        //     return bgAddErr(res, modelErr.message);
+        // }).catch(modelReason => {
+        //     console.log(modelReason);
+        //     return bgAddErr(res, modelReason.message);
+        // });
     }
 
     bgEdit(req, res) {
@@ -82,6 +83,7 @@ export class BloodGroupController extends BaseController {
             res, {
             success: 'BloodGroup updated successfully.',
             error: 'Something went wrong while updating the Blood Group. Try again later.',
+            name: 'Blood Group'
         });
     }
 

@@ -7,7 +7,7 @@ import { UserRoleModel } from '../../models/user-role.model';
 
 const unauthorizedRes = (res, msg) => {
     return sendResponse(res, {
-        error: 'Not authroized',
+        error: 'Not authorized',
         message: msg,
         type: 'UNAUTHORIZED'
     });

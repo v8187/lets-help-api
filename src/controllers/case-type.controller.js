@@ -23,47 +23,48 @@ export class CaseTypeController extends BaseController {
         handleModelRes(CaseTypeModel.list(), res);
     }
 
-    ctAdd(req, res, isRequest) {
-        const { name } = req.body;
+    async ctAdd(req, res, isRequest) {
+        // const { name } = req.body;
 
-        CaseTypeModel.isExist(req.body).then(async $caseType => {
-            if (!!$caseType) {
-                return sendResponse(res, {
-                    error: 'Cannot create new Case Type',
-                    message: `Case Type already exist with Name "${name}".`,
-                    type: 'CONFLICT'
-                });
+        // CaseTypeModel.isExist(req.body).then(async $caseType => {
+        //     if (!!$caseType) {
+        //         return sendResponse(res, {
+        //             error: 'Cannot create new Case Type',
+        //             message: `Case Type already exist with Name "${name}".`,
+        //             type: 'CONFLICT'
+        //         });
+        //     }
+
+        const { body } = req;
+        let newCaseType = new CaseTypeModel();
+
+        (FIELDS_CASE_TYPE).split(',').map(field => {
+            if (body[field] !== undefined) {
+                newCaseType[field] = body[field];
             }
-
-            const { body } = req;
-            let newCaseType = new CaseTypeModel();
-
-            (FIELDS_CASE_TYPE).split(',').map(field => {
-                if (body[field] !== undefined) {
-                    newCaseType[field] = body[field];
-                }
-            });
-
-            if (process.env.DB_FILL_MODE !== 'ON') {
-                newCaseType.vAuthUser = getReqMetadata(req).userId;
-            }
-
-            const srNoRes = await IncrementModel.getSrNo(88);
-            newCaseType.ctId = srNoRes.srNo;
-
-            handleModelRes(
-                newCaseType.save(),
-                res, {
-                success: 'Case Type created successfully.',
-                error: 'Something went wrong while creating new Case Type. Try again later.',
-            });
-        }, modelErr => {
-            console.error(modelErr);
-            return ctAddErr(res, modelErr.message);
-        }).catch(modelReason => {
-            console.log(modelReason);
-            return ctAddErr(res, modelReason.message);
         });
+
+        if (process.env.DB_FILL_MODE !== 'ON') {
+            newCaseType.vAuthUser = getReqMetadata(req).userId;
+        }
+
+        const srNoRes = await IncrementModel.getSrNo(88);
+        newCaseType.ctId = srNoRes.srNo;
+
+        handleModelRes(
+            newCaseType.save(),
+            res, {
+            success: 'Case Type created successfully.',
+            error: 'Something went wrong while creating new Case Type. Try again later.',
+            name: 'Case Type'
+        });
+        // }, modelErr => {
+        //     console.error(modelErr);
+        //     return ctAddErr(res, modelErr.message);
+        // }).catch(modelReason => {
+        //     console.log(modelReason);
+        //     return ctAddErr(res, modelReason.message);
+        // });
     }
 
     ctEdit(req, res) {
@@ -82,6 +83,7 @@ export class CaseTypeController extends BaseController {
             res, {
             success: 'Case Type updated successfully.',
             error: 'Something went wrong while updating the Case Type. Try again later.',
+            name: 'Case Type'
         });
     }
 

@@ -17,11 +17,17 @@ export const sendResponse = (res, params) => {
 
     res.status(httpStatus[params.type || 'OK']);
 
+    if (error && error.codeName === 'DuplicateKey') {
+        const { keyValue } = error,
+            keys = Object.keys(keyValue)[0];
+        resContent.message = `${params.name} already exists with ${keys} "${keyValue[keys]}".`;
+        resContent.type = 'CONFLICT';
+    }
     // if (/unauthorized/i.test(error)) {
-    if (params.type === 'UNAUTHORIZED') {
+    else if (params.type === 'UNAUTHORIZED') {
         // res.status(httpStatus.UNAUTHORIZED);
         // resContent.error = httpStatus.getStatusText(httpStatus.UNAUTHORIZED);
-        resContent.message = resContent.message || 'You are not authroized to perform this action.';
+        resContent.message = resContent.message || 'You are not authorized to perform this action.';
     }
     // else if (/failed/i.test(error)) {
     else if (params.type === 'INTERNAL_SERVER_ERROR') {
@@ -61,6 +67,15 @@ export const handleModelRes = (promise, res, options = {}) => {
             });
         }, dbErr => {
             console.log(dbErr);
+            if (dbErr.message.indexOf('duplicate key') !== -1) {
+                const { keyValue } = dbErr,
+                    keys = Object.keys(keyValue)[0];
+                return sendResponse(res, {
+                    error: 'Invalid values',
+                    message: `${options.name} already exists with ${keys} "${keyValue[keys]}".`,
+                    type: 'CONFLICT'
+                });
+            }
             if (/invalid/i.test(dbErr.message) || /must be array/i.test(dbErr.message)) {
                 return sendResponse(res, {
                     error: 'Invalid values',
