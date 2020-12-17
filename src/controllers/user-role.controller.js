@@ -17,7 +17,7 @@ export class UserRoleController extends BaseController {
         });
     }
 
-    urAdd(req, res) {
+    async urAdd(req, res) {
         const { body } = req;
         let newUserRole = new UserRoleModel();
 

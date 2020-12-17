@@ -15,7 +15,7 @@ export class RelationshipController extends BaseController {
         handleModelRes(RelationshipModel.list(), res);
     }
 
-    relAdd(req, res) {
+    async relAdd(req, res) {
         const { body } = req;
         let newRelationship = new RelationshipModel();
 
