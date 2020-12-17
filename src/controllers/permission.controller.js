@@ -1,17 +1,9 @@
 import { BaseController } from './BaseController';
 import { PermissionModel } from '../models/permission.model';
 import { IncrementModel } from '../models/increment.model';
-import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
+import { handleModelRes, getReqMetadata } from '../utils/handlers';
 
 const FIELDS_PERMISSION = 'name';
-
-const permAddErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while creating new Permission. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
 
 export class PermissionController extends BaseController {
 
@@ -19,9 +11,7 @@ export class PermissionController extends BaseController {
         handleModelRes(PermissionModel.list(), res);
     }
 
-    permAdd(req, res, isRequest) {
-        const { name } = req.body;
-
+    permAdd(req, res) {
         (async () => {
             const { body } = req;
             let newPermission = new PermissionModel();

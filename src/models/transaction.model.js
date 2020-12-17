@@ -94,7 +94,7 @@ TransactionSchema.pre('save', async function (next) {
 
 TransactionSchema.post('save', async function ($trans, next) {
 
-    const populatedTransaction = await $trans.
+    await $trans.
         populate('createdBy', USER_KEY_FIELDS)
         .populate('updatedBy', USER_KEY_FIELDS)
         .populate('spentBy', USER_KEY_FIELDS)

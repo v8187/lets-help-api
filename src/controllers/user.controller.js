@@ -12,14 +12,6 @@ const FIELDS_ACCOUNT = ',joinedOn,email';
 // const FIELDS_MY_PROFILE_EDIT = FIELDS_PERSONAL + ',showEmail,showContactNos,showBloodGroup,showAddress,showContributions,showBirthday';
 const FIELDS_USER = FIELDS_PERSONAL + FIELDS_ACCOUNT;
 
-const addUserErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while creating new Profile. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
-
 const edit = (req, res, id) => {
     const { body } = req;
 
@@ -50,6 +42,7 @@ const edit = (req, res, id) => {
         success: 'User updated successfully.',
         ifNull: 'User does not exist with given userId.',
         error: 'Something went wrong while updating the User. Try again later.',
+        name: 'User',
         onSuccess: data => parseResponseData(req, data, true)
     });
 };
@@ -63,47 +56,30 @@ const mapRolesError = (res) => sendResponse(res, {
 export class UserController extends BaseController {
 
     addUser(req, res) {
-        const { email } = req.body;
+        const { body } = req;
+        let newUser = new UserModel();
 
-        UserModel.hasAccount(req.body.email).then(user => {
-            if (user) {
-                return sendResponse(res, {
-                    error: 'Cannot create new Profile',
-                    message: `User already exist with "${email}".`,
-                    type: 'CONFLICT'
-                });
+        FIELDS_USER.split(',').map(field => {
+            const data = body[field];
+            if (data !== undefined) {
+                newUser[field] = Array.isArray(data) ? data.length ? data : newUser[field] : data;
             }
-            const { body } = req;
-            let newUser = new UserModel();
+        });
 
-            FIELDS_USER.split(',').map(field => {
-                const data = body[field];
-                if (data !== undefined) {
-                    newUser[field] = Array.isArray(data) ? data.length ? data : newUser[field] : data;
-                }
-            });
+        newUser.vAuthUser = getReqMetadata(req).userId;
 
-            newUser.vAuthUser = getReqMetadata(req).userId;
-
-            handleModelRes(
-                newUser.save(),
-                res, {
-                success: 'Profile created successfully.',
-                error: 'Something went wrong while creating new Profile. Try again later.',
-                onSuccess: data => parseResponseData(req, data, true)
-            });
-        }, modelErr => {
-            console.error(modelErr);
-            return addUserErr(res, modelErr.message);
-        }).catch(modelReason => {
-            console.log(modelReason);
-            return addUserErr(res, modelReason.message);
+        handleModelRes(
+            newUser.save(),
+            res, {
+            success: 'Profile created successfully.',
+            error: 'Something went wrong while creating new Profile. Try again later.',
+            name: 'Profile',
+            onSuccess: data => parseResponseData(req, data, true)
         });
     }
 
     editUser(req, res) {
         const { body } = req;
-
         const userId = body.userId;
 
         delete body.userId;
@@ -122,6 +98,7 @@ export class UserController extends BaseController {
     userProfile(req, res) {
         handleModelRes(UserModel.userProfile(req.params.userId), res, {
             ifNull: 'User does not exist with given userId.',
+            name: 'Profile',
             onSuccess: data => parseResponseData(req, data, true)
         });
     }
@@ -150,6 +127,7 @@ export class UserController extends BaseController {
             success: 'Roles mapped to User successfully.',
             ifNull: 'User does not exist with given userId.',
             error: 'Something went wrong while updating the User. Try again later.',
+            name: 'User',
             onSuccess: data => parseResponseData(req, data, true)
         });
     }
@@ -161,6 +139,7 @@ export class UserController extends BaseController {
             success: 'User is marked Verified successfully.',
             ifNull: 'User does not exist with given userId.',
             error: 'Something went wrong while updating the User. Try again later.',
+            name: 'User',
             onSuccess: data => parseResponseData(req, data, true)
         });
     }

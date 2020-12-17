@@ -1,17 +1,9 @@
 import { BaseController } from './BaseController';
 import { RelationshipModel } from '../models/relationship.model';
 import { IncrementModel } from '../models/increment.model';
-import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
+import { handleModelRes, getReqMetadata } from '../utils/handlers';
 
 const FIELDS_RELATIONSHIP = 'name';
-
-const relAddErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while creating new Relationship. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
 
 export class RelationshipController extends BaseController {
 
@@ -23,52 +15,34 @@ export class RelationshipController extends BaseController {
         handleModelRes(RelationshipModel.list(), res);
     }
 
-    relAdd(req, res, isRequest) {
-        const { name } = req.body;
+    relAdd(req, res) {
+        const { body } = req;
+        let newRelationship = new RelationshipModel();
 
-        RelationshipModel.isExist(req.body).then(async $relationship => {
-            if (!!$relationship) {
-                return sendResponse(res, {
-                    error: 'Cannot create new Relationship',
-                    message: `Relationship already exist with Name "${name}".`,
-                    type: 'CONFLICT'
-                });
+        (FIELDS_RELATIONSHIP).split(',').map(field => {
+            if (body[field] !== undefined) {
+                newRelationship[field] = body[field];
             }
+        });
 
-            const { body } = req;
-            let newRelationship = new RelationshipModel();
+        if (process.env.DB_FILL_MODE !== 'ON') {
+            newRelationship.vAuthUser = getReqMetadata(req).userId;
+        }
 
-            (FIELDS_RELATIONSHIP).split(',').map(field => {
-                if (body[field] !== undefined) {
-                    newRelationship[field] = body[field];
-                }
-            });
+        const srNoRes = await IncrementModel.getSrNo(88);
+        newRelationship.relId = srNoRes.srNo;
 
-            if (process.env.DB_FILL_MODE !== 'ON') {
-                newRelationship.vAuthUser = getReqMetadata(req).userId;
-            }
-
-            const srNoRes = await IncrementModel.getSrNo(88);
-            newRelationship.relId = srNoRes.srNo;
-
-            handleModelRes(
-                newRelationship.save(),
-                res, {
-                success: 'Relationship created successfully.',
-                error: 'Something went wrong while creating new Relationship. Try again later.',
-            });
-        }, modelErr => {
-            console.error(modelErr);
-            return relAddErr(res, modelErr.message);
-        }).catch(modelReason => {
-            console.log(modelReason);
-            return relAddErr(res, modelReason.message);
+        handleModelRes(
+            newRelationship.save(),
+            res, {
+            success: 'Relationship created successfully.',
+            error: 'Something went wrong while creating new Relationship. Try again later.',
+            name: 'Relationship'
         });
     }
 
     relEdit(req, res) {
         const { body } = req;
-
         let tempData = {};
 
         (FIELDS_RELATIONSHIP).split(',').map(field => {
@@ -82,6 +56,7 @@ export class RelationshipController extends BaseController {
             res, {
             success: 'Relationship updated successfully.',
             error: 'Something went wrong while updating the Relationship. Try again later.',
+            name: 'Relationship'
         });
     }
 

@@ -12,13 +12,13 @@ const FIELDS_RELATIONSHIP_POPU = 'name relId -_id';
 
 const CaseSchema = new BaseSchema({
     caseId: { type: String },
-    title: { type: String, required: true, trim: true },
+    title: { type: String, required: true, trim: true, unique: true },
     description: { type: String, trim: true },
     name: { type: String, required: true, trim: true },
     ctId: { type: Number },
     relId: { type: Number },
     contactPerson: { type: String, trim: true },
-    contactNo: { type: String, required: true, trim: true },
+    contactNo: { type: String, required: true, trim: true, unique: true },
     alternateNo1: { type: String, trim: true },
     alternateNo2: { type: String, trim: true },
     gender: { type: String, enum: genders, lowercase: true },

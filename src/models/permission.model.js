@@ -6,9 +6,8 @@ import {
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
 const PermissionSchema = new BaseSchema({
-    permId: { type: Number },
-    name: { type: String, required: true, trim: true, lowercase: true },
-    // label: { type: String, trim: true }
+    permId: { type: Number, unique: true },
+    name: { type: String, required: true, trim: true, lowercase: true, unique: true },
 },
     {
         collection: 'Permission',

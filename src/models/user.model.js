@@ -24,9 +24,9 @@ const UserSchema = new BaseSchema({
     bgId: { type: Number },
 
     // Communication Fields
-    email: { type: String, lowercase: true, required: true },
+    email: { type: String, lowercase: true, required: true, unique: true },
     address: { type: String, trim: true },
-    contactNo: { type: String, trim: true },
+    contactNo: { type: String, trim: true, unique: true },
     alternateNo1: { type: String, trim: true },
     alternateNo2: { type: String, trim: true },
     city: { type: String, trim: true },

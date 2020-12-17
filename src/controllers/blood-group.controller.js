@@ -1,17 +1,9 @@
 import { BaseController } from './BaseController';
 import { BloodGroupModel } from '../models/blood-group.model';
 import { IncrementModel } from '../models/increment.model';
-import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
+import { handleModelRes, getReqMetadata } from '../utils/handlers';
 
 const FIELDS_BLOOD_GROUP = 'name';
-
-const bgAddErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while creating new Blood Group. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
 
 export class BloodGroupController extends BaseController {
 
@@ -23,18 +15,7 @@ export class BloodGroupController extends BaseController {
         handleModelRes(BloodGroupModel.list(), res);
     }
 
-    async bgAdd(req, res, isRequest) {
-        // const { name } = req.body;
-
-        // BloodGroupModel.isExist(req.body).then(async $bloodGroup => {
-        //     if (!!$bloodGroup) {
-        //         return sendResponse(res, {
-        //             error: 'Cannot create new Blood Group',
-        //             message: `Blood Group already exist with Name "${name}".`,
-        //             type: 'CONFLICT'
-        //         });
-        //     }
-
+    async bgAdd(req, res) {
         const { body } = req;
         let newBloodGroup = new BloodGroupModel();
 
@@ -58,18 +39,10 @@ export class BloodGroupController extends BaseController {
             error: 'Something went wrong while creating new Blood Group. Try again later.',
             name: 'Blood Group'
         });
-        // }, modelErr => {
-        //     console.error(modelErr);
-        //     return bgAddErr(res, modelErr.message);
-        // }).catch(modelReason => {
-        //     console.log(modelReason);
-        //     return bgAddErr(res, modelReason.message);
-        // });
     }
 
     bgEdit(req, res) {
         const { body } = req;
-
         let tempData = {};
 
         (FIELDS_BLOOD_GROUP).split(',').map(field => {

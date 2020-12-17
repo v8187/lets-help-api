@@ -1,20 +1,12 @@
 import { BaseController } from './BaseController';
 import { TransactionModel } from '../models/transaction.model';
-import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
+import { handleModelRes, getReqMetadata } from '../utils/handlers';
 import { sendNotification } from '../firebase-sdk';
 import { userRoles } from '../configs/enum-constants';
 
 const FIELDS_TRANSACTION_AD_SEARCH = 'transType,minAmount,maxAmount,fromDate,toDate,forCase,fromUser,transMode,spentBy';
 export const FIELDS_TRANSACTION_REQUIRED = 'transType,amount,forMonth,forYear,transDate,remarks';
 export const FIELDS_TRANSACTION_ADD_UPDATE = FIELDS_TRANSACTION_REQUIRED + ',forCaseId,spentById,fromUserId,transMode,bankDetails,upiDetails,ewalletDetails';
-
-const addTransErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while adding a new Transaction. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
 
 export class TransactionController extends BaseController {
 
@@ -66,7 +58,6 @@ export class TransactionController extends BaseController {
 
     transAdd(req, res) {
         const { body } = req;
-
         let newTrans = new TransactionModel();
 
         FIELDS_TRANSACTION_ADD_UPDATE.split(',').map(field => {

@@ -8,10 +8,9 @@ import { USER_KEY_FIELDS } from '../configs/query-fields';
 const FIELDS_PERMISSION_POPU = 'name permId -_id';
 
 const UserRoleSchema = new BaseSchema({
-    urId: { type: Number },
-    name: { type: String, required: true, trim: true, lowercase: true },
+    urId: { type: Number, unique: true },
+    name: { type: String, required: true, trim: true, lowercase: true, unique: true },
     permIds: [{ type: Number, required: true }],
-    // label: { type: String, trim: true }
 },
     {
         collection: 'UserRole',

@@ -6,9 +6,8 @@ import {
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
 const CaseTypeSchema = new BaseSchema({
-    ctId: { type: Number },
+    ctId: { type: Number, unique: true },
     name: { type: String, required: true, trim: true, lowercase: true, unique: true },
-    // label: { type: String, trim: true }
 },
     {
         collection: 'CaseType',

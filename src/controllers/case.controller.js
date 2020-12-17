@@ -8,14 +8,6 @@ import { CAN_ADD_CASE, CAN_VIEW_CASE_HIDDEN_DETAILS } from '../configs/permissio
 const FIELDS_REQUEST_CASE = 'ctId,relId,referredOn,contactNo,title,name,contactPerson,description,gender,age,address,city,state,country,referredBy';
 const FIELDS_ADD_CASE = FIELDS_REQUEST_CASE + ',isApproved,approvedOn,isClosed,closedOn,closingReason,showContactNos,showAddress';
 
-const createCaseErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while creating new Case. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
-
 const reactCaseErr = (res, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
@@ -27,55 +19,38 @@ const reactCaseErr = (res, err = 'Server error') => {
 export class CaseController extends BaseController {
 
     createCase(req, res, isRequest) {
-        const { contactNo, title } = req.body;
+        const { permissionNames, userId } = getReqMetadata(req),
+            canAdd = permissionNames.indexOf(CAN_ADD_CASE) !== -1;
+        const { body } = req;
+        let newCase = new CaseModel();
 
-        CaseModel.isExist(req.body).then($case => {
-            if ($case) {
-                return sendResponse(res, {
-                    error: 'Cannot create new Case',
-                    message: `Case already exist with Contact No ${contactNo} and Title "${title}".`,
-                    type: 'CONFLICT'
-                });
+        (canAdd ? FIELDS_ADD_CASE : FIELDS_REQUEST_CASE).split(',').map(field => {
+            const data = body[field];
+            if (data !== undefined) {
+                newCase[field] = Array.isArray(data) ? data.length ? data : newCase[field] : data;
             }
-            const { permissionNames, userId } = getReqMetadata(req),
-                canAdd = permissionNames.indexOf(CAN_ADD_CASE) !== -1;
+        });
 
-            const { body } = req;
-            let newCase = new CaseModel();
+        newCase.vAuthUser = userId;
 
-            (canAdd ? FIELDS_ADD_CASE : FIELDS_REQUEST_CASE).split(',').map(field => {
-                const data = body[field];
-                if (data !== undefined) {
-                    newCase[field] = Array.isArray(data) ? data.length ? data : newCase[field] : data;
-                }
-            });
-
-            newCase.vAuthUser = userId;
-
-            handleModelRes(
-                newCase.save(),
-                res, {
-                success: 'Case created successfully.',
-                error: 'Something went wrong while creating new Case. Try again later.',
-                onSuccess: data => {
-                    sendNotification({
-                        data: {
-                            caseId: data.caseId
-                        },
-                        notification: {
-                            title: 'New Case',
-                            body: isRequest ? 'Someone requested a new case.' : 'New case added. Click for details.'
-                        }
-                    }, isRequest ? ['admin'] : [...userRoles]);
-                    return parseResponseData(req, data, true);
-                }
-            });
-        }, modelErr => {
-            console.error(modelErr);
-            return createCaseErr(res, modelErr.message);
-        }).catch(modelReason => {
-            console.log(modelReason);
-            return createCaseErr(res, modelReason.message);
+        handleModelRes(
+            newCase.save(),
+            res, {
+            success: 'Case created successfully.',
+            error: 'Something went wrong while creating new Case. Try again later.',
+            name: 'Case',
+            onSuccess: data => {
+                sendNotification({
+                    data: {
+                        caseId: data.caseId
+                    },
+                    notification: {
+                        title: 'New Case',
+                        body: isRequest ? 'Someone requested a new case.' : 'New case added. Click for details.'
+                    }
+                }, isRequest ? ['admin'] : [...userRoles]);
+                return parseResponseData(req, data, true);
+            }
         });
     }
 
@@ -116,6 +91,7 @@ export class CaseController extends BaseController {
             return sendResponse(res, {
                 error: 'Parameters missing/invalid',
                 message: `Valid data is missing. Please provide at least one valid parameter to edit.`,
+                name: 'Case',
                 type: 'BAD_REQUEST'
             });
         }
@@ -133,6 +109,7 @@ export class CaseController extends BaseController {
             res, {
             success: 'Case updated successfully.',
             error: 'Something went wrong while updating the Case. Try again later.',
+            name: 'Case',
             onSuccess: data => parseResponseData(req, data, true)
         });
     }

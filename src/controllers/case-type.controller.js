@@ -1,17 +1,9 @@
 import { BaseController } from './BaseController';
 import { CaseTypeModel } from '../models/case-type.model';
 import { IncrementModel } from '../models/increment.model';
-import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
+import { handleModelRes, getReqMetadata } from '../utils/handlers';
 
 const FIELDS_CASE_TYPE = 'name';
-
-const ctAddErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while creating new Case Type. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
 
 export class CaseTypeController extends BaseController {
 
@@ -23,18 +15,7 @@ export class CaseTypeController extends BaseController {
         handleModelRes(CaseTypeModel.list(), res);
     }
 
-    async ctAdd(req, res, isRequest) {
-        // const { name } = req.body;
-
-        // CaseTypeModel.isExist(req.body).then(async $caseType => {
-        //     if (!!$caseType) {
-        //         return sendResponse(res, {
-        //             error: 'Cannot create new Case Type',
-        //             message: `Case Type already exist with Name "${name}".`,
-        //             type: 'CONFLICT'
-        //         });
-        //     }
-
+    async ctAdd(req, res) {
         const { body } = req;
         let newCaseType = new CaseTypeModel();
 
@@ -58,18 +39,10 @@ export class CaseTypeController extends BaseController {
             error: 'Something went wrong while creating new Case Type. Try again later.',
             name: 'Case Type'
         });
-        // }, modelErr => {
-        //     console.error(modelErr);
-        //     return ctAddErr(res, modelErr.message);
-        // }).catch(modelReason => {
-        //     console.log(modelReason);
-        //     return ctAddErr(res, modelReason.message);
-        // });
     }
 
     ctEdit(req, res) {
         const { body } = req;
-
         let tempData = {};
 
         (FIELDS_CASE_TYPE).split(',').map(field => {

@@ -1,16 +1,8 @@
 import { BaseController } from './BaseController';
 import { NotificationModel } from '../models/notification.model';
-import { handleModelRes, getReqMetadata, sendResponse } from '../utils/handlers';
+import { handleModelRes, getReqMetadata } from '../utils/handlers';
 
 const FIELDS_RELATIONSHIP = 'name';
-
-const createNotificationErr = (res, err = 'Server error') => {
-    return sendResponse(res, {
-        error: err,
-        message: 'Something went wrong while creating new Notification. Try again later.',
-        type: 'INTERNAL_SERVER_ERROR'
-    });
-};
 
 export class NotificationController extends BaseController {
 
@@ -20,44 +12,27 @@ export class NotificationController extends BaseController {
         });
     }
 
-    createNotification(req, res, isRequest) {
-        const { name } = req.body;
+    createNotification(req, res) {
+        const { body } = req;
+        let newNotification = new NotificationModel();
 
-        NotificationModel.isExist(req.body).then($notification => {
-            if (!!$notification) {
-                return sendResponse(res, {
-                    error: 'Cannot create new Notification',
-                    message: `Notification already exist with Name "${name}".`,
-                    type: 'CONFLICT'
-                });
+        (FIELDS_RELATIONSHIP).split(',').map(field => {
+            if (body[field] !== undefined) {
+                newNotification[field] = body[field];
             }
+        });
 
-            const { body } = req;
-            let newNotification = new NotificationModel();
+        newNotification.vAuthUser = getReqMetadata(req).userId;
 
-            (FIELDS_RELATIONSHIP).split(',').map(field => {
-                if (body[field] !== undefined) {
-                    newNotification[field] = body[field];
-                }
-            });
-
-            newNotification.vAuthUser = getReqMetadata(req).userId;
-
-            handleModelRes(
-                newNotification.save(),
-                res, {
-                success: 'Notification created successfully.',
-                error: 'Something went wrong while creating new Notification. Try again later.',
-                // onSuccess: data => {
-                //     parseResponseData(req, data, true);
-                // }
-            });
-        }, modelErr => {
-            console.error(modelErr);
-            return createNotificationErr(res, modelErr.message);
-        }).catch(modelReason => {
-            console.log(modelReason);
-            return createNotificationErr(res, modelReason.message);
+        handleModelRes(
+            newNotification.save(),
+            res, {
+            success: 'Notification created successfully.',
+            error: 'Something went wrong while creating new Notification. Try again later.',
+            name: 'Notification'
+            // onSuccess: data => {
+            //     parseResponseData(req, data, true);
+            // }
         });
     }
 
