@@ -1,7 +1,7 @@
 import { model } from 'mongoose';
 
 import {
-    BaseSchema, commonShemaOptions, defineCommonVirtuals
+    BaseSchema, commonShemaOptions, defineCommonVirtuals, IBaseDocument, IBaseModel
 } from './BaseSchema';
 import { CASE_KEY_FIELDS, USER_KEY_FIELDS } from '../configs/query-fields';
 import { genders } from '../configs/enum-constants';
@@ -9,6 +9,18 @@ import { UserModel } from './user.model';
 
 const FIELDS_CASE_TYPE_POPU = 'name ctId -_id';
 const FIELDS_RELATIONSHIP_POPU = 'name relId -_id';
+
+interface ICaseDoc extends ICase, IBaseDocument { };
+
+interface ICaseModel extends IBaseModel<ICaseDoc> {
+    caseDetails(caseId: string): any;
+    byId(caseId: string): any;
+    countDocs(): any;
+    keyProps(): any;
+    isExist(caseInfo: ICase): any;
+    editCase(vAuthUser: string, caseId: string, data: ICase): any;
+    toggleReaction(caseId: string, data: ICase): any;
+};
 
 const CaseSchema = new BaseSchema({
     caseId: { type: String },
@@ -172,7 +184,7 @@ CaseSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-CaseSchema.statics.count = function () {
+CaseSchema.statics.countDocs = function () {
     return this.countDocuments();
 };
 
@@ -223,4 +235,4 @@ CaseSchema.statics.toggleReaction = function (caseId: string, data: ICase) {
         .select('-_id -__v -status').exec();
 };
 
-export const CaseModel = model('Case', CaseSchema);
+export const CaseModel = model<ICaseDoc, ICaseModel>('Case', CaseSchema);

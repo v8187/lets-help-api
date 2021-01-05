@@ -100,6 +100,18 @@ declare interface ITransaction {
     remarks: string;
 }
 
+declare interface ITransactionSearch {
+    transType?: string;
+    minAmount?: string;
+    maxAmount?: string;
+    fromDate?: Date;
+    toDate?: Date;
+    forCase?: string;
+    fromUser?: string;
+    transMode?: string;
+    spentBy?: string;
+}
+
 declare interface IUserRole {
     urId?: number;
     name?: string;
@@ -137,4 +149,16 @@ declare interface IUser {
     showBirthday?: boolean;
     deviceToken?: string;
     deviceOS?: string;
+}
+
+declare interface IDeviceInfo {
+    deviceToken: string;
+    deviceOS: string;
+}
+
+declare interface ITokenFields {
+    userId: string;
+    email: string;
+    roleIds: number[];
+    permissions: string[];
 }

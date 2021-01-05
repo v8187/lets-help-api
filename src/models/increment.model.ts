@@ -1,5 +1,15 @@
 import { model, Schema } from 'mongoose';
 
+import {
+    IBaseDocument, IBaseModel
+} from './BaseSchema';
+
+interface IIncrementDoc extends IIncrement, IBaseDocument { };
+
+interface IIncrementModel extends IBaseModel<IIncrementDoc> {
+    getSrNo(incrId: number): any;
+};
+
 const IncrementSchema = new Schema({
     incrId: { type: String, required: true },
     srNo: { type: Number, default: 2 }
@@ -26,4 +36,4 @@ IncrementSchema.statics.getSrNo = function (incrId: number) {
     ).exec();
 };
 
-export const IncrementModel = model('Increment', IncrementSchema);
+export const IncrementModel = model<IIncrementDoc, IIncrementModel>('Increment', IncrementSchema);

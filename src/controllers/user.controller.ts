@@ -155,7 +155,7 @@ export class UserController extends BaseController {
     }
 
     count(req: Request, res: Response) {
-        handleModelRes(UserModel.count(), res);
+        handleModelRes(UserModel.countDocs(), res);
     }
 
     ids(req: Request, res: Response) {

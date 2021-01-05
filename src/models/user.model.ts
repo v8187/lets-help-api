@@ -1,7 +1,7 @@
 import { model } from 'mongoose';
 import { compareSync } from 'bcryptjs';
 
-import { BaseSchema, commonShemaOptions, defineCommonVirtuals } from './BaseSchema';
+import { BaseSchema, commonShemaOptions, defineCommonVirtuals, IBaseDocument, IBaseModel } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 import { genders } from '../configs/enum-constants';
 import { UserRoleModel } from './user-role.model';
@@ -10,19 +10,34 @@ const FIELDS_MY_PROFILE_GET = '-_id -userPin -deviceToken -deviceOS -__v -status
 const FIELDS_USER_ROLE_POPU = 'name urId -_id';
 const FIELDS_BLOOD_GROUP_POPU = 'name bgId -_id';
 
+interface IUserDoc extends IUser, IBaseDocument {
+    validateUserPin(pwd: string): boolean;
+    tokenFields(): ITokenFields;
+};
+
+interface IUserModel extends IBaseModel<IUserDoc> {
+    userProfile(userId: string): any;
+    byUserId(userId: string): any;
+    countDocs(): any;
+    keyProps(): any;
+    getDeviceTokens(roles: string[]): any;
+    hasAccount(userInfo: string): any;
+    changeUserPin(email: string, newUserPin: string): any;
+    editUser(vAuthUser: string, userId: string, data: IUser): any;
+    setDevice(userId: string, deviceInfo: IDeviceInfo): any;
+};
+
 const UserSchema = new BaseSchema({
     // Account Fields
     userId: { type: String, trim: true },
     userPin: { type: String, require: true, trim: true },
     isVerified: { type: Boolean },
     roleIds: [{ type: Number, required: true }],
-
     // Personal Fields
     name: { type: String, trim: true },
     gender: { type: String, enum: genders, lowercase: true, trim: true },
     dob: { type: Date },
     bgId: { type: Number },
-
     // Communication Fields
     email: { type: String, lowercase: true, required: true, unique: true },
     address: { type: String, trim: true },
@@ -32,11 +47,9 @@ const UserSchema = new BaseSchema({
     city: { type: String, trim: true },
     state: { type: String, trim: true },
     country: { type: String, trim: true },
-
     // Misc Fields
     referredById: { type: String, trim: true },
     joinedOn: { type: Date, default: new Date() },
-
     // Privacy fields
     showEmail: { type: Boolean },
     showContactNos: { type: Boolean },
@@ -89,7 +102,7 @@ UserSchema.virtual('referredBy', {
 
 // User Schema's save pre hook
 UserSchema.pre('save', async function (next) {
-    let user = this;
+    let user: any = this;
 
     user.userId = user._id;
     user.createdById = user.updatedById = user.vAuthUser || user.userId;
@@ -101,7 +114,7 @@ UserSchema.pre('save', async function (next) {
     }
 
     if (!user.referredById) {
-        const defaultReferrer = await UserModel.findOne({ email: 'vikram1vicky@gmail.com' }).select('userId email').exec();
+        const defaultReferrer: any = await UserModel.findOne({ email: 'vikram1vicky@gmail.com' }).select('userId email').exec();
         user.referredById = defaultReferrer ? defaultReferrer.userId : user.userId;
     }
     next();
@@ -165,7 +178,7 @@ UserSchema.statics.list = function () {
 //         .exec();
 // };
 
-UserSchema.statics.userProfile = function (userId) {
+UserSchema.statics.userProfile = function (userId: string) {
     return this
         // .aggregate([
         //     { $match: { userId } },
@@ -184,7 +197,7 @@ UserSchema.statics.userProfile = function (userId) {
         .exec();
 };
 
-UserSchema.statics.byUserId = function (userId) {
+UserSchema.statics.byUserId = function (userId: string) {
     // console.log('USER_SELF_QUERY_FIELDS', USER_SELF_QUERY_FIELDS);
     return this
         .findOne({ userId })
@@ -229,7 +242,7 @@ UserSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-UserSchema.statics.count = function () {
+UserSchema.statics.countDocs = function () {
     return this.countDocuments();
 };
 
@@ -237,7 +250,7 @@ UserSchema.statics.keyProps = function () {
     return this.find().select(USER_KEY_FIELDS).sort('name').exec();
 };
 
-UserSchema.statics.getDeviceTokens = function (roles) {
+UserSchema.statics.getDeviceTokens = function (roles: string[]) {
     return this
         .find({
             roles,
@@ -247,7 +260,7 @@ UserSchema.statics.getDeviceTokens = function (roles) {
         .exec();
 };
 
-UserSchema.statics.hasAccount = function (userInfo) {
+UserSchema.statics.hasAccount = function (userInfo: string) {
     return this
         .findOne({
             $or: [
@@ -259,7 +272,7 @@ UserSchema.statics.hasAccount = function (userInfo) {
         .exec();
 };
 
-UserSchema.statics.changeUserPin = function (email, newUserPin) {
+UserSchema.statics.changeUserPin = function (email: string, newUserPin: string) {
     return this.findOneAndUpdate(
         { email },
         { $set: { userPin: newUserPin } },
@@ -271,7 +284,7 @@ UserSchema.statics.changeUserPin = function (email, newUserPin) {
         .select('-_id -__v -status').exec();
 };
 
-UserSchema.statics.editUser = function (vAuthUser, userId, data) {
+UserSchema.statics.editUser = function (vAuthUser: string, userId: string, data: IUser) {
     return this.findOneAndUpdate(
         { userId },
         { $set: { ...data, vAuthUser } },
@@ -285,7 +298,7 @@ UserSchema.statics.editUser = function (vAuthUser, userId, data) {
         .select(FIELDS_MY_PROFILE_GET).exec();
 };
 
-UserSchema.statics.setDevice = function (userId, deviceInfo) {
+UserSchema.statics.setDevice = function (userId: string, deviceInfo: IDeviceInfo) {
     return this.updateOne(
         { userId },
         { $set: { ...deviceInfo, vAuthUser: userId } },
@@ -300,12 +313,12 @@ UserSchema.statics.setDevice = function (userId, deviceInfo) {
  * rrow functions explicitly prevent binding this
  */
 
-UserSchema.methods.validateUserPin = function (pwd) {
+UserSchema.methods.validateUserPin = function (pwd: string) {
     return compareSync(pwd, this.userPin);
 };
 
-UserSchema.methods.tokenFields = async function () {
-    const roleIds = this.roleIds.toBSON();
+UserSchema.methods.tokenFields = async function (): ITokenFields {
+    const roleIds: number[] = this.roleIds.toBSON();
     const permissions = await UserRoleModel.rolePermissions(roleIds);
 
     return {
@@ -316,4 +329,4 @@ UserSchema.methods.tokenFields = async function () {
     };
 };
 
-export const UserModel = model('User', UserSchema);
+export const UserModel = model<IUserDoc, IUserModel>('User', UserSchema);

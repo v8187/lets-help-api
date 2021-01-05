@@ -1,9 +1,16 @@
 import { model } from 'mongoose';
 
 import {
-    BaseSchema, commonShemaOptions, defineCommonVirtuals
+    BaseSchema, commonShemaOptions, defineCommonVirtuals, IBaseDocument, IBaseModel
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
+
+interface ICaseTypeDoc extends ICaseType, IBaseDocument { };
+
+interface ICaseTypeModel extends IBaseModel<ICaseTypeDoc> {
+    ctEdit(vAuthUser: string, ctId: string, data: ICaseType): any;
+    countDocs(): any;
+};
 
 const CaseTypeSchema = new BaseSchema({
     ctId: { type: Number, unique: true },
@@ -57,17 +64,11 @@ CaseTypeSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-CaseTypeSchema.statics.count = function () {
+CaseTypeSchema.statics.countDocs = function () {
     return this.countDocuments();
 };
 
-CaseTypeSchema.statics.isExist = function ({ name }: { name: string }) {
-    return this
-        .findOne({ name })
-        .exec();
-};
-
-CaseTypeSchema.statics.ctEdit = function (vAuthUser: string, ctId: string, data: any) {
+CaseTypeSchema.statics.ctEdit = function (vAuthUser: string, ctId: string, data: ICaseType) {
     return this.findOneAndUpdate(
         { ctId },
         { $set: { ...data, vAuthUser } },
@@ -76,4 +77,4 @@ CaseTypeSchema.statics.ctEdit = function (vAuthUser: string, ctId: string, data:
         .select('name ctId -_id').exec();
 };
 
-export const CaseTypeModel = model('CaseType', CaseTypeSchema);
+export const CaseTypeModel = model<ICaseTypeDoc, ICaseTypeModel>('CaseType', CaseTypeSchema);

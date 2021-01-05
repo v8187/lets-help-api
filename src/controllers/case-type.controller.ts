@@ -9,10 +9,6 @@ const FIELDS_CASE_TYPE = 'name';
 
 export class CaseTypeController extends BaseController {
 
-    isExist(req: Request, res: Response) {
-        handleModelRes(CaseTypeModel.isExist(req.params.name), res);
-    }
-
     ctList(req: Request, res: Response) {
         handleModelRes(CaseTypeModel.list(), res);
     }

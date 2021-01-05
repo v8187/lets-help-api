@@ -1,4 +1,7 @@
-import mongoose, { Schema, plugin, SchemaDefinition, SchemaOptions } from 'mongoose';
+import mongoose, {
+    Schema, SchemaDefinition, SchemaOptions,
+    Model, Aggregate, Query, Document
+} from 'mongoose';
 
 import { hashUserPinPlugin, recordAuthorPlugin } from '../middlewares/db';
 import { EnumArray } from '../middlewares/db/EnumArray.type';
@@ -14,6 +17,23 @@ const COMMON_DEF = {
     createdById: String,
     updatedById: String,
     status: { type: Number, enum: [0, 1], default: 1 }
+};
+
+
+export interface IBaseDocument extends Document {
+    createdById?: string;
+    updatedById?: string;
+};
+
+export interface IChildDocument extends Document {
+    refModel?: string;
+    refId?: string;
+};
+
+export interface IBaseModel<T> extends Model<T & IBaseDocument> {
+    list(): Aggregate<T> | Query<T[], Document>;
+    list(id: string): Aggregate<T> | Query<T[], Document>;
+    tempAll(): Aggregate<T> | Query<T[], Document>;
 };
 
 export class BaseSchema extends Schema {

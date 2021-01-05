@@ -1,13 +1,14 @@
 import { readFile, writeFile } from 'fs';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 import { BaseController } from './BaseController';
 import { UserModel } from '../models/user.model';
 import { sendResponse, getReqMetadata, handleModelRes } from '../utils/handlers';
 import { newToken, extract, getToken } from '../utils';
 import { APP_ROOT } from '../configs/app';
+import { PassportStatic } from 'passport';
 
-const hasAccountErr = (res, err = 'Server error') => {
+const hasAccountErr = (res: Response, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
         message: `Cannot check account. Try again later`,
@@ -15,7 +16,7 @@ const hasAccountErr = (res, err = 'Server error') => {
     });
 };
 
-const signUpErr = (res, err = 'Server error') => {
+const signUpErr = (res: Response, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
         message: `Cannot register at this moment. Try again later`,
@@ -23,7 +24,7 @@ const signUpErr = (res, err = 'Server error') => {
     });
 };
 
-const logoutErr = (res, err = 'Server error') => {
+const logoutErr = (res: Response, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
         message: `Could not logout at this moment. Try again later`,
@@ -31,7 +32,7 @@ const logoutErr = (res, err = 'Server error') => {
     });
 };
 
-const updatePinErr = (res, err = 'Server error') => {
+const updatePinErr = (res: Response, err = 'Server error') => {
     return sendResponse(res, {
         error: err,
         message: `Something went wrong while changing the UserPin. Try again later.`,
@@ -39,7 +40,7 @@ const updatePinErr = (res, err = 'Server error') => {
     });
 };
 
-const sendNewToken = (res, fields, successMsg) => {
+const sendNewToken = (res: Response, fields: ITokenFields, successMsg: string) => {
     newToken(fields, (err, token) => {
         if (err) {
             console.log('err.stack', err.stack);
@@ -52,7 +53,7 @@ const sendNewToken = (res, fields, successMsg) => {
     });
 };
 
-const invalidateToken = (req, res, onDone, onError) => {
+const invalidateToken = (req: Request, res: Response, onDone, onError) => {
     const invalidTokensFile = `${APP_ROOT}${process.env.INVALID_TOKENS_FILE}`;
 
     readFile(invalidTokensFile, 'utf8', (err, fileContent) => {
@@ -96,7 +97,7 @@ const invalidateToken = (req, res, onDone, onError) => {
     });
 }
 
-const createNewUser = (email, name, userPin, res) => {
+const createNewUser = (email: string, name: string, userPin: string, res: Response) => {
     let newUser = new UserModel({
         email,
         name,
@@ -119,7 +120,7 @@ const createNewUser = (email, name, userPin, res) => {
 
 export class AuthController extends BaseController {
 
-    hasAccount(req, res, next, passport) {
+    hasAccount(req: Request, res: Response, next: NextFunction, passport: PassportStatic) {
 
         const { email } = req.body;
 
@@ -139,7 +140,7 @@ export class AuthController extends BaseController {
         });
     }
 
-    signUp(req, res, next, passport) {
+    signUp(req: Request, res: Response, next: NextFunction, passport: PassportStatic) {
 
         const { name, email, userPin } = req.body;
 
@@ -173,7 +174,7 @@ export class AuthController extends BaseController {
         }, updatePinErr);
     }
 
-    login(req, res, next, passport) {
+    login(req: Request, res: Response, next: NextFunction, passport: PassportStatic) {
         let userInfo = getReqMetadata(req);
         delete userInfo.permissionNames;
 
@@ -193,7 +194,7 @@ export class AuthController extends BaseController {
 
     }
 
-    logout(req, res, next, passport) {
+    logout(req: Request, res: Response, next: NextFunction, passport: PassportStatic) {
         invalidateToken(req, res, (nestedRes) => {
             return sendResponse(nestedRes, {
                 message: 'You are logged out successfully!!!'

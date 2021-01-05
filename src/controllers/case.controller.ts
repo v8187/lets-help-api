@@ -56,12 +56,8 @@ export class CaseController extends BaseController {
         });
     }
 
-    isExist(req: Request, res: Response) {
-        handleModelRes(CaseModel.isExist(req.params.userInfo), res);
-    }
-
     count(req: Request, res: Response) {
-        handleModelRes(CaseModel.count(), res);
+        handleModelRes(CaseModel.countDocs(), res);
     }
 
     ids(req: Request, res: Response) {

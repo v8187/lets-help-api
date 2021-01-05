@@ -1,11 +1,19 @@
 import { model } from 'mongoose';
 
 import {
-    BaseSchema, commonShemaOptions, defineCommonVirtuals
+    BaseSchema, commonShemaOptions, defineCommonVirtuals, IBaseDocument, IBaseModel
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
 const NOTI_QUERY_FIELDS = 'notiId userId title body image data sentOn isRead readOn isDeleted -_id';
+
+interface INotificationDoc extends INotification, IBaseDocument { };
+
+interface INotificationModel extends IBaseModel<INotificationDoc> {
+    markRead(vAuthUser: string, notiId: string): any;
+    markAllRead(vAuthUser: string): any;
+    countDocs(): any;
+};
 
 const NotificationSchema = new BaseSchema({
     notiId: { type: String },
@@ -68,7 +76,7 @@ NotificationSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-NotificationSchema.statics.count = function () {
+NotificationSchema.statics.countDocs = function () {
     return this.countDocuments();
 };
 
@@ -96,4 +104,4 @@ NotificationSchema.statics.markDeleted = function (vAuthUser: string, notiId: st
     ).exec();
 };
 
-export const NotificationModel = model('Notification', NotificationSchema);
+export const NotificationModel = model<INotificationDoc, INotificationModel>('Notification', NotificationSchema);

@@ -1,11 +1,21 @@
-import { Model, model } from 'mongoose';
+import { model } from 'mongoose';
 
 import {
-    BaseSchema, commonShemaOptions, defineCommonVirtuals
+    BaseSchema, commonShemaOptions, defineCommonVirtuals, IBaseDocument, IBaseModel
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
 
 const FIELDS_PERMISSION_POPU = 'name permId -_id';
+
+interface IUserRoleDoc extends IUserRole, IBaseDocument { };
+
+interface IUserRoleModel extends IBaseModel<IUserRoleDoc> {
+    byRoleIds(urIds: number[]): any;
+    rolePermissions(urIds: number[]): any;
+    countDocs(): any;
+    areValidIds(urIds: number[]): any;
+    urEdit(vAuthUser: string, urId: string, data: IUserRole): any;
+};
 
 const UserRoleSchema = new BaseSchema({
     urId: { type: Number, unique: true },
@@ -61,8 +71,8 @@ UserRoleSchema.statics.byRoleIds = function (urIds: number[]) {
         .select('urId permIds -_id').exec();
 };
 
-UserRoleSchema.statics.rolePermissions = async function ($urIds: string[]) {
-    const userPermsRes: any = await (UserRoleModel as any).byRoleIds($urIds);
+UserRoleSchema.statics.rolePermissions = async function (urIds: number[]) {
+    const userPermsRes: any = await (UserRoleModel as any).byRoleIds(urIds);
     const permissionNames: string[] = [];
 
     userPermsRes.map(($grpPer: any) => {
@@ -82,17 +92,11 @@ UserRoleSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-UserRoleSchema.statics.count = function () {
+UserRoleSchema.statics.countDocs = function () {
     return this.countDocuments();
 };
 
-UserRoleSchema.statics.isExist = function ({ name }: { name: string }) {
-    return this
-        .findOne({ name })
-        .exec();
-};
-
-UserRoleSchema.statics.areValidIds = async function (urIds: string) {
+UserRoleSchema.statics.areValidIds = async function (urIds: number[]) {
     const ids = await this.where({ urId: { $in: urIds } })
         .countDocuments().exec();
 
@@ -110,4 +114,4 @@ UserRoleSchema.statics.urEdit = function (vAuthUser: string, urId: string, data:
         .select('name urId -_id').exec();
 };
 
-export const UserRoleModel = model('UserRole', UserRoleSchema);
+export const UserRoleModel = model<IUserRoleDoc, IUserRoleModel>('UserRole', UserRoleSchema);

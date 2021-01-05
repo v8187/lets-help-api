@@ -9,10 +9,6 @@ const FIELDS_USER_ROLE = 'name,permIds';
 
 export class UserRoleController extends BaseController {
 
-    isExist(req: Request, res: Response) {
-        handleModelRes(UserRoleModel.isExist(req.params.name), res);
-    }
-
     urList(req: Request, res: Response) {
         handleModelRes(UserRoleModel.list(), res, {
             onSuccess: data => parseResponseData(req, data)

@@ -7,10 +7,6 @@ const FIELDS_RELATIONSHIP = 'name';
 
 export class RelationshipController extends BaseController {
 
-    isExist(req: Request, res: Response) {
-        handleModelRes(RelationshipModel.isExist(req.params.name), res);
-    }
-
     relList(req: Request, res: Response) {
         handleModelRes(RelationshipModel.list(), res);
     }

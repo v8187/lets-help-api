@@ -1,9 +1,13 @@
 import { model } from 'mongoose';
 
 import {
-    BaseSchema, commonShemaOptions, defineCommonVirtuals
+    BaseSchema, commonShemaOptions, defineCommonVirtuals, IBaseDocument, IBaseModel
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
+
+interface IPermissionDoc extends IPermission, IBaseDocument { };
+
+interface IPermissionModel extends IBaseModel<IPermissionDoc> { };
 
 const PermissionSchema = new BaseSchema({
     permId: { type: Number, unique: true },
@@ -41,4 +45,4 @@ PermissionSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-export const PermissionModel = model('Permission', PermissionSchema);
+export const PermissionModel = model<IPermissionDoc, IPermissionModel>('Permission', PermissionSchema);

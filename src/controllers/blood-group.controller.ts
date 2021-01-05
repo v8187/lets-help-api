@@ -9,10 +9,6 @@ const FIELDS_BLOOD_GROUP = 'name';
 
 export class BloodGroupController extends BaseController {
 
-    isExist(req: Request, res: Response) {
-        handleModelRes(BloodGroupModel.isExist(req.params.name), res);
-    }
-
     bgList(req: Request, res: Response) {
         handleModelRes(BloodGroupModel.list(), res);
     }

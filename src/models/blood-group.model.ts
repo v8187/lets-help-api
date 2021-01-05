@@ -1,9 +1,16 @@
 import { model } from 'mongoose';
 
 import {
-    BaseSchema, commonShemaOptions, defineCommonVirtuals
+    BaseSchema, commonShemaOptions, defineCommonVirtuals, IBaseDocument, IBaseModel
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
+
+interface IBloodGroupDoc extends IBloodGroup, IBaseDocument { };
+
+interface IBloodGroupModel extends IBaseModel<IBloodGroupDoc> {
+    bgEdit(vAuthUser: string, bgId: string, data: IBloodGroup): any;
+    countDocs(): any;
+};
 
 const BloodGroupSchema = new BaseSchema({
     bgId: { type: Number, unique: true },
@@ -57,17 +64,11 @@ BloodGroupSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-BloodGroupSchema.statics.count = function () {
+BloodGroupSchema.statics.countDocs = function () {
     return this.countDocuments();
 };
 
-BloodGroupSchema.statics.isExist = function ({ name }: { name: string }) {
-    return this
-        .findOne({ name })
-        .exec();
-};
-
-BloodGroupSchema.statics.bgEdit = function (vAuthUser: string, bgId: string, data: any) {
+BloodGroupSchema.statics.bgEdit = function (vAuthUser: string, bgId: string, data: IBloodGroup) {
     return this.findOneAndUpdate(
         { bgId },
         { $set: { ...data, vAuthUser } },
@@ -76,4 +77,4 @@ BloodGroupSchema.statics.bgEdit = function (vAuthUser: string, bgId: string, dat
         .select('name bgId -_id').exec();
 };
 
-export const BloodGroupModel = model('BloodGroup', BloodGroupSchema);
+export const BloodGroupModel = model<IBloodGroupDoc, IBloodGroupModel>('BloodGroup', BloodGroupSchema);

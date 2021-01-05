@@ -1,11 +1,22 @@
 import { Schema, model } from 'mongoose';
 
 import {
-    BaseSchema, commonShemaOptions, defineCommonVirtuals
+    BaseSchema, commonShemaOptions, defineCommonVirtuals, IBaseDocument, IBaseModel
 } from './BaseSchema';
 import { CASE_KEY_FIELDS, USER_KEY_FIELDS } from '../configs/query-fields';
 import { transTypes, transModes } from '../configs/enum-constants';
 import { UserModel } from './user.model';
+
+interface ITransactionDoc extends ITransaction, IBaseDocument { };
+
+interface ITransactionModel extends IBaseModel<ITransactionDoc> {
+    advanceSearch(filters: ITransactionSearch): any;
+    statistics(): any;
+    transDetails(transId: string): any;
+    byId(transId: string): any;
+    transEdit(vAuthUser: string, transId: string, data: ITransaction): any;
+    countDocs(): any;
+};
 
 const BankDetailsSchema = new Schema({
     accountName: { type: String, required: true },
@@ -111,7 +122,7 @@ TransactionSchema.post('save', async function ($trans, next) {
  * Do not declare methods using ES6 arrow functions (=>). 
  * Arrow functions explicitly prevent binding this
  */
-TransactionSchema.statics.advanceSearch = function (filters: ITransaction) {
+TransactionSchema.statics.advanceSearch = function (filters: ITransactionSearch) {
     let queries = [];
     filters.transType && filters.transType.length && queries.push({ transType: { $in: filters.transType } });
     filters.forCase && filters.forCase.length && queries.push({ forCaseId: { $in: filters.forCase } });
@@ -119,12 +130,12 @@ TransactionSchema.statics.advanceSearch = function (filters: ITransaction) {
     filters.transMode && filters.transMode.length && queries.push({ transMode: { $in: filters.transMode } });
     filters.spentBy && filters.spentBy.length && queries.push({ spentById: { $in: filters.spentBy } });
     if (filters.minAmount || filters.maxAmount) {
-        let amount = filters.minAmount ? { $gte: parseFloat(filters.minAmount) } : {};
+        let amount: any = filters.minAmount ? { $gte: parseFloat(filters.minAmount) } : {};
         amount = filters.maxAmount ? { ...amount, $lte: parseFloat(filters.maxAmount) } : amount;
         queries.push({ amount });
     }
     if (filters.fromDate || filters.toDate) {
-        let transDate = filters.fromDate ? { $gte: new Date(filters.fromDate) } : {};
+        let transDate: any = filters.fromDate ? { $gte: new Date(filters.fromDate) } : {};
         transDate = filters.toDate ? { ...transDate, $lte: new Date(filters.toDate) } : transDate;
         queries.push({ transDate });
     }
@@ -159,7 +170,7 @@ TransactionSchema.statics.list = function () {
         .sort({ 'transDate': -1 }).exec();
 };
 
-TransactionSchema.statics.transDetails = function (transId) {
+TransactionSchema.statics.transDetails = function (transId: string) {
     return this
         .findOne({ transId })
         .populate('createdBy', USER_KEY_FIELDS)
@@ -170,7 +181,7 @@ TransactionSchema.statics.transDetails = function (transId) {
         .select('-_id -__v -status').exec();
 };
 
-TransactionSchema.statics.byId = function (transId) {
+TransactionSchema.statics.byId = function (transId: string) {
     return this
         .findOne({ transId })
         .select('-_id -__v -status')
@@ -187,7 +198,7 @@ TransactionSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-TransactionSchema.statics.transEdit = function (vAuthUser, transId, data) {
+TransactionSchema.statics.transEdit = function (vAuthUser: string, transId: string, data: ITransaction) {
     return this.findOneAndUpdate(
         { transId },
         { $set: { ...data, vAuthUser } },
@@ -201,4 +212,4 @@ TransactionSchema.statics.transEdit = function (vAuthUser, transId, data) {
         .select('-_id -__v -status').exec();
 };
 
-export const TransactionModel = model('Transaction', TransactionSchema);
+export const TransactionModel = model<ITransactionDoc, ITransactionModel>('Transaction', TransactionSchema);

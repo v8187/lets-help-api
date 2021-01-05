@@ -1,9 +1,16 @@
 import { model } from 'mongoose';
 
 import {
-    BaseSchema, commonShemaOptions, defineCommonVirtuals
+    BaseSchema, commonShemaOptions, defineCommonVirtuals, IBaseDocument, IBaseModel
 } from './BaseSchema';
 import { USER_KEY_FIELDS } from '../configs/query-fields';
+
+interface IRelationshipDoc extends IRelationship, IBaseDocument { };
+
+interface IRelationshipModel extends IBaseModel<IRelationshipDoc> {
+    relEdit(vAuthUser: string, relId: string, data: IRelationship): any;
+    countDocs(): any;
+};
 
 const RelationshipSchema = new BaseSchema({
     relId: { type: Number, unique: true },
@@ -57,14 +64,8 @@ RelationshipSchema.statics.tempAll = function () {
         .select().exec();
 };
 
-RelationshipSchema.statics.count = function () {
+RelationshipSchema.statics.countDocs = function () {
     return this.countDocuments();
-};
-
-RelationshipSchema.statics.isExist = function ({ name }: { name: string }) {
-    return this
-        .findOne({ name })
-        .exec();
 };
 
 RelationshipSchema.statics.relEdit = function (vAuthUser: string, relId: string, data: IRelationship) {
@@ -76,4 +77,4 @@ RelationshipSchema.statics.relEdit = function (vAuthUser: string, relId: string,
         .select('name relId -_id').exec();
 };
 
-export const RelationshipModel = model('Relationship', RelationshipSchema);
+export const RelationshipModel = model<IRelationshipDoc, IRelationshipModel>('Relationship', RelationshipSchema);
